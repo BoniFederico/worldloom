@@ -346,3 +346,30 @@ describe('campi immutabili', () => {
     });
   });
 });
+
+describe('modifica del mondo', () => {
+  it('solo il proprietario rinomina o elimina il mondo', async () => {
+    await withTx(async (db) => {
+      const [owner, editor, outsider] = [
+        await createUser(db),
+        await createUser(db),
+        await createUser(db),
+      ];
+      const worldId = await createWorld(db, owner);
+      await addMember(db, worldId, editor, 'editor');
+      for (const uid of [editor, outsider]) {
+        const upd = await actAs(db, uid, () =>
+          db.query(`update worlds set name = 'Rubato' where id = $1`, [worldId]),
+        );
+        const del = await actAs(db, uid, () =>
+          db.query('delete from worlds where id = $1', [worldId]),
+        );
+        expect([upd.rowCount, del.rowCount]).toEqual([0, 0]);
+      }
+      const renamed = await actAs(db, owner, () =>
+        db.query(`update worlds set name = 'Nuovo' where id = $1`, [worldId]),
+      );
+      expect(renamed.rowCount).toBe(1);
+    });
+  });
+});

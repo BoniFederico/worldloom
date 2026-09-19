@@ -38,7 +38,14 @@ export default async function WorldSettingsPage({ params, searchParams }: Props)
           <input type="hidden" name="id" value={world.id} />
           <div className="field">
             <label htmlFor="name">{t('name')}</label>
-            <input id="name" name="name" defaultValue={world.name} autoComplete="off" required />
+            <input
+              id="name"
+              name="name"
+              defaultValue={world.name}
+              autoComplete="off"
+              maxLength={120}
+              required
+            />
           </div>
           <button type="submit" className="btn btn-primary">
             {t('rename')}

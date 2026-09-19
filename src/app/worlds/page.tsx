@@ -1,6 +1,6 @@
 import { Globe } from 'lucide-react';
 import Link from 'next/link';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { Feedback } from '@/components/feedback';
 import { Field } from '@/components/auth-form';
 import { createClient } from '@/lib/supabase/server';
@@ -10,26 +10,27 @@ type Props = { searchParams: Promise<{ error?: string; notice?: string }> };
 
 export default async function WorldsPage({ searchParams }: Props) {
   const supabase = await createClient();
-  const [t, { error, notice }, { data: auth }] = await Promise.all([
+  const [t, locale, { error, notice }, { data: auth }] = await Promise.all([
     getTranslations('Worlds'),
+    getLocale(),
     searchParams,
     supabase.auth.getUser(),
   ]);
-  const { data: memberships } = await supabase
+  const { data: memberships, error: listError } = await supabase
     .from('world_members')
     .select('role, worlds(id, name)')
     .eq('user_id', auth.user?.id ?? '');
   const worlds = (memberships ?? [])
     .flatMap((m) => (m.worlds ? [{ ...m.worlds, role: m.role }] : []))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    .sort((a, b) => a.name.localeCompare(b.name, locale));
 
   return (
     <main id="main" className="page page-top">
       <section className="content">
         <h1>{t('title')}</h1>
-        <Feedback scope="Worlds" notice={notice} error={error} />
+        <Feedback scope="Worlds" notice={notice} error={listError ? 'generic' : error} />
 
-        {worlds.length === 0 ? (
+        {listError ? null : worlds.length === 0 ? (
           <div className="empty">
             <Globe size={24} aria-hidden="true" />
             <p>{t('empty')}</p>
