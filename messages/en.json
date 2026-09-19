@@ -61,5 +61,34 @@
       "link": "The link is invalid or has expired. Request a new one.",
       "generic": "Something went wrong. Try again in a moment."
     }
+  },
+  "Worlds": {
+    "title": "Worlds",
+    "empty": "You have no worlds yet. Create one to start writing.",
+    "createTitle": "Create a world",
+    "name": "World name",
+    "create": "Create world",
+    "overviewEmpty": "The snippets of this world will appear here.",
+    "settings": "Settings",
+    "rename": "Rename",
+    "dangerTitle": "Delete the world",
+    "deleteWarning": "Permanently deletes the world with all its content and members. This cannot be undone.",
+    "deleteConfirm": "I want to delete “{name}”",
+    "delete": "Delete world",
+    "roles": {
+      "owner": "Owner",
+      "editor": "Editor",
+      "commenter": "Commenter",
+      "reader": "Reader"
+    },
+    "notices": {
+      "renamed": "Name updated.",
+      "deleted": "World deleted."
+    },
+    "errors": {
+      "invalid_input": "The name must be 1 to 120 characters long.",
+      "confirm_required": "Tick the confirmation to delete the world.",
+      "generic": "The operation failed. Try again in a moment."
+    }
   }
 }

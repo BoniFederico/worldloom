@@ -17,7 +17,8 @@
     "db:start": "supabase start -x studio,imgproxy,vector,logflare,edge-runtime",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
-    "test:db": "vitest run --config vitest.db.config.ts"
+    "test:db": "vitest run --config vitest.db.config.ts",
+    "db:types": "supabase gen types typescript --local > src/lib/supabase/database.types.ts"
   },
   "engines": {
     "node": ">=20"

@@ -21,9 +21,7 @@ export async function AppHeader() {
         Worldloom
       </Link>
       <nav aria-label={t('mainNav')} className="app-nav">
-        <Link href="/" aria-current="page">
-          {t('worlds')}
-        </Link>
+        <Link href="/worlds">{t('worlds')}</Link>
       </nav>
       <Link href={signedIn ? '/account' : '/login'} className="app-nav-link">
         {signedIn ? t('account') : t('login')}

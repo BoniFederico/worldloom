@@ -61,5 +61,34 @@
       "link": "Il link non è valido o è scaduto. Richiedine uno nuovo.",
       "generic": "Qualcosa è andato storto. Riprova tra poco."
     }
+  },
+  "Worlds": {
+    "title": "Mondi",
+    "empty": "Non hai ancora nessun mondo. Creane uno per iniziare a scrivere.",
+    "createTitle": "Crea un mondo",
+    "name": "Nome del mondo",
+    "create": "Crea mondo",
+    "overviewEmpty": "Qui compariranno gli snippet del mondo.",
+    "settings": "Impostazioni",
+    "rename": "Rinomina",
+    "dangerTitle": "Elimina il mondo",
+    "deleteWarning": "Elimina per sempre il mondo con tutti i suoi contenuti e i suoi membri. Non si può annullare.",
+    "deleteConfirm": "Voglio eliminare «{name}»",
+    "delete": "Elimina il mondo",
+    "roles": {
+      "owner": "Proprietario",
+      "editor": "Editor",
+      "commenter": "Commentatore",
+      "reader": "Lettore"
+    },
+    "notices": {
+      "renamed": "Nome aggiornato.",
+      "deleted": "Mondo eliminato."
+    },
+    "errors": {
+      "invalid_input": "Il nome deve avere da 1 a 120 caratteri.",
+      "confirm_required": "Spunta la conferma per eliminare il mondo.",
+      "generic": "Operazione non riuscita. Riprova tra poco."
+    }
   }
 }

@@ -47,3 +47,8 @@ Supabase Auth via `@supabase/ssr`: sessione in cookie, rinnovata da `src/proxy.t
 `src/app/auth/actions.ts`, callback PKCE in `src/app/auth/callback`. Le pagine `/login`, `/signup`, `/forgot-password`,
 `/reset-password` funzionano senza JavaScript; `/account` è protetta. Le email locali si leggono su Mailpit
 (http://127.0.0.1:54324). Gli e2e usano sempre il Supabase locale (`playwright.config.ts`). Dettagli in D-010.
+
+## Tipi del database
+
+`src/lib/supabase/database.types.ts` è generato dallo schema (`npm run db:types`, richiede `npm run db:start`) e va rigenerato a ogni migrazione.
+Il client server è tipizzato con `Database`.
