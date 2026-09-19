@@ -13,7 +13,7 @@ jobs:
   update:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    if: github.ref != 'refs/heads/main'
+    if: startsWith(github.ref, 'refs/heads/') && github.ref != 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -23,7 +23,7 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - name: Rigenera le baseline
-        run: npx playwright test --update-snapshots --grep @screenshot
+        run: npx playwright test --update-snapshots --grep @screenshot --pass-with-no-tests
       - name: Commit delle baseline
         run: |
           git config user.name "github-actions[bot]"
