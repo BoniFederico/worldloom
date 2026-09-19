@@ -1,0 +1,37 @@
+name: Update screenshots
+
+# Le baseline degli screenshot si generano solo su Linux (stesso ambiente della CI).
+# Uso: gh workflow run update-snapshots.yml --ref <branch-della-PR>
+# Il commit del bot non rilancia la CI: dopo il commit fai un push (anche `git commit --allow-empty`).
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: startsWith(github.ref, 'refs/heads/') && github.ref != 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - name: Rigenera le baseline
+        run: npx playwright test --update-snapshots --grep @screenshot --pass-with-no-tests
+      - name: Commit delle baseline
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add e2e/__screenshots__
+          if git diff --cached --quiet; then
+            echo "Nessuna modifica alle baseline."
+          else
+            git commit -m "test: aggiorna le baseline degli screenshot"
+            git push
+          fi
