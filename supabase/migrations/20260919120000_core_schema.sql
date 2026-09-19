@@ -250,3 +250,24 @@ revoke all on function private.world_role(uuid), private.can_write(uuid), privat
   private.can_read(uuid, public.visibility) from public;
 grant execute on function private.world_role(uuid), private.can_write(uuid), private.is_owner(uuid),
   private.can_read(uuid, public.visibility) to anon, authenticated;
+
+-- Campi immutabili: world_id non si sposta (le FK composite non bastano per righe senza figli) e
+-- created_by non si falsifica.
+create function private.forbid_identity_change() returns trigger
+language plpgsql set search_path = '' as $$
+begin
+  if new.world_id is distinct from old.world_id then
+    raise exception 'world_id è immutabile' using errcode = '42501';
+  end if;
+  if tg_table_name in ('snippets', 'relations') and new.created_by is distinct from old.created_by then
+    raise exception 'created_by è immutabile' using errcode = '42501';
+  end if;
+  return new;
+end $$;
+
+create trigger snippets_immutable before update on public.snippets
+  for each row execute function private.forbid_identity_change();
+create trigger relations_immutable before update on public.relations
+  for each row execute function private.forbid_identity_change();
+create trigger categories_immutable before update on public.categories
+  for each row execute function private.forbid_identity_change();

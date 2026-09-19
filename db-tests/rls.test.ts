@@ -305,3 +305,44 @@ describe('categorie', () => {
     });
   });
 });
+
+describe('campi immutabili', () => {
+  it('un editor non può falsificare created_by né spostare uno snippet in un altro mondo', async () => {
+    await withTx(async (db) => {
+      const [owner, editor] = [await createUser(db), await createUser(db)];
+      const [w1, w2] = [await createWorld(db, owner), await createWorld(db, owner)];
+      await addMember(db, w1, editor, 'editor');
+      const id = await addSnippet(db, w1, owner, 'Originale', 'members');
+      await expect(
+        actAs(db, editor, () =>
+          db.query('update snippets set created_by = $1 where id = $2', [editor, id]),
+        ),
+      ).rejects.toThrow(/immutabile/);
+      await expect(
+        actAs(db, owner, () =>
+          db.query('update snippets set world_id = $1 where id = $2', [w2, id]),
+        ),
+      ).rejects.toThrow(/immutabile/);
+      const { rows } = await db.query('select world_id, created_by from snippets where id = $1', [
+        id,
+      ]);
+      expect(rows[0]).toEqual({ world_id: w1, created_by: owner });
+    });
+  });
+
+  it('world_id di categorie e relazioni non cambia', async () => {
+    await withTx(async (db) => {
+      const owner = await createUser(db);
+      const [w1, w2] = [await createWorld(db, owner), await createWorld(db, owner)];
+      const cat = await db.query(
+        `insert into categories (world_id, name) values ($1, 'Luogo') returning id`,
+        [w1],
+      );
+      await expect(
+        actAs(db, owner, () =>
+          db.query('update categories set world_id = $1 where id = $2', [w2, cat.rows[0].id]),
+        ),
+      ).rejects.toThrow(/immutabile/);
+    });
+  });
+});
