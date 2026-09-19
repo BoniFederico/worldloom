@@ -15,6 +15,10 @@ describe('safeNextPath', () => {
     '//evil.test',
     '/\\evil.test',
     'javascript:alert(1)',
+    '/\t/evil.test',
+    '/\n/evil.test',
+    '/%2f/evil.test',
+    '/%5cevil.test',
   ])('rifiuta %s ricadendo su /', (value) => {
     expect(safeNextPath(value)).toBe('/');
   });

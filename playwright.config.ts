@@ -5,15 +5,21 @@ const port = 3100;
 
 /** Gli e2e usano sempre il Supabase locale (npm run db:start), mai le chiavi di .env.local. */
 function localSupabaseEnv(): Record<string, string> {
+  // Il config viene rivalutato da ogni worker: il risultato si calcola una volta sola e passa via env.
+  const cached = process.env.E2E_LOCAL_ENV;
+  if (cached) return JSON.parse(cached) as Record<string, string>;
   const raw = execSync('npx supabase status -o env', { encoding: 'utf8' });
   const values: Record<string, string> = {};
   for (const match of raw.matchAll(/^(\w+)="?([^"\r\n]*)"?$/gm)) {
     values[match[1] as string] = match[2] as string;
   }
-  return {
+  const env = {
+    SITE_URL: `http://localhost:${port}`,
     NEXT_PUBLIC_SUPABASE_URL: values.API_URL ?? '',
     NEXT_PUBLIC_SUPABASE_ANON_KEY: values.ANON_KEY ?? '',
   };
+  process.env.E2E_LOCAL_ENV = JSON.stringify(env);
+  return env;
 }
 
 export default defineConfig({

@@ -1,6 +1,5 @@
 'use server';
 
-import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { safeNextPath } from '@/lib/auth/redirect';
 import {
@@ -9,14 +8,10 @@ import {
   resetRequestSchema,
   signUpSchema,
 } from '@/lib/auth/schemas';
+import { resolveSiteUrl } from '@/lib/site-url';
 import { createClient } from '@/lib/supabase/server';
 
 const field = (formData: FormData, name: string) => String(formData.get(name) ?? '');
-
-async function origin() {
-  const hdrs = await headers();
-  return hdrs.get('origin') ?? `https://${hdrs.get('host')}`;
-}
 
 const failure = (path: string, error: string): never => redirect(`${path}?error=${error}`);
 
@@ -34,7 +29,7 @@ export async function signUp(formData: FormData) {
     password: parsed.data.password,
     options: {
       data: { display_name: parsed.data.displayName },
-      emailRedirectTo: `${await origin()}/auth/callback`,
+      emailRedirectTo: `${resolveSiteUrl()}/auth/callback`,
     },
   });
   if (error)
@@ -55,7 +50,8 @@ export async function signIn(formData: FormData) {
   if (error) {
     const code =
       error.code === 'email_not_confirmed' ? 'email_not_confirmed' : 'invalid_credentials';
-    return failure('/login', code);
+    const next = safeNextPath(field(formData, 'next'));
+    return failure('/login', code + (next === '/' ? '' : `&next=${encodeURIComponent(next)}`));
   }
   redirect(safeNextPath(field(formData, 'next')));
 }
@@ -72,7 +68,7 @@ export async function requestPasswordReset(formData: FormData) {
 
   const supabase = await createClient();
   await supabase.auth.resetPasswordForEmail(parsed.data.email, {
-    redirectTo: `${await origin()}/auth/callback?next=/reset-password`,
+    redirectTo: `${resolveSiteUrl()}/auth/callback?next=/reset-password`,
   });
   // Stessa risposta se l'indirizzo non esiste: niente enumerazione degli account.
   redirect('/login?notice=reset_sent');
