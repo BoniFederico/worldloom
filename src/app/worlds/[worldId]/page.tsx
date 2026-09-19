@@ -34,6 +34,11 @@ export default async function WorldPage({ params }: Props) {
         <h1>{world.name}</h1>
         <p className="role">{membership ? t(`roles.${membership.role}`) : null}</p>
         <p className="lead">{t('overviewEmpty')}</p>
+        <p>
+          <Link href={`/worlds/${world.id}/members`} className="btn">
+            {t('members')}
+          </Link>
+        </p>
         {membership?.role === 'owner' ? (
           <p>
             <Link href={`/worlds/${world.id}/settings`} className="btn">

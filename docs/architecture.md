@@ -52,3 +52,9 @@ Supabase Auth via `@supabase/ssr`: sessione in cookie, rinnovata da `src/proxy.t
 
 `src/lib/supabase/database.types.ts` è generato dallo schema (`npm run db:types`, richiede `npm run db:start`) e va rigenerato a ogni migrazione.
 Il client server è tipizzato con `Database`.
+
+## Membri e ruoli
+
+Le funzioni `add_world_member` e `transfer_world_ownership` (migrazione `20260920110000`) sono le sole vie per cercare utenti per email e
+passare la proprietà: `security definer`, `search_path` vuoto, eseguibili solo da `authenticated`, con controllo di proprietà interno.
+Cambio ruolo, rimozione e uscita usano direttamente le policy RLS di `world_members`.

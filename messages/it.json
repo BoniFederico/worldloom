@@ -87,12 +87,54 @@
     },
     "notices": {
       "renamed": "Nome aggiornato.",
-      "deleted": "Mondo eliminato."
+      "deleted": "Mondo eliminato.",
+      "left": "Hai lasciato il mondo."
     },
     "errors": {
       "invalid_input": "Il nome deve avere da 1 a 120 caratteri.",
       "confirm_required": "Spunta la conferma per eliminare il mondo.",
       "generic": "Operazione non riuscita. Riprova tra poco."
+    },
+    "members": "Membri"
+  },
+  "Members": {
+    "title": "Membri",
+    "caption": "Membri del mondo e relativi ruoli",
+    "member": "Membro",
+    "role": "Ruolo",
+    "actions": "Azioni",
+    "unknown": "Utente senza nome",
+    "you": "tu",
+    "roleOf": "Ruolo di {name}",
+    "save": "Salva",
+    "remove": "Rimuovi",
+    "addTitle": "Aggiungi un membro",
+    "email": "Email dell’utente",
+    "emailHint": "Deve avere già un account Worldloom.",
+    "add": "Aggiungi",
+    "transferTitle": "Trasferisci la proprietà",
+    "transferWarning": "Il nuovo proprietario gestisce membri e impostazioni. Tu diventi editor.",
+    "newOwner": "Nuovo proprietario",
+    "transferConfirm": "Confermo il trasferimento della proprietà",
+    "transfer": "Trasferisci la proprietà",
+    "leave": "Esci dal mondo",
+    "notices": {
+      "member_saved": "Membro salvato.",
+      "member_removed": "Membro rimosso.",
+      "ownership_transferred": "Proprietà trasferita."
+    },
+    "errors": {
+      "invalid_input": "Controlla email e ruolo.",
+      "user_not_found": "Nessun account con questa email. Chiedi alla persona di registrarsi prima.",
+      "confirm_required": "Spunta la conferma per trasferire la proprietà.",
+      "owner_cannot_leave": "Il proprietario non può uscire: trasferisci prima la proprietà.",
+      "generic": "Operazione non riuscita. Riprova tra poco."
+    },
+    "roles": {
+      "editor": "Editor",
+      "commenter": "Commentatore",
+      "reader": "Lettore",
+      "owner": "Proprietario"
     }
   }
 }

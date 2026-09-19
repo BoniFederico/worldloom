@@ -118,3 +118,13 @@
 - Nota di configurazione (da verificare a mano su Supabase → Authentication → URL Configuration): l'allow-list dei Redirect URLs
   deve contenere solo il dominio di produzione e il pattern delle preview del progetto (`worldloom-*-<team>.vercel.app`),
   mai wildcard larghi come `https://*.vercel.app`: chi ha un proprio deploy Vercel riceverebbe il codice OAuth.
+
+### D-012: Aggiunta dei membri per email
+
+- Data: 2026-09-20
+- Contesto: #60, membri del mondo. `auth.users` non è leggibile dai client.
+- Decisione: il proprietario aggiunge un utente **già registrato** tramite `add_world_member` (security definer, solo proprietario,
+  mai il ruolo owner). L'errore `user_not_found` rivela al proprietario se un'email ha un account: accettato perché serve solo a chi
+  gestisce il mondo; il proprietario si trasferisce con `transfer_world_ownership`. Gli inviti a chi non ha ancora un account
+  (link/email con token) arrivano con le campagne (#31).
+- Deciso da: agente
