@@ -1,0 +1,2 @@
+# Imposta il tuo handle GitHub nel repo derivato (es. "* @tuo-utente"). Una riga con un utente inesistente genera errori.
+# Il ruleset non richiede la review dei code owner, quindi il file è facoltativo.
