@@ -13,14 +13,15 @@ Node LTS (20+), npm. Per lo stack locale completo servirà Docker Desktop (Supab
 
 ## Comandi
 
-| Comando                               | Cosa fa                                  |
-| ------------------------------------- | ---------------------------------------- |
-| `npm ci`                              | installa le dipendenze                   |
-| `npm run dev`                         | avvia l'app su http://localhost:3000     |
-| `npm run lint` / `typecheck` / `test` | ESLint + Prettier, TypeScript, Vitest    |
-| `npm run build`                       | build di produzione                      |
-| `npx playwright install chromium`     | una tantum, browser per gli e2e          |
-| `npm run test:e2e`                    | e2e Playwright (build + server su :3100) |
+| Comando                               | Cosa fa                                                   |
+| ------------------------------------- | --------------------------------------------------------- |
+| `npm ci`                              | installa le dipendenze                                    |
+| `npm run dev`                         | avvia l'app su http://localhost:3000                      |
+| `npm run lint` / `typecheck` / `test` | ESLint + Prettier, TypeScript, Vitest                     |
+| `npm run test:db`                     | test di integrazione DB/RLS (richiede `npm run db:start`) |
+| `npm run build`                       | build di produzione                                       |
+| `npx playwright install chromium`     | una tantum, browser per gli e2e                           |
+| `npm run test:e2e`                    | e2e Playwright (build + server su :3100)                  |
 
 Le baseline degli screenshot si generano solo su Linux (CI).
 
