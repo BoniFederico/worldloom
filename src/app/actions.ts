@@ -8,7 +8,12 @@ const ONE_YEAR = 60 * 60 * 24 * 365;
 
 async function setPreference(name: string, value: string, allowed: readonly string[]) {
   if (!allowed.includes(value)) return;
-  (await cookies()).set(name, value, { maxAge: ONE_YEAR, path: '/', sameSite: 'lax' });
+  (await cookies()).set(name, value, {
+    maxAge: ONE_YEAR,
+    path: '/',
+    sameSite: 'lax',
+    secure: process.env.NODE_ENV === 'production',
+  });
   revalidatePath('/', 'layout');
 }
 

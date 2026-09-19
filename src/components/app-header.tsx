@@ -21,7 +21,7 @@ export async function AppHeader() {
           {t('worlds')}
         </Link>
       </nav>
-      <div className="prefs" role="group" aria-label={t('preferences')}>
+      <div className="prefs">
         <PreferenceGroup
           legend={t('language')}
           current={locale}

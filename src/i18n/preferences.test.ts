@@ -25,3 +25,9 @@ describe('resolveTheme', () => {
     expect(resolveTheme(undefined)).toBe('system');
   });
 });
+
+describe('Accept-Language con q=0', () => {
+  it('non considera accettabile una lingua con q=0', () => {
+    expect(resolveLocale(undefined, 'en;q=0,de;q=0.5')).toBe('it');
+  });
+});

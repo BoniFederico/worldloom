@@ -18,7 +18,7 @@ function fromAcceptLanguage(header: string | null | undefined): Locale | undefin
       const [tag = '', q] = part.trim().split(';q=');
       return { lang: tag.toLowerCase().split('-')[0], q: q ? Number(q) : 1 };
     })
-    .filter((entry) => !Number.isNaN(entry.q))
+    .filter((entry) => entry.q > 0)
     .sort((a, b) => b.q - a.q);
   return ranked.map((entry) => entry.lang).find(isLocale);
 }

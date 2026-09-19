@@ -88,6 +88,9 @@
 }
 
 body {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr;
   margin: 0;
   background: var(--bg);
   color: var(--text);
@@ -109,7 +112,7 @@ body {
 }
 
 .page {
-  min-height: calc(100dvh - 73px);
+  min-height: 0;
   display: grid;
   place-items: center;
   padding: var(--space-8) var(--space-4);
