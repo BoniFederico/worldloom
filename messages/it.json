@@ -128,7 +128,8 @@
       "user_not_found": "Nessun account con questa email. Chiedi alla persona di registrarsi prima.",
       "confirm_required": "Spunta la conferma per trasferire la proprietà.",
       "owner_cannot_leave": "Il proprietario non può uscire: trasferisci prima la proprietà.",
-      "generic": "Operazione non riuscita. Riprova tra poco."
+      "generic": "Operazione non riuscita. Riprova tra poco.",
+      "already_owner": "Questa persona è già la proprietaria del mondo."
     },
     "roles": {
       "editor": "Editor",

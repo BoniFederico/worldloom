@@ -7,6 +7,9 @@ language plpgsql security definer set search_path = '' as $$
 declare
   v_user uuid;
 begin
+  -- Blocca la riga del mondo prima del controllo: due chiamate concorrenti si serializzano e
+  -- il controllo di proprietà non usa uno stato ormai superato.
+  perform 1 from public.worlds where id = p_world for update;
   if not private.is_owner(p_world) then
     raise exception 'forbidden' using errcode = '42501';
   end if;
@@ -19,11 +22,14 @@ begin
     raise exception 'user_not_found' using errcode = 'P0002';
   end if;
 
-  -- Un membro già presente cambia ruolo; il proprietario non si retrocede da qui.
+  if v_user = (select owner_id from public.worlds where id = p_world) then
+    raise exception 'already_owner' using errcode = '22023';
+  end if;
+
+  -- Un membro già presente cambia ruolo.
   insert into public.world_members (world_id, user_id, role)
   values (p_world, v_user, p_role)
-  on conflict (world_id, user_id) do update set role = excluded.role
-  where public.world_members.role <> 'owner';
+  on conflict (world_id, user_id) do update set role = excluded.role;
   return v_user;
 end $$;
 
@@ -31,8 +37,14 @@ create function public.transfer_world_ownership(p_world uuid, p_new_owner uuid)
 returns void
 language plpgsql security definer set search_path = '' as $$
 begin
+  -- Blocca la riga del mondo prima del controllo: due chiamate concorrenti si serializzano e
+  -- il controllo di proprietà non usa uno stato ormai superato.
+  perform 1 from public.worlds where id = p_world for update;
   if not private.is_owner(p_world) then
     raise exception 'forbidden' using errcode = '42501';
+  end if;
+  if p_new_owner = (select owner_id from public.worlds where id = p_world) then
+    raise exception 'already_owner' using errcode = '22023';
   end if;
   if not exists (
     select 1 from public.world_members where world_id = p_world and user_id = p_new_owner

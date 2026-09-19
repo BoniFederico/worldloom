@@ -128,7 +128,8 @@
       "user_not_found": "No account with this email. Ask them to sign up first.",
       "confirm_required": "Tick the confirmation to transfer ownership.",
       "owner_cannot_leave": "The owner cannot leave: transfer ownership first.",
-      "generic": "The operation failed. Try again in a moment."
+      "generic": "The operation failed. Try again in a moment.",
+      "already_owner": "This person already owns the world."
     },
     "roles": {
       "editor": "Editor",

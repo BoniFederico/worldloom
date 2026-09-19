@@ -83,7 +83,9 @@ describe('add_world_member', () => {
     await withTx(async (db) => {
       const owner = await createUser(db);
       const worldId = await createWorld(db, owner);
-      await add(db, owner, worldId, await emailOf(db, owner), 'reader');
+      await expect(add(db, owner, worldId, await emailOf(db, owner), 'reader')).rejects.toThrow(
+        /already_owner/,
+      );
       expect(await roleOf(db, worldId, owner)).toBe('owner');
     });
   });
@@ -119,6 +121,14 @@ describe('transfer_world_ownership', () => {
         db.query(`update worlds set name = 'Nuovo' where id = $1`, [worldId]),
       );
       expect(renamed.rowCount).toBe(1);
+    });
+  });
+
+  it('non si trasferisce la proprietà a se stessi', async () => {
+    await withTx(async (db) => {
+      const owner = await createUser(db);
+      const worldId = await createWorld(db, owner);
+      await expect(transfer(db, owner, worldId, owner)).rejects.toThrow(/already_owner/);
     });
   });
 

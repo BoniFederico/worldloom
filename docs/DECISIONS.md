@@ -128,3 +128,7 @@
   gestisce il mondo; il proprietario si trasferisce con `transfer_world_ownership`. Gli inviti a chi non ha ancora un account
   (link/email con token) arrivano con le campagne (#31).
 - Deciso da: agente
+- Rischio residuo accettato (review di sicurezza): `user_not_found` permette a chiunque possa creare un mondo di verificare se
+  un'email ha un account, e l'utente viene aggiunto senza consenso. Risposta uniforme non risolverebbe (l'utente comparirebbe
+  comunque nell'elenco). Soluzione vera: inviti con accettazione, in #31. Nel frattempo si ricorre al rate limiting di piattaforma.
+- Le funzioni bloccano la riga del mondo (`for update`) prima del controllo di proprietà, per evitare autorizzazioni su stato superato.

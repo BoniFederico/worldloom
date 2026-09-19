@@ -72,6 +72,7 @@ export async function addMember(formData: FormData) {
     p_role: role.data,
   });
   if (error?.message.includes('user_not_found')) redirect(`${back}?error=user_not_found`);
+  if (error?.message.includes('already_owner')) redirect(`${back}?error=already_owner`);
   if (error) redirect(`${back}?error=generic`);
   redirect(`${back}?notice=member_saved`);
 }
