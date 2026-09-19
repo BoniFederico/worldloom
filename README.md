@@ -1,13 +1,30 @@
-# claude-code-project-scaffold
+# Worldloom
 
-Template per sviluppo autonomo con Claude Code in VS Code: dalla specifica al prodotto finito,
-con trunk-based development, PR, review, test e CI automatizzati.
+SaaS per scrittori, worldbuilder e dungeon master: scrivi snippet con categoria, collegali con relazioni dal nome libero e
+guarda lo stesso mondo come timeline, mappa, grafo, albero genealogico o tabella. Sopra il nucleo, un livello campagne con
+visibilità per elemento e schede personaggio configurabili.
 
-Guida completa e riproducibile: [GUIDA.md](GUIDA.md).
+Specifica: [SPEC.md](SPEC.md) · Piano: [docs/PLAN.md](docs/PLAN.md) · Architettura: [docs/architecture.md](docs/architecture.md) ·
+Decisioni: [docs/DECISIONS.md](docs/DECISIONS.md)
 
-## Uso rapido
-1. Crea un repo da questo template: `gh repo create mio-progetto --template BoniFederico/claude-code-project-scaffold --public --clone`
-2. Compila [SPEC.md](SPEC.md).
-3. In Claude Code: `/kickoff`, poi `/run`.
+## Requisiti
 
-Regole dell'agente: [CLAUDE.md](CLAUDE.md).
+Node LTS (20+), npm. Per lo stack locale completo servirà Docker Desktop (Supabase locale, vedi D-005).
+
+## Comandi
+
+| Comando                               | Cosa fa                                  |
+| ------------------------------------- | ---------------------------------------- |
+| `npm ci`                              | installa le dipendenze                   |
+| `npm run dev`                         | avvia l'app su http://localhost:3000     |
+| `npm run lint` / `typecheck` / `test` | ESLint + Prettier, TypeScript, Vitest    |
+| `npm run build`                       | build di produzione                      |
+| `npx playwright install chromium`     | una tantum, browser per gli e2e          |
+| `npm run test:e2e`                    | e2e Playwright (build + server su :3100) |
+
+Le baseline degli screenshot si generano solo su Linux (CI).
+
+## Flusso di lavoro
+
+Trunk-based: un branch per issue, PR con `Closes #N`, squash merge dopo CI verde. Commit in Conventional Commits.
+Configurazione solo da variabili d'ambiente (vedi `.env.example`). Codice non licenziato: tutti i diritti riservati.
