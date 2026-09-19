@@ -1,17 +1,16 @@
 import { Compass } from 'lucide-react';
+import { getTranslations } from 'next-intl/server';
 
-export default function Home() {
+export default async function Home() {
+  const t = await getTranslations('Home');
   return (
-    <main className="page">
+    <main id="main" className="page">
       <section className="intro">
-        <h1>Worldloom</h1>
-        <p>
-          Scrivi personaggi, luoghi ed eventi come snippet, collegali con relazioni tue e guarda lo
-          stesso mondo come timeline, mappa o grafo.
-        </p>
+        <h1>{t('title')}</h1>
+        <p>{t('lead')}</p>
         <span className="status">
           <Compass size={16} aria-hidden="true" />
-          Il primo mondo è in costruzione
+          {t('status')}
         </span>
       </section>
     </main>
