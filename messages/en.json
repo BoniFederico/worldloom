@@ -87,12 +87,55 @@
     },
     "notices": {
       "renamed": "Name updated.",
-      "deleted": "World deleted."
+      "deleted": "World deleted.",
+      "left": "You left the world."
     },
     "errors": {
       "invalid_input": "The name must be 1 to 120 characters long.",
       "confirm_required": "Tick the confirmation to delete the world.",
       "generic": "The operation failed. Try again in a moment."
+    },
+    "members": "Members"
+  },
+  "Members": {
+    "title": "Members",
+    "caption": "World members and their roles",
+    "member": "Member",
+    "role": "Role",
+    "actions": "Actions",
+    "unknown": "Unnamed user",
+    "you": "you",
+    "roleOf": "Role of {name}",
+    "save": "Save",
+    "remove": "Remove",
+    "addTitle": "Add a member",
+    "email": "User email",
+    "emailHint": "They must already have a Worldloom account.",
+    "add": "Add",
+    "transferTitle": "Transfer ownership",
+    "transferWarning": "The new owner manages members and settings. You become an editor.",
+    "newOwner": "New owner",
+    "transferConfirm": "I confirm the ownership transfer",
+    "transfer": "Transfer ownership",
+    "leave": "Leave world",
+    "notices": {
+      "member_saved": "Member saved.",
+      "member_removed": "Member removed.",
+      "ownership_transferred": "Ownership transferred."
+    },
+    "errors": {
+      "invalid_input": "Check the email and the role.",
+      "user_not_found": "No account with this email. Ask them to sign up first.",
+      "confirm_required": "Tick the confirmation to transfer ownership.",
+      "owner_cannot_leave": "The owner cannot leave: transfer ownership first.",
+      "generic": "The operation failed. Try again in a moment.",
+      "already_owner": "This person already owns the world."
+    },
+    "roles": {
+      "editor": "Editor",
+      "commenter": "Commenter",
+      "reader": "Reader",
+      "owner": "Owner"
     }
   }
 }

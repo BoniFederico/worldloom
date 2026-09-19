@@ -316,7 +316,18 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      [_ in never]: never;
+      add_world_member: {
+        Args: {
+          p_email: string;
+          p_role: Database['public']['Enums']['world_role'];
+          p_world: string;
+        };
+        Returns: string;
+      };
+      transfer_world_ownership: {
+        Args: { p_new_owner: string; p_world: string };
+        Returns: undefined;
+      };
     };
     Enums: {
       snippet_status: 'draft' | 'final';
