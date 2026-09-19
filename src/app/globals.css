@@ -510,3 +510,18 @@ a.btn {
     grid-template-columns: 1fr;
   }
 }
+
+.oauth {
+  margin-top: var(--space-6);
+}
+
+.oauth-or {
+  margin: 0 0 var(--space-4);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+.btn-block {
+  width: 100%;
+}

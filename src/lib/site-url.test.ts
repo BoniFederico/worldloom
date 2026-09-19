@@ -14,6 +14,26 @@ describe('resolveSiteUrl', () => {
     );
   });
 
+  it('in produzione su Vercel usa il dominio di produzione, non quello del singolo deploy', () => {
+    expect(
+      resolveSiteUrl({
+        VERCEL_ENV: 'production',
+        VERCEL_PROJECT_PRODUCTION_URL: 'worldloom-lemon.vercel.app',
+        VERCEL_URL: 'worldloom-abc123.vercel.app',
+      }),
+    ).toBe('https://worldloom-lemon.vercel.app');
+  });
+
+  it('in preview usa l’URL del deploy', () => {
+    expect(
+      resolveSiteUrl({
+        VERCEL_ENV: 'preview',
+        VERCEL_PROJECT_PRODUCTION_URL: 'worldloom-lemon.vercel.app',
+        VERCEL_URL: 'worldloom-abc123.vercel.app',
+      }),
+    ).toBe('https://worldloom-abc123.vercel.app');
+  });
+
   it('in locale ricade su localhost:3000', () => {
     expect(resolveSiteUrl({})).toBe('http://localhost:3000');
   });

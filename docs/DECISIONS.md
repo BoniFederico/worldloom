@@ -104,3 +104,17 @@
 - Motivo / alternative scartate: meno codice e sicurezza gestita da un servizio già scelto (D-002); CSRF coperto dal controllo
   Origin delle server action di Next.
 - Deciso da: agente
+
+### D-011: OAuth con GitHub e URL del sito
+
+- Data: 2026-09-20
+- Contesto: #57. L'utente ha configurato GitHub OAuth in Supabase cloud; il dominio di produzione è worldloom-lemon.vercel.app.
+- Decisione: pulsante "Continua con GitHub" su login e registrazione (`signInWithOAuth`, stesso callback PKCE). Il nome del
+  profilo deriva da `display_name`, poi `name`, `user_name`, poi dall'email (migrazione `20260920100000`). L'URL dei link
+  di auth è `SITE_URL`; in produzione su Vercel `VERCEL_PROJECT_PRODUCTION_URL` (dominio stabile), in preview `VERCEL_URL`.
+- Motivo: `VERCEL_URL` in produzione è l'URL del singolo deploy, non presente nell'allow-list di Supabase.
+  Consigliato comunque impostare `SITE_URL=https://worldloom-lemon.vercel.app` su Vercel (Production).
+- Deciso da: agente
+- Nota di configurazione (da verificare a mano su Supabase → Authentication → URL Configuration): l'allow-list dei Redirect URLs
+  deve contenere solo il dominio di produzione e il pattern delle preview del progetto (`worldloom-*-<team>.vercel.app`),
+  mai wildcard larghi come `https://*.vercel.app`: chi ha un proprio deploy Vercel riceverebbe il codice OAuth.
