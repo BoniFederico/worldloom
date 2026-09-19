@@ -28,3 +28,9 @@ Le baseline degli screenshot si generano solo su Linux (CI).
 
 Trunk-based: un branch per issue, PR con `Closes #N`, squash merge dopo CI verde. Commit in Conventional Commits.
 Configurazione solo da variabili d'ambiente (vedi `.env.example`). Codice non licenziato: tutti i diritti riservati.
+
+## Database locale (Supabase)
+
+Con Docker Desktop attivo: `npm run db:start` avvia Postgres, Auth, Storage e API in locale (API su http://127.0.0.1:54321,
+DB su porta 54322). `npm run db:reset` riapplica migrazioni e seed, `npm run db:stop` ferma tutto. Le chiavi locali le stampa
+`npx supabase status`; copiale in `.env.local` (mai nel repo). Studio, Mailpit e i servizi di log sono esclusi per risparmiare RAM.
