@@ -22,8 +22,10 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - name: Avvia Supabase locale (serve alla shell e alle pagine di accesso)
+        run: npm run db:start
       - name: Rigenera le baseline
-        run: npx playwright test --update-snapshots --grep @screenshot --pass-with-no-tests
+        run: npx playwright test --update-snapshots=all --grep @screenshot --pass-with-no-tests
       - name: Commit delle baseline
         run: |
           git config user.name "github-actions[bot]"

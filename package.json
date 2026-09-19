@@ -14,7 +14,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "prepare": "husky",
-    "db:start": "supabase start -x studio,imgproxy,vector,logflare,edge-runtime,mailpit",
+    "db:start": "supabase start -x studio,imgproxy,vector,logflare,edge-runtime",
     "db:stop": "supabase stop",
     "db:reset": "supabase db reset",
     "test:db": "vitest run --config vitest.db.config.ts"
@@ -23,11 +23,14 @@
     "node": ">=20"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.7",
+    "@supabase/supabase-js": "^2.116.0",
     "lucide-react": "^1.47.0",
     "next": "^16.3.5",
     "next-intl": "^4.14.5",
     "react": "^19.3.0",
-    "react-dom": "^19.3.0"
+    "react-dom": "^19.3.0",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

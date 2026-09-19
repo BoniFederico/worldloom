@@ -40,3 +40,10 @@ Pre-commit: lint-staged. commit-msg: commitlint. CI (`ci`): lint, typecheck, tes
 - Cestino: `deleted_at` valorizzato nasconde lo snippet a chi non può scrivere.
 - **Test**: `npm run test:db` esegue `db-tests/` contro Postgres reale (`DATABASE_URL`, default Supabase locale), simulando
   `anon`/`authenticated` con claim JWT. Copre casi negativi: cross-mondo, escalation di ruolo, IDOR, segreti al lettore.
+
+## Autenticazione
+
+Supabase Auth via `@supabase/ssr`: sessione in cookie, rinnovata da `src/proxy.ts`. Server action in
+`src/app/auth/actions.ts`, callback PKCE in `src/app/auth/callback`. Le pagine `/login`, `/signup`, `/forgot-password`,
+`/reset-password` funzionano senza JavaScript; `/account` è protetta. Le email locali si leggono su Mailpit
+(http://127.0.0.1:54324). Gli e2e usano sempre il Supabase locale (`playwright.config.ts`). Dettagli in D-010.

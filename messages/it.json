@@ -8,11 +8,58 @@
     "theme": "Tema",
     "themeSystem": "Sistema",
     "themeLight": "Chiaro",
-    "themeDark": "Scuro"
+    "themeDark": "Scuro",
+    "login": "Accedi",
+    "account": "Account"
   },
   "Home": {
     "title": "Worldloom",
     "lead": "Scrivi personaggi, luoghi ed eventi come snippet, collegali con relazioni tue e guarda lo stesso mondo come timeline, mappa o grafo.",
     "status": "Il primo mondo è in costruzione"
+  },
+  "Auth": {
+    "email": "Email",
+    "password": "Password",
+    "newPassword": "Nuova password",
+    "displayName": "Nome visualizzato",
+    "passwordHint": "Almeno 10 caratteri, con maiuscole, minuscole e cifre.",
+    "login": {
+      "title": "Accedi",
+      "submit": "Accedi",
+      "forgot": "Password dimenticata?",
+      "toSignup": "Crea un account"
+    },
+    "signup": {
+      "title": "Crea un account",
+      "lead": "Ti mandiamo un’email per confermare l’indirizzo.",
+      "submit": "Crea account",
+      "toLogin": "Hai già un account? Accedi"
+    },
+    "forgot": {
+      "title": "Reimposta la password",
+      "lead": "Inserisci l’email dell’account: se esiste, riceverai un link per sceglierne una nuova.",
+      "submit": "Invia il link",
+      "toLogin": "Torna all’accesso"
+    },
+    "reset": {
+      "title": "Scegli una nuova password",
+      "submit": "Salva la password"
+    },
+    "account": {
+      "title": "Il tuo account",
+      "signOut": "Esci"
+    },
+    "notices": {
+      "check_email": "Controlla la posta: ti abbiamo inviato un link per confermare l’indirizzo.",
+      "reset_sent": "Se l’indirizzo è registrato, riceverai un link per reimpostare la password.",
+      "password_updated": "Password aggiornata."
+    },
+    "errors": {
+      "invalid_input": "I dati inseriti non sono validi. Controlla email e password.",
+      "invalid_credentials": "Email o password errate.",
+      "email_not_confirmed": "Conferma prima l’indirizzo con il link che ti abbiamo inviato.",
+      "link": "Il link non è valido o è scaduto. Richiedine uno nuovo.",
+      "generic": "Qualcosa è andato storto. Riprova tra poco."
+    }
   }
 }

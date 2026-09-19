@@ -8,11 +8,58 @@
     "theme": "Theme",
     "themeSystem": "System",
     "themeLight": "Light",
-    "themeDark": "Dark"
+    "themeDark": "Dark",
+    "login": "Sign in",
+    "account": "Account"
   },
   "Home": {
     "title": "Worldloom",
     "lead": "Write characters, places and events as snippets, link them with relations of your own, and see the same world as a timeline, map or graph.",
     "status": "Your first world is being built"
+  },
+  "Auth": {
+    "email": "Email",
+    "password": "Password",
+    "newPassword": "New password",
+    "displayName": "Display name",
+    "passwordHint": "At least 10 characters, with upper and lower case letters and digits.",
+    "login": {
+      "title": "Sign in",
+      "submit": "Sign in",
+      "forgot": "Forgot your password?",
+      "toSignup": "Create an account"
+    },
+    "signup": {
+      "title": "Create an account",
+      "lead": "We’ll email you a link to confirm your address.",
+      "submit": "Create account",
+      "toLogin": "Already have an account? Sign in"
+    },
+    "forgot": {
+      "title": "Reset your password",
+      "lead": "Enter your account email. If it exists, you’ll get a link to choose a new password.",
+      "submit": "Send the link",
+      "toLogin": "Back to sign in"
+    },
+    "reset": {
+      "title": "Choose a new password",
+      "submit": "Save password"
+    },
+    "account": {
+      "title": "Your account",
+      "signOut": "Sign out"
+    },
+    "notices": {
+      "check_email": "Check your inbox: we sent you a link to confirm your address.",
+      "reset_sent": "If the address is registered, you’ll receive a link to reset your password.",
+      "password_updated": "Password updated."
+    },
+    "errors": {
+      "invalid_input": "The details you entered are not valid. Check your email and password.",
+      "invalid_credentials": "Wrong email or password.",
+      "email_not_confirmed": "Confirm your address first, using the link we sent you.",
+      "link": "The link is invalid or has expired. Request a new one.",
+      "generic": "Something went wrong. Try again in a moment."
+    }
   }
 }
