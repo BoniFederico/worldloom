@@ -30,6 +30,10 @@ Le baseline degli screenshot (test taggati `@screenshot`) si generano solo su Li
 Trunk-based: un branch per issue, PR con `Closes #N`, squash merge dopo CI verde. Commit in Conventional Commits.
 Configurazione solo da variabili d'ambiente (vedi `.env.example`). Codice non licenziato: tutti i diritti riservati.
 
+## Configurazione
+
+Copia `.env.example` in `.env.local` e inserisci URL e chiave pubblica di Supabase (locale: `npx supabase status`; cloud: Project Settings → API). Le email di verifica locali si leggono su Mailpit, http://127.0.0.1:54324. Gli e2e richiedono `npm run db:start`.
+
 ## Database locale (Supabase)
 
 Con Docker Desktop attivo: `npm run db:start` avvia Postgres, Auth, Storage e API in locale (API su http://127.0.0.1:54321,

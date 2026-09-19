@@ -1,6 +1,20 @@
+import { execSync } from 'node:child_process';
 import { defineConfig, devices } from '@playwright/test';
 
 const port = 3100;
+
+/** Gli e2e usano sempre il Supabase locale (npm run db:start), mai le chiavi di .env.local. */
+function localSupabaseEnv(): Record<string, string> {
+  const raw = execSync('npx supabase status -o env', { encoding: 'utf8' });
+  const values: Record<string, string> = {};
+  for (const match of raw.matchAll(/^(\w+)="?([^"\r\n]*)"?$/gm)) {
+    values[match[1] as string] = match[2] as string;
+  }
+  return {
+    NEXT_PUBLIC_SUPABASE_URL: values.API_URL ?? '',
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: values.ANON_KEY ?? '',
+  };
+}
 
 export default defineConfig({
   testDir: './e2e',
@@ -28,5 +42,6 @@ export default defineConfig({
     url: `http://localhost:${port}/api/health`,
     reuseExistingServer: !process.env.CI,
     timeout: 180_000,
+    env: localSupabaseEnv(),
   },
 });

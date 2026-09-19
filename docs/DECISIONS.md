@@ -91,3 +91,16 @@
 - Motivo / alternative scartate: gli URL delle viste restano identici per tutti i lettori; il prefisso `/it` `/en` sarà
   valutato per la wiki pubblica (SEO, #42).
 - Deciso da: agente
+
+### D-010: Autenticazione
+
+- Data: 2026-09-19
+- Contesto: email+password con verifica e reset, OAuth (SPEC); OAuth separato in #57 perché richiede credenziali.
+- Decisione: Supabase Auth con `@supabase/ssr` (cookie di sessione httpOnly, flusso PKCE). Form come server action con
+  validazione zod ai confini; errori mappati a codici i18n. Password: min. 10 caratteri con maiuscole, minuscole e cifre
+  (allineate in `supabase/config.toml` e `src/lib/auth/schemas.ts`). Verifica email obbligatoria. Registrazione e reset
+  danno la stessa risposta per indirizzi noti e ignoti (no enumerazione). `src/proxy.ts` rinnova la sessione e protegge
+  `/account`. `?next=` accetta solo percorsi interni. Rate limiting: quello di Supabase Auth (email, accessi, verifiche).
+- Motivo / alternative scartate: meno codice e sicurezza gestita da un servizio già scelto (D-002); CSRF coperto dal controllo
+  Origin delle server action di Next.
+- Deciso da: agente
