@@ -4,7 +4,7 @@
 
 ## Stato
 
-- Fase: M0 in corso (#11 in PR).
+- Fase: M0 in corso.
 
 ## Backlog (in ordine di esecuzione)
 
@@ -17,9 +17,9 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 6   | Installare Docker Desktop e collegare Supabase                                  | chore | -          | parziale    | Docker e Supabase locale ok (#50); resta il link al cloud |
 | 7   | Deploy automatico su Vercel da main con preview per PR                          | chore | 48         | in verifica | Vercel gia collegato: le PR hanno la preview              |
 | 8   | Workflow per generare le baseline screenshot su Linux                           | chore | 48         | todo        |                                                           |
-| 9   | CI: database Postgres reale e test di integrazione                              | chore | 6, 11      | todo        |                                                           |
+| 9   | CI: database Postgres reale e test di integrazione                              | chore | 6, 11      | in PR       | supabase start in CI + test:db                            |
 | 10  | i18n it/en, tema chiaro/scuro e shell applicativa                               | feat  | 48         | todo        |                                                           |
-| 11  | Schema iniziale DB: mondi, membri, categorie, snippet, relazioni con RLS        | feat  | 6          | in PR       | 17 test RLS; tipi generati in #13                         |
+| 11  | Schema iniziale DB: mondi, membri, categorie, snippet, relazioni con RLS        | feat  | 6          | done        | PR #51; tipi generati in #13                              |
 | 12  | Autenticazione: email+password con verifica, reset e OAuth                      | feat  | 11         | needs-human | credenziali OAuth                                         |
 | 13  | Mondi: creazione, elenco, impostazioni, membri e ruoli                          | feat  | 11, 12     | todo        |                                                           |
 | 14  | Categorie configurabili con campi personalizzati tipizzati                      | feat  | 13         | todo        |                                                           |

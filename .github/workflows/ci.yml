@@ -49,6 +49,14 @@ jobs:
         if: steps.detect.outputs.node == 'true'
         run: npm test --if-present
 
+      - name: Avvia Supabase locale (Postgres reale con schema auth)
+        if: steps.detect.outputs.node == 'true' && hashFiles('supabase/config.toml') != ''
+        run: npm run db:start
+
+      - name: Test DB (RLS e vincoli)
+        if: steps.detect.outputs.node == 'true' && hashFiles('supabase/config.toml') != ''
+        run: npm run test:db
+
       - name: Build
         if: steps.detect.outputs.node == 'true'
         run: npm run build --if-present
