@@ -19,11 +19,16 @@ export async function withTx(fn: (db: Db) => Promise<void>): Promise<void> {
   }
 }
 
-export async function createUser(db: Db, name = 'utente'): Promise<string> {
+export async function createUser(
+  db: Db,
+  name = 'utente',
+  meta: Record<string, string> = {},
+): Promise<string> {
   const id = randomUUID();
   await db.query(
-    `insert into auth.users (id, email, aud, role) values ($1, $2, 'authenticated', 'authenticated')`,
-    [id, `${name}-${id}@example.test`],
+    `insert into auth.users (id, email, aud, role, raw_user_meta_data)
+     values ($1, $2, 'authenticated', 'authenticated', $3)`,
+    [id, `${name}-${id}@example.test`, JSON.stringify(meta)],
   );
   return id;
 }

@@ -56,6 +56,16 @@ export async function signIn(formData: FormData) {
   redirect(safeNextPath(field(formData, 'next')));
 }
 
+export async function signInWithGitHub() {
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'github',
+    options: { redirectTo: `${resolveSiteUrl()}/auth/callback` },
+  });
+  if (error || !data.url) return failure('/login', 'generic');
+  redirect(data.url);
+}
+
 export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();

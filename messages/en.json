@@ -60,6 +60,10 @@
       "email_not_confirmed": "Confirm your address first, using the link we sent you.",
       "link": "The link is invalid or has expired. Request a new one.",
       "generic": "Something went wrong. Try again in a moment."
+    },
+    "oauth": {
+      "github": "Continue with GitHub",
+      "or": "or"
     }
   },
   "Worlds": {

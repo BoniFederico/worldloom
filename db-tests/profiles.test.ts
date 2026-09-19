@@ -10,6 +10,19 @@ describe('profili', () => {
     });
   });
 
+  it.each([
+    [{ display_name: 'Ada', name: 'Altro' }, 'Ada'],
+    [{ name: 'Grace Hopper', user_name: 'ghopper' }, 'Grace Hopper'],
+    [{ user_name: 'ghopper' }, 'ghopper'],
+    [{ display_name: '   ', name: 'x'.repeat(100) }, 'x'.repeat(60)],
+  ])('il nome del profilo deriva dai metadati %j', async (meta, expected) => {
+    await withTx(async (db) => {
+      const id = await createUser(db, 'oauth', meta);
+      const { rows } = await db.query('select display_name from profiles where id = $1', [id]);
+      expect(rows[0].display_name).toBe(expected);
+    });
+  });
+
   it('un utente non vede il profilo di un estraneo e non modifica quello altrui', async () => {
     await withTx(async (db) => {
       const [a, b] = [await createUser(db), await createUser(db)];

@@ -106,3 +106,15 @@ for (const path of ['/login', '/signup', '/forgot-password']) {
     expect(violations.filter((v) => v.impact === 'serious' || v.impact === 'critical')).toEqual([]);
   });
 }
+
+for (const path of ['/login', '/signup']) {
+  test(`${path}: il pulsante GitHub porta all’autorizzazione di Supabase`, async ({ page }) => {
+    await page.goto(path);
+    const request = page.waitForRequest((r) => r.url().includes('/auth/v1/authorize'));
+    await page.getByRole('button', { name: 'Continua con GitHub' }).click();
+    const url = new URL((await request).url());
+    expect(url.searchParams.get('provider')).toBe('github');
+    // Il ritorno deve puntare al callback dell'app, mai a un host preso dalla richiesta.
+    expect(url.searchParams.get('redirect_to')).toBe('http://localhost:3100/auth/callback');
+  });
+}

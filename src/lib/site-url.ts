@@ -2,7 +2,7 @@ type Env = Record<string, string | undefined>;
 
 /**
  * URL pubblico dell'app per i link nelle email di auth. Non deriva mai da Origin/Host della richiesta
- * (controllati dal client: password-reset poisoning). `VERCEL_URL` lo imposta la piattaforma.
+ * (controllati dal client: password-reset poisoning). Le variabili VERCEL_* le imposta la piattaforma.
  */
 export function resolveSiteUrl(env: Env = process.env): string {
   const explicit = env.SITE_URL;
@@ -17,6 +17,9 @@ export function resolveSiteUrl(env: Env = process.env): string {
       throw new Error('SITE_URL deve usare http o https');
     }
     return url.origin;
+  }
+  if (env.VERCEL_ENV === 'production' && env.VERCEL_PROJECT_PRODUCTION_URL) {
+    return `https://${env.VERCEL_PROJECT_PRODUCTION_URL}`;
   }
   if (env.VERCEL_URL) return `https://${env.VERCEL_URL}`;
   return 'http://localhost:3000';

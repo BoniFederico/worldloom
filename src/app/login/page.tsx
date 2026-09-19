@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { signIn } from '@/app/auth/actions';
 import { AuthPage, Field } from '@/components/auth-form';
+import { OAuthButtons } from '@/components/oauth-buttons';
 
 type Props = { searchParams: Promise<{ error?: string; notice?: string; next?: string }> };
 
@@ -22,6 +23,7 @@ export default async function LoginPage({ searchParams }: Props) {
           {t('login.submit')}
         </button>
       </form>
+      <OAuthButtons />
       <p className="auth-links">
         <Link href="/forgot-password">{t('login.forgot')}</Link>
         <Link href="/signup">{t('login.toSignup')}</Link>
