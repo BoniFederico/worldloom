@@ -26,3 +26,17 @@ Stato: scaffold iniziale. Questo documento cresce con le funzionalità.
 ## Qualità
 
 Pre-commit: lint-staged. commit-msg: commitlint. CI (`ci`): lint, typecheck, test, build, e2e. CodeQL e release-please attivi.
+
+## Schema dati e sicurezza (migrazione `20260919120000_core_schema`)
+
+- Tabelle: `profiles`, `worlds`, `world_members`, `categories`, `snippets`, `snippet_categories`, `relations`. Campi
+  personalizzati e corpo in `jsonb`; la validazione tipizzata dei campi vive nel livello applicativo (issue #14).
+- **Isolamento per mondo nel dato**: chiavi esterne composite `(world_id, id)` rendono impossibile collegare snippet,
+  categorie o relazioni di mondi diversi. RLS attiva su tutte le tabelle.
+- **Ruoli**: `owner` (uno solo per mondo, indice univoco), `editor`, `commenter`, `reader`. Solo il proprietario gestisce i membri
+  e non può creare altri proprietari. Le funzioni di autorizzazione stanno nello schema `private` (non esposto come API).
+- **Visibilità** (`secret`/`shared`/`members`/`public`) su snippet e relazioni, valutata da `private.can_read`. `shared`
+  (giocatori scelti) resta chiusa ai non-editor fino a #32. Una relazione è leggibile solo se lo sono anche i suoi estremi.
+- Cestino: `deleted_at` valorizzato nasconde lo snippet a chi non può scrivere.
+- **Test**: `npm run test:db` esegue `db-tests/` contro Postgres reale (`DATABASE_URL`, default Supabase locale), simulando
+  `anon`/`authenticated` con claim JWT. Copre casi negativi: cross-mondo, escalation di ruolo, IDOR, segreti al lettore.
