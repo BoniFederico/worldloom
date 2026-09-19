@@ -1,0 +1,1 @@
+-- Dati di seed: vedi issue #22.
