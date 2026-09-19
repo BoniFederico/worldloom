@@ -80,3 +80,14 @@
 - Decisione: infrastruttura (CI, e2e base, DB/RLS, auth) → nucleo snippet/relazioni → viste → campagne/visibilità → SHOULD.
   La visibilità per elemento è progettata in RLS fin dallo schema iniziale, non aggiunta dopo.
 - Deciso da: agente
+
+### D-009: i18n senza prefisso di lingua nell'URL
+
+- Data: 2026-09-19
+- Contesto: it/en al lancio, link stabili per le viste condivise (SPEC).
+- Decisione: next-intl senza routing per locale: la lingua viene dal cookie `locale`, altrimenti da Accept-Language, default `it`.
+  Il tema (`system|light|dark`) sta nel cookie `theme` e viene applicato lato server su `<html data-theme>` (nessun flash).
+  I selettori sono form con server action, quindi funzionano anche senza JavaScript.
+- Motivo / alternative scartate: gli URL delle viste restano identici per tutti i lettori; il prefisso `/it` `/en` sarà
+  valutato per la wiki pubblica (SEO, #42).
+- Deciso da: agente

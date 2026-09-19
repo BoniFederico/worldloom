@@ -1,0 +1,18 @@
+{
+  "Shell": {
+    "skipToContent": "Skip to content",
+    "mainNav": "Main navigation",
+    "worlds": "Worlds",
+    "preferences": "Preferences",
+    "language": "Language",
+    "theme": "Theme",
+    "themeSystem": "System",
+    "themeLight": "Light",
+    "themeDark": "Dark"
+  },
+  "Home": {
+    "title": "Worldloom",
+    "lead": "Write characters, places and events as snippets, link them with relations of your own, and see the same world as a timeline, map or graph.",
+    "status": "Your first world is being built"
+  }
+}

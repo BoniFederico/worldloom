@@ -8,7 +8,7 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 1 : 0,
   reporter: process.env.CI ? [['html', { open: 'never' }], ['list']] : 'list',
-  use: { baseURL: `http://localhost:${port}`, trace: 'on-first-retry' },
+  use: { baseURL: `http://localhost:${port}`, locale: 'it-IT', trace: 'on-first-retry' },
   expect: { toHaveScreenshot: { maxDiffPixelRatio: 0.01 } },
   // Le baseline degli screenshot si generano solo su Linux (CI): {platform} li tiene separati.
   snapshotPathTemplate:

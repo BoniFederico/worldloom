@@ -1,0 +1,18 @@
+{
+  "Shell": {
+    "skipToContent": "Vai al contenuto",
+    "mainNav": "Navigazione principale",
+    "worlds": "Mondi",
+    "preferences": "Preferenze",
+    "language": "Lingua",
+    "theme": "Tema",
+    "themeSystem": "Sistema",
+    "themeLight": "Chiaro",
+    "themeDark": "Scuro"
+  },
+  "Home": {
+    "title": "Worldloom",
+    "lead": "Scrivi personaggi, luoghi ed eventi come snippet, collegali con relazioni tue e guarda lo stesso mondo come timeline, mappa o grafo.",
+    "status": "Il primo mondo è in costruzione"
+  }
+}

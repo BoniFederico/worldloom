@@ -88,6 +88,9 @@
 }
 
 body {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: auto 1fr;
   margin: 0;
   background: var(--bg);
   color: var(--text);
@@ -109,7 +112,7 @@ body {
 }
 
 .page {
-  min-height: 100dvh;
+  min-height: 0;
   display: grid;
   place-items: center;
   padding: var(--space-8) var(--space-4);
@@ -149,4 +152,107 @@ body {
 
 .status svg {
   color: var(--primary);
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--space-4);
+  top: -100px;
+  padding: var(--space-2) var(--space-4);
+  background: var(--primary);
+  color: var(--primary-contrast);
+  border-radius: var(--radius-md);
+  z-index: 10;
+}
+
+.skip-link:focus {
+  top: var(--space-2);
+}
+
+.app-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-6);
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 44px;
+  font-family: var(--font-serif);
+  font-size: var(--text-lg);
+  font-weight: 600;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.brand svg {
+  color: var(--primary);
+}
+
+.app-nav {
+  flex: 1;
+}
+
+.app-nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  color: var(--text-muted);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+}
+
+.app-nav a[aria-current='page'] {
+  color: var(--text);
+  box-shadow: inset 0 -2px 0 var(--primary);
+}
+
+.prefs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.pref {
+  display: inline-flex;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.pref-btn {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 var(--space-3);
+  border: 0;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: background var(--motion);
+}
+
+.pref-btn + .pref-btn {
+  border-left: 1px solid var(--border);
+}
+
+.pref-btn:hover {
+  background: var(--surface-2);
+}
+
+.pref-btn[aria-pressed='true'] {
+  background: var(--primary);
+  color: var(--primary-contrast);
+}
+
+.pref-btn:focus-visible {
+  outline-offset: -2px;
 }
