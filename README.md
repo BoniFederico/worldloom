@@ -23,7 +23,7 @@ Node LTS (20+), npm. Per lo stack locale completo servirà Docker Desktop (Supab
 | `npx playwright install chromium`     | una tantum, browser per gli e2e                           |
 | `npm run test:e2e`                    | e2e Playwright (build + server su :3100)                  |
 
-Le baseline degli screenshot si generano solo su Linux (CI).
+Le baseline degli screenshot (test taggati `@screenshot`) si generano solo su Linux: `gh workflow run update-snapshots.yml --ref <branch>`, poi push per rilanciare la CI.
 
 ## Flusso di lavoro
 
