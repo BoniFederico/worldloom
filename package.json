@@ -13,7 +13,10 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "prepare": "husky"
+    "prepare": "husky",
+    "db:start": "supabase start -x studio,imgproxy,vector,logflare,edge-runtime,mailpit",
+    "db:stop": "supabase stop",
+    "db:reset": "supabase db reset"
   },
   "engines": {
     "node": ">=20"
@@ -40,6 +43,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^17.5.1",
     "prettier": "^3.9.8",
+    "supabase": "^2.117.0",
     "typescript": "^6.0.3",
     "vitest": "^5.0.1"
   }
