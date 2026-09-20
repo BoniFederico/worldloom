@@ -8,6 +8,7 @@ import { createClient } from '@/lib/supabase/server';
 import type { Json } from '@/lib/supabase/database.types';
 import { addField, fieldFromInput, moveField, removeField, updateField } from '@/lib/fields/edit';
 import { fieldsSchema, type FieldDefinition } from '@/lib/fields/fields';
+import { loadWorld } from '@/lib/worlds/context';
 import { uuidSchema } from '@/lib/worlds/schemas';
 
 const field = (formData: FormData, name: string) => String(formData.get(name) ?? '');
@@ -114,6 +115,13 @@ export async function deleteCategory(formData: FormData) {
 
 type Mutation = (defs: FieldDefinition[]) => FieldDefinition[];
 
+/** Il campo indicato non esiste più (ad esempio rimosso da un'altra scheda aperta). */
+class MissingFieldError extends Error {}
+
+function requireField(defs: FieldDefinition[], key: string) {
+  if (!defs.some((d) => d.key === key)) throw new MissingFieldError(key);
+}
+
 /**
  * Legge i campi della categoria, applica `mutate` e salva. Il salvataggio è condizionato a `updated_at`:
  * se un altro editor ha modificato la categoria nel frattempo l'operazione non sovrascrive nulla.
@@ -124,7 +132,9 @@ async function mutateFields(formData: FormData, mutate: Mutation, notice: string
   if (!id.success) redirect(listPath(world));
   const back = `${listPath(world)}/${id.data}`;
 
-  const supabase = await createClient();
+  const { supabase, canWrite } = await loadWorld(world);
+  if (!canWrite) redirect(`${back}?error=forbidden`);
+
   const { data: row } = await supabase
     .from('categories')
     .select('fields_schema, updated_at')
@@ -137,8 +147,8 @@ async function mutateFields(formData: FormData, mutate: Mutation, notice: string
   let next: FieldDefinition[];
   try {
     next = mutate(current.data);
-  } catch {
-    redirect(`${back}?error=invalid_field`);
+  } catch (e) {
+    redirect(`${back}?error=${e instanceof MissingFieldError ? 'field_missing' : 'invalid_field'}`);
   }
 
   const { data, error } = await supabase
@@ -214,11 +224,25 @@ export async function updateFieldAction(formData: FormData) {
 
 export async function removeFieldAction(formData: FormData) {
   const key = field(formData, 'key');
-  return mutateFields(formData, (defs) => removeField(defs, key), 'field_removed');
+  return mutateFields(
+    formData,
+    (defs) => {
+      requireField(defs, key);
+      return removeField(defs, key);
+    },
+    'field_removed',
+  );
 }
 
 export async function moveFieldAction(formData: FormData) {
   const key = field(formData, 'key');
   const direction = field(formData, 'direction') === 'up' ? 'up' : 'down';
-  return mutateFields(formData, (defs) => moveField(defs, key, direction), 'field_moved');
+  return mutateFields(
+    formData,
+    (defs) => {
+      requireField(defs, key);
+      return moveField(defs, key, direction);
+    },
+    'field_moved',
+  );
 }

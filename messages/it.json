@@ -257,7 +257,9 @@
       "generic": "Operazione non riuscita. Riprova tra poco.",
       "already_imported": "Questi preset sono già presenti in questo mondo.",
       "invalid_field": "Il campo non è valido: controlla nome, opzioni (senza duplicati) e limiti.",
-      "conflict": "Un’altra persona ha modificato la categoria nel frattempo. Ricarica la pagina e riprova."
+      "conflict": "Un’altra persona ha modificato la categoria nel frattempo. Ricarica la pagina e riprova.",
+      "forbidden": "Non hai il permesso di modificare le categorie di questo mondo.",
+      "field_missing": "Il campo non esiste più: forse è stato rimosso da un’altra scheda. Ricarica la pagina."
     },
     "icons": {
       "user": "Persona",

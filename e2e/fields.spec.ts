@@ -121,3 +121,19 @@ test.describe('editor dei campi', () => {
     expect(await noSeriousViolations(page)).toEqual([]);
   });
 });
+
+test('un campo rimosso da un’altra scheda non dà un finto successo', async ({ browser }) => {
+  const { page } = await categoryPage(browser);
+  await addField(page, 'Effimero', 'text');
+  await addField(page, 'Stabile', 'text');
+  const stale = await page.context().newPage();
+  await stale.goto(page.url());
+
+  const item = page.locator('.field-list > li', { hasText: 'Effimero' });
+  await item.locator('summary').click();
+  await item.getByRole('button', { name: 'Rimuovi il campo' }).click();
+  await expect(page.getByRole('status')).toHaveText('Campo rimosso.');
+
+  await stale.getByRole('button', { name: 'Sposta giù Effimero' }).click();
+  await expect(stale.getByRole('main').getByRole('alert')).toContainText('Il campo non esiste più');
+});

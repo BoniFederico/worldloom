@@ -257,7 +257,9 @@
       "generic": "The operation failed. Try again in a moment.",
       "already_imported": "These presets are already in this world.",
       "invalid_field": "The field is not valid: check the name, options (no duplicates) and limits.",
-      "conflict": "Someone else changed the category in the meantime. Reload the page and try again."
+      "conflict": "Someone else changed the category in the meantime. Reload the page and try again.",
+      "forbidden": "You do not have permission to change the categories of this world.",
+      "field_missing": "The field no longer exists: it may have been removed from another tab. Reload the page."
     },
     "icons": {
       "user": "Person",
