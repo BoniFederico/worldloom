@@ -255,3 +255,18 @@
   i risultati sono al massimo 50 (30 nell'API per default), senza paginazione; l'alias trovato nelle menzioni (`@`) usa ancora
   l'elenco locale (#18) e non questa ricerca.
 - Deciso da: agente
+
+### D-020: Cronologia versioni con fusione delle modifiche ravvicinate
+
+- Data: 2026-09-20
+- Contesto: #20. Il salvataggio automatico scatta ogni 1,5 s di pausa: una versione per ogni salvataggio riempirebbe la cronologia di rumore.
+- Decisione: `snippet_versions` è scritta solo da un trigger (`security definer`) che, quando cambiano titolo, testo, campi, tag, alias o stato,
+  registra una versione; se l'ultima è dello stesso autore, ha meno di 10 minuti e non è un ripristino, la aggiorna invece di crearne una nuova.
+  Si conservano le ultime 100 versioni per snippet. Archivio, cestino e visibilità non creano versioni. Nessuno scrive né cancella
+  direttamente; la lettura è solo di chi può scrivere nel mondo (i lettori non vedono contenuti precedenti, che potrebbero essere segreti).
+- Ripristino: `restore_snippet_version(snippet, versione, updated_at)` (security invoker, condizionata a `updated_at` come il salvataggio) riporta
+  il contenuto e registra una nuova versione con `restored_from`; il ripristino non si fonde mai. Il confronto è con la versione precedente
+  (righe del testo, tag, alias, campi, titolo, stato).
+- Limiti noti: le categorie e le relazioni non fanno parte della versione (dopo un ripristino le relazioni da menzione si riallineano solo al successivo salvataggio del testo); le menzioni nel confronto non mostrano il titolo;
+  le versioni sono cancellate con lo snippet.
+- Deciso da: agente

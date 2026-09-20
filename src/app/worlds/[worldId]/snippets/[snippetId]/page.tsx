@@ -182,6 +182,9 @@ export default async function SnippetPage({ params, searchParams }: Props) {
           <>
             <h2>{t('actionsTitle')}</h2>
             <div className="field-actions">
+              <Link className="btn" href={`/worlds/${world.id}/snippets/${snippet.id}/history`}>
+                {t('historyLink')}
+              </Link>
               <form action={duplicateSnippet}>
                 {ids}
                 <button type="submit" className="btn">

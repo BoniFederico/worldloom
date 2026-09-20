@@ -1186,3 +1186,70 @@ mark {
 p.mention-none {
   margin: 0;
 }
+
+.history {
+  display: grid;
+  gap: var(--space-6);
+  grid-template-columns: minmax(0, 16rem) minmax(0, 1fr);
+}
+
+@media (max-width: 720px) {
+  .history {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.history-list {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.history-list a {
+  display: grid;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: var(--text-sm);
+  text-decoration: none;
+}
+
+.history-list a[aria-current='true'] {
+  border-color: var(--primary);
+  border-left-width: 4px;
+  background: var(--surface);
+}
+
+.diff {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.diff-line {
+  margin: 0;
+  padding: var(--space-1) var(--space-3);
+  white-space: pre-wrap;
+}
+
+.diff-add {
+  border-left: 4px solid var(--success);
+  background: color-mix(in srgb, var(--success) 12%, var(--surface));
+}
+
+.diff-remove {
+  border-left: 4px solid var(--danger);
+  background: color-mix(in srgb, var(--danger) 12%, var(--surface));
+  text-decoration: line-through;
+}
+
+.diff-meta ins {
+  color: var(--success);
+}
+
+.diff-meta del {
+  color: var(--danger);
+}

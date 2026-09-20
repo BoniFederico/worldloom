@@ -374,7 +374,8 @@
       "unarchived": "Snippet restored from the archive.",
       "trashed": "Snippet moved to the trash.",
       "restored": "Snippet restored.",
-      "deleted": "Snippet deleted permanently."
+      "deleted": "Snippet deleted permanently.",
+      "version_restored": "Version restored."
     },
     "errors": {
       "invalid_title": "A title is required (300 characters at most).",
@@ -449,7 +450,8 @@
     "filterApply": "Filter",
     "filterReset": "Clear filters",
     "filters": "Filters",
-    "mentionUnavailable": "snippet unavailable"
+    "mentionUnavailable": "snippet unavailable",
+    "historyLink": "Version history"
   },
   "Relations": {
     "title": "Relations",
@@ -567,5 +569,33 @@
     "advanced": "Full search with filters…",
     "count": "{count, plural, =0 {No results} one {# result} other {# results}}",
     "error": "Search failed. Try again."
+  },
+  "History": {
+    "title": "Version history",
+    "snippets": "Snippets",
+    "hint": "Every save that changes the content records a version; quick edits by the same author (within 10 minutes) are merged into one. The last 100 are kept.",
+    "empty": "No versions recorded.",
+    "listLabel": "Versions",
+    "version": "Version {n}",
+    "unknownAuthor": "Unknown author",
+    "restoredFrom": "restore of version {n}",
+    "comparedWith": "compared with version {n}",
+    "first": "first version",
+    "noChanges": "No content differences.",
+    "titleLabel": "Title",
+    "statusLabel": "Status",
+    "tags": "Tags",
+    "aliases": "Aliases",
+    "bodyLabel": "Text",
+    "added": "Added",
+    "removed": "Removed",
+    "restore": "Restore version {n}",
+    "notices": {},
+    "errors": {
+      "conflict": "The snippet was changed in the meantime. Reload and try again.",
+      "not_found": "Version not found.",
+      "forbidden": "You do not have permission to restore.",
+      "generic": "Operation failed. Try again shortly."
+    }
   }
 }
