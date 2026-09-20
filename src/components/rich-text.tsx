@@ -53,6 +53,16 @@ function block(node: DocNode, key: number): ReactNode {
       );
     case 'listItem':
       return <li key={key}>{children()}</li>;
+    case 'image':
+      return (
+        // eslint-disable-next-line @next/next/no-img-element -- immagine privata servita da una rotta autenticata
+        <img
+          key={key}
+          src={typeof node.attrs?.src === 'string' ? node.attrs.src : undefined}
+          alt={typeof node.attrs?.alt === 'string' ? node.attrs.alt : ''}
+          loading="lazy"
+        />
+      );
     case 'table':
       return (
         <div key={key} className="table-wrap">

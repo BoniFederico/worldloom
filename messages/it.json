@@ -417,7 +417,19 @@
       },
       "deleteRow": "Elimina riga",
       "deleteColumn": "Elimina colonna",
-      "toggleHeader": "Riga di intestazione"
+      "toggleHeader": "Riga di intestazione",
+      "image": "Inserisci immagine",
+      "imageFile": "File immagine (PNG, JPEG, WebP o GIF, al massimo 5 MB)",
+      "imageAlt": "Descrizione dell’immagine",
+      "imageAltHint": "Descrivi l’immagine per chi non la vede. Lascia vuoto se è solo decorativa.",
+      "imageInsert": "Carica e inserisci",
+      "imageUploading": "Caricamento…",
+      "imageMissing": "Scegli prima un file.",
+      "imageErrors": {
+        "unsupported": "Formato non supportato: sono ammessi solo PNG, JPEG, WebP e GIF.",
+        "too_large": "Il file supera i 5 MB.",
+        "generic": "Caricamento non riuscito. Riprova."
+      }
     }
   }
 }

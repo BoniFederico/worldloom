@@ -129,6 +129,41 @@ describe('sanitizeBody', () => {
   });
 });
 
+describe('immagini', () => {
+  const uuid = '123e4567-e89b-12d3-a456-426614174000';
+  const src = `/worlds/${uuid}/images/${uuid}.png`;
+  const doc = (attrs: unknown) => ({ type: 'doc', content: [{ type: 'image', attrs }] });
+
+  it('conserva un’immagine dell’app con il testo alternativo', () => {
+    expect(sanitizeBody(doc({ src, alt: 'Una mappa', onerror: 'x', title: 't' }))).toEqual({
+      type: 'doc',
+      content: [{ type: 'image', attrs: { src, alt: 'Una mappa' } }],
+    });
+  });
+
+  it.each([
+    'https://evil.test/a.png',
+    'data:image/png;base64,AAAA',
+    'javascript:alert(1)',
+    '//evil.test/a.png',
+    `${src}?x=1`,
+    `/worlds/${uuid}/images/${uuid}.svg`,
+    `/worlds/${uuid}/images/../../x.png`,
+    '',
+    42,
+  ])('scarta l’immagine con src non ammesso %j', (bad) => {
+    expect(sanitizeBody(doc({ src: bad }))).toEqual(EMPTY_DOC);
+  });
+
+  it('un’immagine dentro un paragrafo non entra nel documento', () => {
+    const result = sanitizeBody({
+      type: 'doc',
+      content: [{ type: 'paragraph', content: [{ type: 'image', attrs: { src } }] }],
+    });
+    expect(JSON.stringify(result)).not.toContain('image');
+  });
+});
+
 describe('tabelle', () => {
   const cell = (type: string, text: string, attrs?: Record<string, unknown>) => ({
     type,

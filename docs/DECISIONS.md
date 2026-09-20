@@ -173,3 +173,17 @@
 - Le **immagini** richiedono Supabase Storage (bucket privato, policy per mondo, verifica del tipo reale dei file, rotta di
   lettura autenticata): arrivano nella terza PR di #15, che chiuderà l'issue.
 - Deciso da: agente
+
+### D-016: Immagini dei mondi su Supabase Storage
+
+- Data: 2026-09-20
+- Contesto: #15, immagini nel testo. Serviranno anche a mappe e campi immagine (#28).
+- Decisione: bucket privato `world-images` (5 MB, solo PNG/JPEG/WebP/GIF), percorso `<world_id>/<uuid>.<ext>`. Le policy su
+  `storage.objects` dicono: scrive chi può scrivere nel mondo, legge chi è membro; il nome deve avere esattamente quel formato.
+  Il caricamento passa da `POST /worlds/[id]/images`, che decide il tipo dai byte iniziali (mai da nome o Content-Type) e rifiuta
+  SVG e tutto il resto; la lettura da `GET /worlds/[id]/images/[file]`, con la sessione dell'utente (un estraneo riceve 404) e
+  intestazioni `nosniff` + `sandbox`. Nel documento l'immagine è un nodo con `src` interno a whitelist: URL esterni e `data:` sono scartati
+  dalla sanificazione, e le immagini incollate da altri siti non entrano nell'editor.
+- Limiti noti: nessuna eliminazione dei file orfani né miniature (arriveranno con la gestione dello spazio); la visibilità
+  pubblica delle immagini (wiki, #42) richiederà di rivedere la lettura, oggi solo per i membri.
+- Deciso da: agente
