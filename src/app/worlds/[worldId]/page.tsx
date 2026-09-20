@@ -39,6 +39,11 @@ export default async function WorldPage({ params }: Props) {
             {t('members')}
           </Link>
         </p>
+        <p>
+          <Link href={`/worlds/${world.id}/categories`} className="btn">
+            {t('categories')}
+          </Link>
+        </p>
         {membership?.role === 'owner' ? (
           <p>
             <Link href={`/worlds/${world.id}/settings`} className="btn">

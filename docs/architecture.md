@@ -58,3 +58,15 @@ Il client server è tipizzato con `Database`.
 Le funzioni `add_world_member` e `transfer_world_ownership` (migrazione `20260920110000`) sono le sole vie per cercare utenti per email e
 passare la proprietà: `security definer`, `search_path` vuoto, eseguibili solo da `authenticated`, con controllo di proprietà interno.
 Cambio ruolo, rimozione e uscita usano direttamente le policy RLS di `world_members`.
+
+## Categorie e campi
+
+- **Dominio** in `src/lib/fields/fields.ts` (puro, testato): tipi di campo (`text`, `number`, `date`, `calendar_date`, `choice`,
+  `snippet_ref`, `coordinates`, `image`), schema zod delle definizioni e `validateSnippetFields`. I valori di chiavi che nessuna
+  categoria definisce vengono **conservati**: cambiare categoria non perde dati. I campi `required` pesano solo per gli snippet
+  definitivi. La definizione dei campi sta in `categories.fields_schema` (jsonb), i valori in `snippets.fields`.
+- **Preset** (`src/lib/categories/presets.ts`): sette categorie di partenza, tradotte alla creazione nella lingua dell'utente
+  (`messages/*.json`, sezione `Presets`); dopo l'importazione sono categorie normali.
+- Icone e colori sono cataloghi chiusi (`catalog.ts`); i colori sono token `--cat-*` con contrasto ≥ 4:1 in entrambi i temi.
+- Permessi: owner ed editor scrivono, gli altri leggono (RLS, con test DB). Nota: la migrazione `20260920120000` corregge il trigger
+  di immutabilità che impediva ogni UPDATE su `categories`.

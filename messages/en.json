@@ -95,7 +95,8 @@
       "confirm_required": "Tick the confirmation to delete the world.",
       "generic": "The operation failed. Try again in a moment."
     },
-    "members": "Members"
+    "members": "Members",
+    "categories": "Categories"
   },
   "Members": {
     "title": "Members",
@@ -136,6 +137,162 @@
       "commenter": "Commenter",
       "reader": "Reader",
       "owner": "Owner"
+    }
+  },
+  "Presets": {
+    "character": {
+      "name": "Character",
+      "fields": {
+        "birth": "Born",
+        "death": "Died",
+        "home": "Place of origin",
+        "status": "Status",
+        "portrait": "Portrait"
+      },
+      "options": {
+        "alive": "Alive",
+        "dead": "Dead",
+        "missing": "Missing",
+        "unknown": "Unknown"
+      }
+    },
+    "place": {
+      "name": "Place",
+      "fields": {
+        "kind": "Kind",
+        "location": "Position on the map",
+        "parent": "Located in"
+      },
+      "options": {
+        "region": "Region",
+        "city": "City",
+        "building": "Building",
+        "dungeon": "Dungeon",
+        "other": "Other"
+      }
+    },
+    "event": {
+      "name": "Event",
+      "fields": {
+        "start": "Start",
+        "end": "End",
+        "place": "Place"
+      }
+    },
+    "chapter": {
+      "name": "Chapter",
+      "fields": {
+        "number": "Number",
+        "pov": "Point of view",
+        "summary": "Summary"
+      }
+    },
+    "item": {
+      "name": "Item",
+      "fields": {
+        "kind": "Kind",
+        "owner": "Owner",
+        "picture": "Picture"
+      },
+      "options": {
+        "weapon": "Weapon",
+        "armor": "Armor",
+        "tool": "Tool",
+        "relic": "Relic",
+        "other": "Other"
+      }
+    },
+    "faction": {
+      "name": "Faction",
+      "fields": {
+        "founded": "Founded",
+        "leader": "Leader",
+        "base": "Base"
+      }
+    },
+    "rule": {
+      "name": "Rule",
+      "fields": {
+        "source": "Source"
+      }
+    }
+  },
+  "Categories": {
+    "title": "Categories",
+    "back": "Categories",
+    "empty": "No categories yet. Create one or import the presets to get started.",
+    "createTitle": "Create a category",
+    "name": "Name",
+    "icon": "Icon",
+    "color": "Color",
+    "create": "Create category",
+    "importTitle": "Import presets",
+    "importHint": "Starting points: once imported they are ordinary categories you can edit or delete.",
+    "importSubmit": "Import selected",
+    "fieldsTitle": "Fields",
+    "fieldsCount": "{count, plural, =0 {no fields} one {# field} other {# fields}}",
+    "noFields": "This category has no fields yet.",
+    "save": "Save",
+    "deleteTitle": "Delete the category",
+    "deleteWarning": "Snippets stay, but lose this category. Their field values are not deleted.",
+    "deleteConfirm": "I want to delete “{name}”",
+    "delete": "Delete category",
+    "readOnly": "You can view categories but not change them.",
+    "required": "required",
+    "options": "Options",
+    "notices": {
+      "created": "Category created.",
+      "imported": "Presets imported.",
+      "saved": "Category saved.",
+      "deleted": "Category deleted."
+    },
+    "errors": {
+      "invalid_input": "Check name, icon and color.",
+      "nothing_selected": "Select at least one preset.",
+      "confirm_required": "Tick the confirmation to delete the category.",
+      "generic": "The operation failed. Try again in a moment."
+    },
+    "icons": {
+      "user": "Person",
+      "map-pin": "Place",
+      "calendar-days": "Calendar",
+      "book-open": "Book",
+      "gem": "Gem",
+      "flag": "Flag",
+      "scroll-text": "Scroll",
+      "swords": "Swords",
+      "crown": "Crown",
+      "castle": "Castle",
+      "mountain": "Mountain",
+      "trees": "Trees",
+      "feather": "Feather",
+      "sparkles": "Sparkles",
+      "landmark": "Landmark",
+      "compass": "Compass",
+      "skull": "Skull",
+      "flame": "Flame",
+      "key-round": "Key",
+      "shield": "Shield"
+    },
+    "colors": {
+      "teal": "Teal",
+      "brass": "Brass",
+      "moss": "Moss",
+      "rust": "Rust",
+      "slate": "Slate",
+      "plum": "Plum",
+      "ocean": "Ocean",
+      "rose": "Rose"
+    },
+    "fieldTypes": {
+      "text": "Text",
+      "number": "Number",
+      "date": "Date",
+      "calendar_date": "Calendar date",
+      "choice": "Choice",
+      "snippet_ref": "Snippet reference",
+      "coordinates": "Coordinates",
+      "image": "Image"
     }
   }
 }

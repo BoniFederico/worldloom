@@ -1,19 +1,11 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Browser, type Page } from '@playwright/test';
-import { createWorld, registerAndSignIn } from './session';
+import { expect, test, type Browser } from '@playwright/test';
+import { addMember, createWorld, registerAndSignIn } from './session';
 
 async function newUser(browser: Browser, name: string) {
   const page = await (await browser.newContext({ locale: 'it-IT' })).newPage();
   const email = await registerAndSignIn(page, name);
   return { page, email };
-}
-
-async function addMember(owner: Page, worldId: string, email: string, role: string) {
-  await owner.goto(`/worlds/${worldId}/members`);
-  await owner.getByLabel('Email dell’utente').fill(email);
-  await owner.getByLabel('Ruolo', { exact: true }).selectOption(role);
-  await owner.getByRole('button', { name: 'Aggiungi', exact: true }).click();
-  await expect(owner.getByRole('status')).toHaveText('Membro salvato.');
 }
 
 test.describe('membri del mondo', () => {

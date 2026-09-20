@@ -373,3 +373,40 @@ describe('modifica del mondo', () => {
     });
   });
 });
+
+describe('permessi sulle categorie', () => {
+  it('owner ed editor le modificano, il lettore le legge soltanto, l’estraneo nulla', async () => {
+    await withTx(async (db) => {
+      const [owner, editor, reader, outsider] = [
+        await createUser(db),
+        await createUser(db),
+        await createUser(db),
+        await createUser(db),
+      ];
+      const worldId = await createWorld(db, owner);
+      await addMember(db, worldId, editor, 'editor');
+      await addMember(db, worldId, reader, 'reader');
+      const cat = await actAs(db, owner, () =>
+        db.query(`insert into categories (world_id, name) values ($1, 'Luogo') returning id`, [
+          worldId,
+        ]),
+      );
+      const id = cat.rows[0].id as string;
+      const rename = (uid: string, name: string) =>
+        actAs(db, uid, () => db.query('update categories set name = $1 where id = $2', [name, id]));
+
+      expect((await rename(owner, 'A')).rowCount).toBe(1);
+      expect((await rename(editor, 'B')).rowCount).toBe(1);
+      expect((await rename(reader, 'C')).rowCount).toBe(0);
+      expect((await rename(outsider, 'D')).rowCount).toBe(0);
+      const read = (uid: string) => actAs(db, uid, () => db.query('select name from categories'));
+      expect((await read(reader)).rows).toEqual([{ name: 'B' }]);
+      expect((await read(outsider)).rowCount).toBe(0);
+      await expect(
+        actAs(db, reader, () =>
+          db.query(`insert into categories (world_id, name) values ($1, 'X')`, [worldId]),
+        ),
+      ).rejects.toThrow(/row-level security/);
+    });
+  });
+});
