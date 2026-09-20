@@ -502,7 +502,13 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref
       ) : null}
 
       <EditorContent editor={editor} />
-      {mention ? (
+      {mention && mention.items.length === 0 ? (
+        // Senza risultati non c'è un listbox (deve contenere opzioni): solo un breve messaggio.
+        <div className="mention-list" style={{ top: mention.top, left: Math.max(8, mention.left) }}>
+          <p className="mention-none">{t('mentionNone')}</p>
+        </div>
+      ) : null}
+      {mention && mention.items.length > 0 ? (
         <ul
           id="mention-list"
           role="listbox"
@@ -510,31 +516,25 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref
           className="mention-list"
           style={{ top: mention.top, left: Math.max(8, mention.left) }}
         >
-          {mention.items.length === 0 ? (
-            <li role="presentation" className="mention-none">
-              {t('mentionNone')}
+          {mention.items.map((item, i) => (
+            <li
+              key={item.id}
+              id={`mention-option-${i}`}
+              role="option"
+              aria-selected={i === mention.index}
+              className="mention-option"
+              // mousedown (no click): l'editor non deve perdere il focus prima di inserire la menzione.
+              onMouseDown={(e) => {
+                e.preventDefault();
+                mention.command(item);
+              }}
+            >
+              {item.title}
+              {item.alias ? (
+                <span className="role"> ({t('mentionAlias', { alias: item.alias })})</span>
+              ) : null}
             </li>
-          ) : (
-            mention.items.map((item, i) => (
-              <li
-                key={item.id}
-                id={`mention-option-${i}`}
-                role="option"
-                aria-selected={i === mention.index}
-                className="mention-option"
-                // mousedown (no click): l'editor non deve perdere il focus prima di inserire la menzione.
-                onMouseDown={(e) => {
-                  e.preventDefault();
-                  mention.command(item);
-                }}
-              >
-                {item.title}
-                {item.alias ? (
-                  <span className="role"> ({t('mentionAlias', { alias: item.alias })})</span>
-                ) : null}
-              </li>
-            ))
-          )}
+          ))}
         </ul>
       ) : null}
       <span className="sr-only" aria-live="polite">

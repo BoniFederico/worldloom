@@ -98,7 +98,8 @@
     "members": "Members",
     "categories": "Categories",
     "snippets": "Snippets",
-    "relationTypes": "Relation types"
+    "relationTypes": "Relation types",
+    "search": "Search"
   },
   "Members": {
     "title": "Members",
@@ -533,5 +534,38 @@
   "Backlinks": {
     "title": "Mentioned in",
     "empty": "No snippet mentions this one with an @mention."
+  },
+  "Search": {
+    "title": "Search",
+    "intro": "Search by title, alias, tag and text. Filters narrow the results by category, tag, status, field and relation. Ctrl/Cmd+K opens quick search from any page of the world.",
+    "query": "Search",
+    "filters": "Filters",
+    "category": "Category",
+    "any": "Any",
+    "tags": "Tags",
+    "tagsHint": "Comma-separated: the snippet must have all the given tags.",
+    "status": "Status",
+    "draft": "Draft",
+    "final": "Final",
+    "field": "Field",
+    "value": "Field value",
+    "relation": "Relation",
+    "archived": "Include archived snippets",
+    "submit": "Search",
+    "results": "Results",
+    "count": "{count, plural, =0 {No results} one {# result} other {# results}}",
+    "none": "No snippet matches the search.",
+    "error": "The search failed. Please try again."
+  },
+  "Palette": {
+    "open": "Search",
+    "title": "Quick search",
+    "label": "Search a snippet",
+    "placeholder": "Search by title, alias, tag or text…",
+    "hint": "Type to search. Up and down arrows to choose, Enter to open, Esc to close.",
+    "results": "Results",
+    "advanced": "Full search with filters…",
+    "count": "{count, plural, =0 {No results} one {# result} other {# results}}",
+    "error": "Search failed. Try again."
   }
 }

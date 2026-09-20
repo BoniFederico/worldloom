@@ -69,10 +69,9 @@ test.describe('menzioni', () => {
     await mentionElara(page, 'mouse');
 
     await page.keyboard.type(' e @zzzz');
-    const list = page.getByRole('listbox', { name: 'Snippet da menzionare' });
-    await expect(list.locator('.mention-none')).toHaveText('Nessuno snippet corrisponde');
+    await expect(page.locator('.mention-none')).toHaveText('Nessuno snippet corrisponde');
     await page.keyboard.press('Escape');
-    await expect(list).toHaveCount(0);
+    await expect(page.locator('.mention-none')).toHaveCount(0);
   });
 
   test('togliendo la menzione sparisce il backlink', async ({ browser }) => {
