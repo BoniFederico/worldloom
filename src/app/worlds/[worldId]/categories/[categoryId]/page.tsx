@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { CategoryForm } from '@/components/category-form';
 import { Feedback } from '@/components/feedback';
+import { FieldsEditor } from '@/components/fields-editor';
 import { fieldsSchema } from '@/lib/fields/fields';
 import { loadWorld } from '@/lib/worlds/context';
 import { uuidSchema } from '@/lib/worlds/schemas';
@@ -51,25 +52,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           />
         ) : null}
 
-        <h2>{t('fieldsTitle')}</h2>
-        {fields.length === 0 ? (
-          <p className="empty">{t('noFields')}</p>
-        ) : (
-          <ul className="world-list">
-            {fields.map((f) => (
-              <li key={f.key}>
-                <span>
-                  {f.label}
-                  {f.required ? <span className="role"> ({t('required')})</span> : null}
-                </span>
-                <span className="role">
-                  {t(`fieldTypes.${f.type}`)}
-                  {f.options ? `: ${f.options.join(', ')}` : ''}
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
+        <FieldsEditor
+          worldId={world.id}
+          categoryId={category.id}
+          fields={fields}
+          canWrite={canWrite}
+        />
 
         {canWrite ? (
           <>

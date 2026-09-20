@@ -132,3 +132,13 @@
   un'email ha un account, e l'utente viene aggiunto senza consenso. Risposta uniforme non risolverebbe (l'utente comparirebbe
   comunque nell'elenco). Soluzione vera: inviti con accettazione, in #31. Nel frattempo si ricorre al rate limiting di piattaforma.
 - Le funzioni bloccano la riga del mondo (`for update`) prima del controllo di proprietà, per evitare autorizzazioni su stato superato.
+
+### D-013: Chiavi dei campi e valori orfani
+
+- Data: 2026-09-20
+- Contesto: review di #14. La chiave di un campo indicizza i valori negli snippet e non cambia; rimuovere un campo non cancella i valori.
+- Decisione: si può ricreare un campo con la stessa etichetta (stessa chiave): i valori orfani riaffiorano e, se il nuovo tipo non li
+  ammette, `validateSnippetFields` li segnala come non validi senza perderli. Nessuna pulizia automatica dei valori alla rimozione.
+- Motivo: la SPEC chiede che cambiare categoria «non perda dati»; una pulizia silenziosa sarebbe distruttiva. Valutare uno strumento
+  esplicito di pulizia dei valori orfani quando esisteranno gli snippet (#15).
+- Deciso da: agente

@@ -244,14 +244,22 @@
       "created": "Categoria creata.",
       "imported": "Preset importati.",
       "saved": "Categoria salvata.",
-      "deleted": "Categoria eliminata."
+      "deleted": "Categoria eliminata.",
+      "field_added": "Campo aggiunto.",
+      "field_saved": "Campo salvato.",
+      "field_removed": "Campo rimosso.",
+      "field_moved": "Campo spostato."
     },
     "errors": {
       "invalid_input": "Controlla nome, icona e colore.",
       "nothing_selected": "Seleziona almeno un preset.",
       "confirm_required": "Spunta la conferma per eliminare la categoria.",
       "generic": "Operazione non riuscita. Riprova tra poco.",
-      "already_imported": "Questi preset sono già presenti in questo mondo."
+      "already_imported": "Questi preset sono già presenti in questo mondo.",
+      "invalid_field": "Il campo non è valido: controlla nome, opzioni (senza duplicati) e limiti.",
+      "conflict": "Un’altra persona ha modificato la categoria nel frattempo. Ricarica la pagina e riprova.",
+      "forbidden": "Non hai il permesso di modificare le categorie di questo mondo.",
+      "field_missing": "Il campo non esiste più: forse è stato rimosso da un’altra scheda. Ricarica la pagina."
     },
     "icons": {
       "user": "Persona",
@@ -294,6 +302,22 @@
       "snippet_ref": "Riferimento a snippet",
       "coordinates": "Coordinate",
       "image": "Immagine"
-    }
+    },
+    "moveUp": "Sposta su {name}",
+    "moveDown": "Sposta giù {name}",
+    "editField": "Modifica",
+    "fieldLabel": "Nome del campo",
+    "fieldType": "Tipo",
+    "fieldRequired": "Obbligatorio per gli snippet definitivi",
+    "fieldOptions": "Opzioni",
+    "fieldOptionsHint": "Una per riga. Le opzioni già usate negli snippet restano nei loro valori.",
+    "fieldOptionsOnlyChoice": "Solo per il tipo Scelta: una opzione per riga.",
+    "fieldMin": "Minimo",
+    "fieldMax": "Massimo",
+    "fieldLimitsOnlyNumber": "Minimo e massimo valgono solo per il tipo Numero.",
+    "addFieldTitle": "Aggiungi un campo",
+    "addField": "Aggiungi campo",
+    "removeField": "Rimuovi il campo",
+    "removeFieldHint": "I valori già scritti negli snippet non vengono cancellati: tornano visibili se ricrei un campo con lo stesso nome."
   }
 }

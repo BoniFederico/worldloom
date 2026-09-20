@@ -710,3 +710,78 @@ select {
 .world-list a:hover {
   text-decoration: underline;
 }
+
+.field-list {
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--border);
+}
+
+.field-list > li {
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.field-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+}
+
+.field-name {
+  flex: 1 1 12rem;
+  font-weight: 500;
+}
+
+.field-actions {
+  display: inline-flex;
+  gap: var(--space-1);
+}
+
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  padding: 0;
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.field-edit {
+  margin-top: var(--space-2);
+}
+
+.field-edit summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  color: var(--primary);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.field-edit > .form {
+  margin: var(--space-3) 0;
+}
+
+.field textarea {
+  width: 100%;
+  padding: var(--space-3);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  color: var(--text);
+  font: inherit;
+}
+
+.form-inline-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
