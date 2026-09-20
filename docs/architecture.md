@@ -105,3 +105,9 @@ Cambio ruolo, rimozione e uscita usano direttamente le policy RLS di `world_memb
   `enforce_relation_type`; suggeriscono etichette e inversa nel pannello.
 - **Menzioni e backlink** (D-018): nodo `mention` nel corpo → relazioni `from_mention` sincronizzate da `private.sync_mentions`
   dentro `save_snippet` e `autosave_snippet_body`; pannello «Menzionato in» (`src/components/backlinks-panel.tsx`).
+
+## Ricerca
+
+- Full-text in Postgres (D-019): `snippets.search`/`body_text` via trigger, `public.search_snippets` (security invoker, RLS di chi chiama).
+  Pagina `/worlds/[id]/search` e comando rapido Ctrl/Cmd+K (`src/components/command-palette.tsx`, azione `quickSearch`).
+  Regola di sicurezza: ogni superficie che elenca snippet (ricerca, viste, export) deve passare dalla RLS, mai filtrare solo nel client.

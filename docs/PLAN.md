@@ -4,7 +4,7 @@
 
 ## Stato
 
-- Fase: M1 in corso: #15 chiusa (snippet completi); #16 chiusa; #18 chiusa; prossimo #19 (ricerca full-text e Cmd+K).
+- Fase: M1 in corso: #15 chiusa (snippet completi); #16 chiusa; #19 chiusa; prossimo #20 (cronologia versioni).
 
 ## Backlog (in ordine di esecuzione)
 
@@ -27,7 +27,7 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 16  | Tag, alias e stato bozza/definitivo                                             | feat  | 14         | done  | tag, alias, filtri; stato già in #15     |
 | 17  | Relazioni con etichetta libera e inversa                                        | feat  | 15         | done  | pannello (#70) e tipi con vincoli        |
 | 18  | Menzioni con @ e pannello backlink                                              | feat  | 15         | done  | menzioni @, alias, backlink              |
-| 19  | Ricerca full-text e comando rapido Ctrl/Cmd+K                                   | feat  | 13         | todo  |                                          |
+| 19  | Ricerca full-text e comando rapido Ctrl/Cmd+K                                   | feat  | 13         | done  | full-text, filtri, Ctrl/Cmd+K            |
 | 20  | Cronologia versioni con confronto e ripristino                                  | feat  | 13         | todo  |                                          |
 | 21  | Import/export del mondo in JSON e Markdown con front matter                     | feat  | 13         | todo  |                                          |
 | 22  | Seed di demo: mondo di esempio e dati sintetici per performance                 | feat  | 13         | todo  |                                          |

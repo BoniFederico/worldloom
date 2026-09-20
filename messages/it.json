@@ -98,7 +98,8 @@
     "members": "Membri",
     "categories": "Categorie",
     "snippets": "Snippet",
-    "relationTypes": "Tipi di relazione"
+    "relationTypes": "Tipi di relazione",
+    "search": "Ricerca"
   },
   "Members": {
     "title": "Membri",
@@ -533,5 +534,37 @@
   "Backlinks": {
     "title": "Menzionato in",
     "empty": "Nessuno snippet cita questo snippet con una @menzione."
+  },
+  "Search": {
+    "title": "Ricerca",
+    "intro": "Cerca per titolo, alias, tag e testo. Con i filtri puoi restringere per categoria, tag, stato, campo e relazione. Ctrl/Cmd+K apre la ricerca rapida da qualunque pagina del mondo.",
+    "query": "Cerca",
+    "filters": "Filtri",
+    "category": "Categoria",
+    "any": "Qualsiasi",
+    "tags": "Tag",
+    "tagsHint": "Separati da virgola: lo snippet deve avere tutti i tag indicati.",
+    "status": "Stato",
+    "draft": "Bozza",
+    "final": "Definitivo",
+    "field": "Campo",
+    "value": "Valore del campo",
+    "relation": "Relazione",
+    "archived": "Includi gli snippet archiviati",
+    "submit": "Cerca",
+    "results": "Risultati",
+    "count": "{count, plural, =0 {Nessun risultato} one {# risultato} other {# risultati}}",
+    "none": "Nessuno snippet corrisponde alla ricerca.",
+    "error": "La ricerca non è riuscita. Riprova."
+  },
+  "Palette": {
+    "open": "Cerca",
+    "title": "Ricerca rapida",
+    "label": "Cerca uno snippet",
+    "placeholder": "Cerca per titolo, alias, tag o testo…",
+    "hint": "Scrivi per cercare. Freccia su e giù per scegliere, Invio per aprire, Esc per chiudere.",
+    "results": "Risultati",
+    "advanced": "Ricerca completa con filtri…",
+    "count": "{count, plural, =0 {Nessun risultato} one {# risultato} other {# risultati}}"
   }
 }

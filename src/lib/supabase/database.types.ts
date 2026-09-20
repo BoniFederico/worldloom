@@ -259,11 +259,13 @@ export type Database = {
           aliases: string[];
           archived_at: string | null;
           body: Json;
+          body_text: string;
           created_at: string;
           created_by: string;
           deleted_at: string | null;
           fields: Json;
           id: string;
+          search: unknown;
           status: Database['public']['Enums']['snippet_status'];
           tags: string[];
           title: string;
@@ -275,11 +277,13 @@ export type Database = {
           aliases?: string[];
           archived_at?: string | null;
           body?: Json;
+          body_text?: string;
           created_at?: string;
           created_by: string;
           deleted_at?: string | null;
           fields?: Json;
           id?: string;
+          search?: unknown;
           status?: Database['public']['Enums']['snippet_status'];
           tags?: string[];
           title: string;
@@ -291,11 +295,13 @@ export type Database = {
           aliases?: string[];
           archived_at?: string | null;
           body?: Json;
+          body_text?: string;
           created_at?: string;
           created_by?: string;
           deleted_at?: string | null;
           fields?: Json;
           id?: string;
+          search?: unknown;
           status?: Database['public']['Enums']['snippet_status'];
           tags?: string[];
           title?: string;
@@ -405,6 +411,29 @@ export type Database = {
           p_updated: string;
         };
         Returns: undefined;
+      };
+      search_snippets: {
+        Args: {
+          p_category?: string;
+          p_field_key?: string;
+          p_field_value?: string;
+          p_include_archived?: boolean;
+          p_limit?: number;
+          p_query?: string;
+          p_relation?: string;
+          p_status?: Database['public']['Enums']['snippet_status'];
+          p_tags?: string[];
+          p_world: string;
+        };
+        Returns: {
+          excerpt: string;
+          id: string;
+          rank: number;
+          status: Database['public']['Enums']['snippet_status'];
+          tags: string[];
+          title: string;
+          updated_at: string;
+        }[];
       };
       transfer_world_ownership: {
         Args: { p_new_owner: string; p_world: string };

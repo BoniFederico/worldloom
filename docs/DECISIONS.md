@@ -232,3 +232,26 @@
 - Nota tecnica: gli `attrs` di ProseMirror non sono oggetti semplici e la serializzazione delle server action li sostituiva con un
   segnaposto; il documento inviato dall'editor è quindi una copia via JSON.
 - Deciso da: agente
+
+### D-019: Ricerca full-text in Postgres, con la visibilità nella RLS
+
+- Data: 2026-09-20
+- Contesto: #19. La SPEC chiede ricerca istantanea (< 200 ms con 5.000 snippet), filtri per categoria, tag, campi e relazioni,
+  Ctrl/Cmd+K, e che la visibilità sia decisa lato server.
+- Decisione: `snippets.search` (tsvector) e `body_text` sono mantenuti da un trigger: titolo e alias peso A, tag B, testo C
+  (i nodi `text` del documento; le menzioni non hanno testo, quindi non indicizzano titoli altrui). Configurazione
+  `simple_unaccent`: senza badare a maiuscole e accenti, nessuno stemming (l'app è multilingua it/en). Le parole cercate diventano
+  prefissi (`eda` trova «Edaline»); dal testo dell'utente arrivano alla query solo lettere e cifre, quindi nessun operatore.
+  `search_snippets` è `security invoker`: gira con i permessi di chi chiama e la RLS di `snippets` decide cosa si vede (segreti e
+  condivisi restano chiusi ai non scrittori); il filtro per relazione passa dalla RLS delle relazioni, quindi non rivela
+  relazioni verso snippet non leggibili. Estratti con marcatori `<<…>>` che l'interfaccia trasforma in `<mark>` (mai HTML).
+- Prestazioni: la policy `snippets_read` chiamava `private.can_read` una volta per riga e, non essendo `@@` «leakproof», Postgres
+  la valutava su tutte le righe del mondo prima di usare l'indice (3.000 snippet ≈ 200 ms). Riscritta con sottoquery non correlate
+  (`private.member_worlds()` / `writer_worlds()`, valutate una volta per query), stessa semantica verificata dai test RLS:
+  ora 40–90 ms su 3.000 snippet, con test di regressione (soglia 200 ms) e verifica dell'uso dell'indice GIN.
+- Interfaccia: pagina `/worlds/[id]/search` (GET, funziona senza JavaScript) con filtri; comando rapido nel layout del mondo
+  (`<dialog>` modale, combobox/listbox, Ctrl/Cmd+K, voce «ricerca completa»).
+- Limiti noti: i filtri sui campi sono per uguaglianza di testo (non intervalli); i valori dei campi non sono indicizzati nel testo;
+  i risultati sono al massimo 50 (30 nell'API per default), senza paginazione; l'alias trovato nelle menzioni (`@`) usa ancora
+  l'elenco locale (#18) e non questa ricerca.
+- Deciso da: agente
