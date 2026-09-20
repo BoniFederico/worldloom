@@ -374,7 +374,8 @@
       "unarchived": "Snippet ripristinato dall’archivio.",
       "trashed": "Snippet spostato nel cestino.",
       "restored": "Snippet ripristinato.",
-      "deleted": "Snippet eliminato definitivamente."
+      "deleted": "Snippet eliminato definitivamente.",
+      "version_restored": "Versione ripristinata."
     },
     "errors": {
       "invalid_title": "Il titolo è obbligatorio (massimo 300 caratteri).",
@@ -449,7 +450,8 @@
     "filterApply": "Filtra",
     "filterReset": "Azzera filtri",
     "filters": "Filtri",
-    "mentionUnavailable": "snippet non disponibile"
+    "mentionUnavailable": "snippet non disponibile",
+    "historyLink": "Cronologia versioni"
   },
   "Relations": {
     "title": "Relazioni",
@@ -567,5 +569,33 @@
     "advanced": "Ricerca completa con filtri…",
     "count": "{count, plural, =0 {Nessun risultato} one {# risultato} other {# risultati}}",
     "error": "Ricerca non riuscita. Riprova."
+  },
+  "History": {
+    "title": "Cronologia versioni",
+    "snippets": "Snippet",
+    "hint": "Ogni salvataggio che cambia il contenuto registra una versione; le modifiche ravvicinate dello stesso autore (entro 10 minuti) confluiscono in una sola. Si conservano le ultime 100.",
+    "empty": "Nessuna versione registrata.",
+    "listLabel": "Versioni",
+    "version": "Versione {n}",
+    "unknownAuthor": "Autore sconosciuto",
+    "restoredFrom": "ripristino della versione {n}",
+    "comparedWith": "confronto con la versione {n}",
+    "first": "prima versione",
+    "noChanges": "Nessuna differenza di contenuto.",
+    "titleLabel": "Titolo",
+    "statusLabel": "Stato",
+    "tags": "Tag",
+    "aliases": "Alias",
+    "bodyLabel": "Testo",
+    "added": "Aggiunto",
+    "removed": "Rimosso",
+    "restore": "Ripristina la versione {n}",
+    "notices": {},
+    "errors": {
+      "conflict": "Lo snippet è stato modificato nel frattempo. Ricarica e riprova.",
+      "not_found": "Versione non trovata.",
+      "forbidden": "Non hai i permessi per ripristinare.",
+      "generic": "Operazione non riuscita. Riprova tra poco."
+    }
   }
 }

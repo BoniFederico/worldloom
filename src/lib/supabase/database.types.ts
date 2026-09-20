@@ -254,6 +254,62 @@ export type Database = {
           },
         ];
       };
+      snippet_versions: {
+        Row: {
+          aliases: string[];
+          body: Json;
+          created_at: string;
+          created_by: string | null;
+          fields: Json;
+          id: string;
+          restored_from: number | null;
+          snippet_id: string;
+          status: Database['public']['Enums']['snippet_status'];
+          tags: string[];
+          title: string;
+          version: number;
+          world_id: string;
+        };
+        Insert: {
+          aliases?: string[];
+          body?: Json;
+          created_at?: string;
+          created_by?: string | null;
+          fields?: Json;
+          id?: string;
+          restored_from?: number | null;
+          snippet_id: string;
+          status?: Database['public']['Enums']['snippet_status'];
+          tags?: string[];
+          title: string;
+          version: number;
+          world_id: string;
+        };
+        Update: {
+          aliases?: string[];
+          body?: Json;
+          created_at?: string;
+          created_by?: string | null;
+          fields?: Json;
+          id?: string;
+          restored_from?: number | null;
+          snippet_id?: string;
+          status?: Database['public']['Enums']['snippet_status'];
+          tags?: string[];
+          title?: string;
+          version?: number;
+          world_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'snippet_versions_world_id_snippet_id_fkey';
+            columns: ['world_id', 'snippet_id'];
+            isOneToOne: false;
+            referencedRelation: 'snippets';
+            referencedColumns: ['world_id', 'id'];
+          },
+        ];
+      };
       snippets: {
         Row: {
           aliases: string[];
@@ -396,6 +452,10 @@ export type Database = {
           p_updated: string;
         };
         Returns: string;
+      };
+      restore_snippet_version: {
+        Args: { p_snippet: string; p_updated: string; p_version: number };
+        Returns: undefined;
       };
       save_snippet: {
         Args: {
