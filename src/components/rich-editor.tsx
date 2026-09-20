@@ -1,5 +1,6 @@
 'use client';
 
+import Image from '@tiptap/extension-image';
 import { TableKit } from '@tiptap/extension-table';
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -8,6 +9,7 @@ import {
   Code,
   Heading2,
   Heading3,
+  ImagePlus,
   Italic,
   Link as LinkIcon,
   List,
@@ -55,6 +57,12 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref
   const [status, setStatus] = useState<Status>('idle');
   const [linkOpen, setLinkOpen] = useState(false);
   const [linkError, setLinkError] = useState(false);
+  const [imageOpen, setImageOpen] = useState(false);
+  const [imageState, setImageState] = useState<'idle' | 'uploading' | 'error'>('idle');
+  const [imageMessage, setImageMessage] = useState('');
+  const imageFile = useRef<HTMLInputElement>(null);
+  const imageAlt = useRef<HTMLInputElement>(null);
+  const imageButton = useRef<HTMLButtonElement>(null);
   const tokenRef = useRef(token);
   const docRef = useRef<unknown>(initialDoc);
   const version = useRef(0);
@@ -92,9 +100,13 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref
         },
       }),
       TableKit.configure({ table: { resizable: false } }),
+      // Blocco, non inline; `src` ammesso solo se punta a un'immagine caricata nell'app (lo impone anche il server).
+      Image.configure({ inline: false, allowBase64: false }),
     ],
     content: initialDoc,
     editorProps: {
+      // Le immagini incollate da altri siti non entrano: si inseriscono solo caricandole.
+      transformPastedHTML: (html) => html.replace(/<img[^>]*>/gi, ''),
       attributes: {
         id: 'body-editor',
         role: 'textbox',
@@ -163,12 +175,56 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref
     if (linkOpen) linkInput.current?.focus();
   }, [linkOpen]);
 
+  useEffect(() => {
+    if (imageOpen) imageFile.current?.focus();
+  }, [imageOpen]);
+
   if (!editor) return <div className="editor-content prose" aria-busy="true" />;
 
   const closeLink = () => {
     setLinkOpen(false);
     setLinkError(false);
     linkButton.current?.focus();
+  };
+
+  const closeImage = () => {
+    setImageOpen(false);
+    setImageState('idle');
+    imageButton.current?.focus();
+  };
+
+  const uploadImage = async () => {
+    const file = imageFile.current?.files?.[0];
+    if (!file) {
+      setImageState('error');
+      setImageMessage(t('imageMissing'));
+      return;
+    }
+    setImageState('uploading');
+    try {
+      const body = new FormData();
+      body.set('file', file);
+      const response = await fetch(`/worlds/${worldId}/images`, { method: 'POST', body });
+      const result: { src?: string; error?: string } = await response.json().catch(() => ({}));
+      if (!response.ok || !result.src) {
+        setImageState('error');
+        setImageMessage(
+          result.error === 'unsupported' || result.error === 'too_large'
+            ? t(`imageErrors.${result.error}`)
+            : t('imageErrors.generic'),
+        );
+        return;
+      }
+      editor
+        .chain()
+        .focus()
+        .setImage({ src: result.src, alt: imageAlt.current?.value.trim() ?? '' })
+        .run();
+      closeImage();
+    } catch {
+      setImageState('error');
+      setImageMessage(t('imageErrors.generic'));
+    }
   };
 
   const applyLink = (value: string) => {
@@ -275,6 +331,17 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref
             {icon(Unlink)}
           </Tool>
         ) : null}
+        <button
+          ref={imageButton}
+          type="button"
+          className="btn btn-icon"
+          aria-expanded={imageOpen}
+          aria-controls="image-panel"
+          onClick={() => setImageOpen((open) => !open)}
+        >
+          {icon(ImagePlus)}
+          <span className="sr-only">{t('image')}</span>
+        </button>
         <Tool
           editor={editor}
           label={t('table')}
@@ -339,6 +406,48 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref
           {linkError ? (
             <p id="link-error" className="field-hint">
               {t('linkInvalid')}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {imageOpen ? (
+        <div
+          id="image-panel"
+          className="link-form"
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              closeImage();
+            }
+          }}
+        >
+          <label htmlFor="image-file">{t('imageFile')}</label>
+          <input
+            id="image-file"
+            ref={imageFile}
+            type="file"
+            accept="image/png,image/jpeg,image/webp,image/gif"
+          />
+          <label htmlFor="image-alt">{t('imageAlt')}</label>
+          <input id="image-alt" ref={imageAlt} maxLength={300} aria-describedby="image-alt-hint" />
+          <p id="image-alt-hint" className="field-hint">
+            {t('imageAltHint')}
+          </p>
+          <button
+            type="button"
+            className="btn"
+            disabled={imageState === 'uploading'}
+            onClick={() => void uploadImage()}
+          >
+            {imageState === 'uploading' ? t('imageUploading') : t('imageInsert')}
+          </button>
+          <span className="sr-only" aria-live="polite">
+            {imageState === 'uploading' ? t('imageUploading') : ''}
+          </span>
+          {imageState === 'error' ? (
+            <p role="alert" className="field-hint">
+              {imageMessage}
             </p>
           ) : null}
         </div>

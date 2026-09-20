@@ -4,6 +4,8 @@
  * allowlist di nodi, marcature e attributi. Quello che non è ammesso viene scartato (il testo resta).
  */
 
+import { IMAGE_SRC } from '@/lib/images/sniff';
+
 export type DocMark = { type: string; attrs?: Record<string, unknown> };
 export type DocNode = {
   type: string;
@@ -126,6 +128,13 @@ function clean(raw: unknown, depth: number): DocNode[] {
     return [marks ? { type: 'text', text: raw.text, marks } : { type: 'text', text: raw.text }];
   }
   if (raw.type === 'hardBreak') return [{ type: 'hardBreak' }];
+  if (raw.type === 'image') {
+    // Solo immagini caricate nell'app (percorso interno a whitelist): mai URL esterni né data:.
+    const attrs = isRecord(raw.attrs) ? raw.attrs : {};
+    if (typeof attrs.src !== 'string' || !IMAGE_SRC.test(attrs.src)) return [];
+    const alt = typeof attrs.alt === 'string' ? attrs.alt.trim().slice(0, 300) : '';
+    return [{ type: 'image', attrs: alt ? { src: attrs.src, alt } : { src: attrs.src } }];
+  }
 
   const children = Array.isArray(raw.content)
     ? raw.content.flatMap((c) => clean(c, depth + 1))

@@ -417,7 +417,19 @@
       },
       "deleteRow": "Delete row",
       "deleteColumn": "Delete column",
-      "toggleHeader": "Header row"
+      "toggleHeader": "Header row",
+      "image": "Insert image",
+      "imageFile": "Image file (PNG, JPEG, WebP or GIF, 4 MB at most)",
+      "imageAlt": "Image description",
+      "imageAltHint": "Describe the image for people who cannot see it. Leave empty if it is purely decorative.",
+      "imageInsert": "Upload and insert",
+      "imageUploading": "Uploading…",
+      "imageMissing": "Choose a file first.",
+      "imageErrors": {
+        "unsupported": "Unsupported format: only PNG, JPEG, WebP and GIF are allowed.",
+        "too_large": "The file is larger than 4 MB.",
+        "generic": "Upload failed. Please try again."
+      }
     }
   }
 }
