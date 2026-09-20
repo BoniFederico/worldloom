@@ -326,11 +326,13 @@ export type Database = {
       };
       save_snippet: {
         Args: {
+          p_aliases: string[];
           p_body: Json;
           p_categories: string[];
           p_fields: Json;
           p_id: string;
           p_status: Database['public']['Enums']['snippet_status'];
+          p_tags: string[];
           p_title: string;
           p_updated: string;
         };

@@ -13,6 +13,7 @@ import {
   type DocNode,
 } from '@/lib/snippets/body';
 import { EDITABLE_TYPES, mergeFieldInput } from '@/lib/snippets/form';
+import { parseAliases, parseTags } from '@/lib/snippets/labels';
 import { snippetTitleSchema } from '@/lib/snippets/schemas';
 import type { SaveState, SnippetDraft } from '@/lib/snippets/state';
 import { loadWorld } from '@/lib/worlds/context';
@@ -76,6 +77,8 @@ function draftOf(formData: FormData): SnippetDraft {
     status: field(formData, 'status'),
     body: field(formData, 'body'),
     bodyJson: field(formData, 'body_json'),
+    tags: field(formData, 'tags'),
+    aliases: field(formData, 'aliases'),
     categories: formData.getAll('category').map(String),
     fields,
   };
@@ -114,6 +117,9 @@ export async function saveSnippet(_prev: SaveState, formData: FormData): Promise
     }
     if (!richBody) return fail('invalid_body');
   }
+  const tags = parseTags(draft.tags);
+  const aliases = parseAliases(draft.aliases);
+  if (!tags.ok || !aliases.ok) return fail('invalid_labels');
   const chosen = [...new Set(draft.categories)].filter((c) => uuidSchema.safeParse(c).success);
 
   const { supabase, canWrite } = await loadWorld(world);
@@ -197,8 +203,16 @@ export async function saveSnippet(_prev: SaveState, formData: FormData): Promise
     p_body: body,
     p_fields: checked.values as unknown as Json,
     p_categories: validCategories,
+    p_tags: tags.values,
+    p_aliases: aliases.values,
   });
-  if (error) return fail(error.message === 'conflict' ? 'conflict' : 'generic');
+  if (error) {
+    return fail(
+      error.message === 'conflict' || error.message === 'invalid_labels'
+        ? error.message
+        : 'generic',
+    );
+  }
   redirect(`${listPath(world)}/${id}?notice=saved`);
 }
 

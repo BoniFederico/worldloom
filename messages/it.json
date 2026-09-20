@@ -383,7 +383,8 @@
       "not_found": "Snippet non trovato.",
       "confirm_required": "Spunta la conferma per eliminare definitivamente.",
       "generic": "Operazione non riuscita. Riprova.",
-      "invalid_body": "Il testo non è valido. Riprova."
+      "invalid_body": "Il testo non è valido. Riprova.",
+      "invalid_labels": "Tag o alias non validi: massimo 30 tag di 40 caratteri e 20 alias di 100."
     },
     "editor": {
       "toolbar": "Formattazione del testo",
@@ -430,6 +431,17 @@
         "too_large": "Il file supera i 4 MB.",
         "generic": "Caricamento non riuscito. Riprova."
       }
-    }
+    },
+    "tagsLabel": "Tag",
+    "tagsHint": "Separati da virgola. Maiuscole e minuscole sono equivalenti (massimo 30 tag).",
+    "knownTags": "Già usati nel mondo: {tags}.",
+    "aliasesLabel": "Alias",
+    "aliasesHint": "Nomi alternativi, uno per riga (massimo 20). Serviranno alla ricerca e alle menzioni.",
+    "filterTag": "Tag",
+    "filterStatus": "Stato",
+    "filterAll": "Tutti",
+    "filterApply": "Filtra",
+    "filterReset": "Azzera filtri",
+    "filters": "Filtri"
   }
 }

@@ -36,7 +36,7 @@ export default async function SnippetPage({ params, searchParams }: Props) {
     supabase
       .from('snippets')
       .select(
-        'id, title, body, fields, status, archived_at, deleted_at, updated_at, snippet_categories(category_id)',
+        'id, title, body, fields, tags, aliases, status, archived_at, deleted_at, updated_at, snippet_categories(category_id)',
       )
       .eq('id', snippetId)
       .eq('world_id', worldId)
@@ -69,6 +69,22 @@ export default async function SnippetPage({ params, searchParams }: Props) {
         .limit(500)
     : { data: [] };
 
+  // Tag già usati nel mondo (i più frequenti), da riusare invece di inventarne di simili.
+  const { data: tagRows } = await supabase
+    .from('snippets')
+    .select('tags')
+    .eq('world_id', worldId)
+    .is('deleted_at', null)
+    .order('updated_at', { ascending: false })
+    .limit(500);
+  const counts = new Map<string, number>();
+  for (const row of tagRows ?? [])
+    for (const tag of row.tags) counts.set(tag, (counts.get(tag) ?? 0) + 1);
+  const knownTags = [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 20)
+    .map(([tag]) => tag);
+
   const trashed = snippet.deleted_at !== null;
   const editable = canWrite && !trashed;
   const ids = (
@@ -100,6 +116,8 @@ export default async function SnippetPage({ params, searchParams }: Props) {
               doc: sanitizeBody(snippet.body),
               updatedAt: snippet.updated_at,
               categoryIds,
+              tags: snippet.tags,
+              aliases: snippet.aliases,
               values: asRecord(snippet.fields),
             }}
             categories={(categories ?? []).map((c) => ({
@@ -110,6 +128,7 @@ export default async function SnippetPage({ params, searchParams }: Props) {
             }))}
             defs={defs}
             refs={refs ?? []}
+            knownTags={knownTags}
           />
         ) : (
           <>
