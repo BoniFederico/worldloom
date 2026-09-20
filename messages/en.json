@@ -412,8 +412,12 @@
         "saving": "Saving…",
         "saved": "Saved",
         "error": "Autosave failed: use Save",
-        "conflict": "The snippet was changed elsewhere: autosave is paused"
-      }
+        "conflict": "The snippet was changed elsewhere: autosave is paused. Copy your text, reload the page and reapply your changes.",
+        "tooLarge": "The text is too long to be saved: shorten it"
+      },
+      "deleteRow": "Delete row",
+      "deleteColumn": "Delete column",
+      "toggleHeader": "Header row"
     }
   }
 }

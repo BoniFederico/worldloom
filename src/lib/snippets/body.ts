@@ -18,7 +18,9 @@ export const EMPTY_DOC: DocNode = { type: 'doc', content: [{ type: 'paragraph' }
 export const MAX_TEXT_LENGTH = 200_000;
 export const MAX_JSON_LENGTH = 500_000;
 const MAX_BYTES = MAX_JSON_LENGTH;
-const MAX_DEPTH = 12;
+const MAX_DEPTH = 30;
+const MAX_TABLE_ROWS = 200;
+const MAX_TABLE_CELLS = 30;
 
 type Kind = 'blocks' | 'inline' | 'items' | 'rows' | 'cells';
 const NODES: Record<string, Kind> = {
@@ -161,7 +163,33 @@ function clean(raw: unknown, depth: number): DocNode[] {
   return [node];
 }
 
-/** Ricostruisce il documento con la sola allowlist. Input non valido o troppo grande → documento vuoto. */
+/** Il documento rispetta i limiti di profondità, righe e celle? (Ricorsione fermata al limite di profondità.) */
+function withinLimits(node: unknown, depth: number): boolean {
+  if (!isRecord(node)) return true;
+  if (depth > MAX_DEPTH) return false;
+  const content = Array.isArray(node.content) ? node.content : [];
+  if (node.type === 'table' && content.length > MAX_TABLE_ROWS) return false;
+  if (node.type === 'tableRow' && content.length > MAX_TABLE_CELLS) return false;
+  return content.every((child) => withinLimits(child, depth + 1));
+}
+
+/**
+ * Validazione per la SCRITTURA: restituisce il documento sanificato oppure `null` se l'input non è un documento
+ * o supera i limiti. Non sostituisce mai un input non vuoto con un documento vuoto: chi scrive deve fallire,
+ * altrimenti un salvataggio automatico cancellerebbe il corpo esistente.
+ */
+export function validateBody(raw: unknown): DocNode | null {
+  if (!isRecord(raw) || raw.type !== 'doc') return null;
+  try {
+    if (JSON.stringify(raw).length > MAX_BYTES) return null;
+  } catch {
+    return null;
+  }
+  if (!withinLimits(raw, 0)) return null;
+  return sanitizeBody(raw);
+}
+
+/** Ricostruisce il documento con la sola allowlist. Input non valido o troppo grande → documento vuoto (per la lettura: usa `validateBody` per scrivere). */
 export function sanitizeBody(raw: unknown): DocNode {
   if (!isRecord(raw) || raw.type !== 'doc') return EMPTY_DOC;
   let size: number;

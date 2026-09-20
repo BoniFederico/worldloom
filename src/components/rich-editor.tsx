@@ -19,13 +19,16 @@ import {
   Unlink,
 } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref } from 'react';
 import { autosaveBody } from '@/app/worlds/[worldId]/snippets/actions';
-import { isSafeHref, sanitizeBody, type DocNode } from '@/lib/snippets/body';
+import { MAX_JSON_LENGTH, isSafeHref, type DocNode } from '@/lib/snippets/body';
 
 const AUTOSAVE_DELAY_MS = 1500;
 
-type Status = 'idle' | 'dirty' | 'saving' | 'saved' | 'error' | 'conflict';
+type Status = 'idle' | 'dirty' | 'saving' | 'saved' | 'error' | 'conflict' | 'tooLarge';
+
+/** Ciò che il form può chiedere all'editor: attendere un salvataggio automatico in corso e leggere il token aggiornato. */
+export type EditorSync = { busy: () => boolean; wait: () => Promise<void>; token: () => string };
 
 type Props = {
   worldId: string;
@@ -34,26 +37,42 @@ type Props = {
   /** Token di concorrenza (`updated_at`) corrente e callback per aggiornarlo dopo un salvataggio automatico. */
   token: string;
   onToken: (token: string) => void;
+  ref?: Ref<EditorSync>;
 };
+
+type ChainFn = (chain: ReturnType<Editor['chain']>) => ReturnType<Editor['chain']>;
 
 /**
  * Editor rich text (Tiptap/ProseMirror) con salvataggio automatico del corpo. Il documento viaggia nel form
- * come JSON in un campo nascosto e il server lo sanifica di nuovo: l'editor non è mai un confine di sicurezza.
+ * come JSON in un campo nascosto e il server lo valida e sanifica di nuovo: l'editor non è un confine di sicurezza.
+ * Il documento non viene mai «ripulito» sul client: se supera i limiti non si salva e lo si dice, perché un
+ * ripiego vuoto cancellerebbe il corpo esistente.
  */
-export function RichEditor({ worldId, snippetId, initialDoc, token, onToken }: Props) {
+export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref }: Props) {
   const t = useTranslations('Snippets.editor');
-  const [doc, setDoc] = useState<DocNode>(initialDoc);
+  const [json, setJson] = useState(() => JSON.stringify(initialDoc));
+  const [rev, setRev] = useState(0);
   const [status, setStatus] = useState<Status>('idle');
   const [linkOpen, setLinkOpen] = useState(false);
   const [linkError, setLinkError] = useState(false);
   const tokenRef = useRef(token);
-  const changed = useRef(false);
+  const docRef = useRef<unknown>(initialDoc);
   const version = useRef(0);
+  const inFlight = useRef<Promise<void> | null>(null);
   const linkInput = useRef<HTMLInputElement>(null);
+  const linkButton = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     tokenRef.current = token;
   }, [token]);
+
+  useImperativeHandle(ref, () => ({
+    busy: () => inFlight.current !== null,
+    wait: async () => {
+      await inFlight.current;
+    },
+    token: () => tokenRef.current,
+  }));
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -85,40 +104,72 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken }: P
       },
     },
     onUpdate: ({ editor: e }) => {
-      changed.current = true;
       version.current += 1;
-      setDoc(sanitizeBody(e.getJSON()));
-      setStatus('dirty');
+      docRef.current = e.getJSON();
+      const serialized = JSON.stringify(docRef.current);
+      setJson(serialized);
+      setRev(version.current);
+      // Dopo un conflitto l'autosave resta sospeso finché l'utente non ricarica: riprovare col token vecchio non serve.
+      setStatus((s) =>
+        s === 'conflict' ? s : serialized.length > MAX_JSON_LENGTH ? 'tooLarge' : 'dirty',
+      );
     },
   });
 
-  // Salvataggio automatico: dopo una pausa di scrittura si salva solo il corpo.
+  // Salvataggio automatico: dopo una pausa di scrittura si salva solo il corpo, una richiesta alla volta.
   useEffect(() => {
-    if (!changed.current || status !== 'dirty') return;
-    const timer = setTimeout(async () => {
-      setStatus('saving');
+    if (status !== 'dirty') return;
+    const timer = setTimeout(() => {
+      if (inFlight.current) return; // al termine di quella in corso si riprogramma
       const saving = version.current;
-      try {
-        const result = await autosaveBody({
-          world: worldId,
-          id: snippetId,
-          updated: tokenRef.current,
-          doc,
-        });
-        if (result.ok) {
-          tokenRef.current = result.updated;
-          onToken(result.updated);
-          // Se nel frattempo si è scritto ancora, il nuovo testo è ancora da salvare.
-          setStatus(version.current === saving ? 'saved' : 'dirty');
-        } else setStatus(result.error === 'conflict' ? 'conflict' : 'error');
-      } catch {
-        setStatus('error');
-      }
+      setStatus('saving');
+      const request = (async () => {
+        try {
+          const result = await autosaveBody({
+            world: worldId,
+            id: snippetId,
+            updated: tokenRef.current,
+            doc: docRef.current,
+          });
+          if (result.ok) {
+            tokenRef.current = result.updated;
+            onToken(result.updated);
+            // Se nel frattempo si è scritto ancora, il nuovo testo è ancora da salvare.
+            const more = version.current !== saving;
+            setStatus(more ? 'dirty' : 'saved');
+            if (more) setRev((r) => r + 1);
+          } else setStatus(result.error === 'conflict' ? 'conflict' : 'error');
+        } catch {
+          setStatus('error');
+        }
+      })();
+      inFlight.current = request;
+      void request.finally(() => {
+        inFlight.current = null;
+      });
     }, AUTOSAVE_DELAY_MS);
     return () => clearTimeout(timer);
-  }, [doc, status, worldId, snippetId, onToken]);
+  }, [status, rev, worldId, snippetId, onToken]);
+
+  // Con modifiche non ancora salvate, lasciare la pagina chiede conferma.
+  useEffect(() => {
+    if (status !== 'dirty' && status !== 'saving' && status !== 'tooLarge') return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener('beforeunload', warn);
+    return () => window.removeEventListener('beforeunload', warn);
+  }, [status]);
+
+  useEffect(() => {
+    if (linkOpen) linkInput.current?.focus();
+  }, [linkOpen]);
 
   if (!editor) return <div className="editor-content prose" aria-busy="true" />;
+
+  const closeLink = () => {
+    setLinkOpen(false);
+    setLinkError(false);
+    linkButton.current?.focus();
+  };
 
   const applyLink = (value: string) => {
     const href = value.trim();
@@ -127,20 +178,30 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken }: P
       return;
     }
     editor.chain().focus().extendMarkRange('link').setLink({ href }).run();
-    setLinkOpen(false);
-    setLinkError(false);
+    closeLink();
   };
+
+  const icon = (Icon: typeof Bold) => <Icon size={18} aria-hidden="true" />;
+  const quiet = status === 'dirty' || status === 'saving';
+  const assertive = status === 'error' || status === 'conflict' || status === 'tooLarge';
+  const tableTools: [string, ChainFn][] = [
+    ['addRow', (c) => c.addRowAfter()],
+    ['addColumn', (c) => c.addColumnAfter()],
+    ['deleteRow', (c) => c.deleteRow()],
+    ['deleteColumn', (c) => c.deleteColumn()],
+    ['toggleHeader', (c) => c.toggleHeaderRow()],
+  ];
 
   return (
     <div className="editor">
-      <div role="toolbar" aria-label={t('toolbar')} className="toolbar">
+      <div role="group" aria-label={t('toolbar')} className="toolbar">
         <Tool
           editor={editor}
           label={t('bold')}
           active={editor.isActive('bold')}
           run={(c) => c.toggleBold()}
         >
-          <Bold size={18} aria-hidden="true" />
+          {icon(Bold)}
         </Tool>
         <Tool
           editor={editor}
@@ -148,7 +209,7 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken }: P
           active={editor.isActive('italic')}
           run={(c) => c.toggleItalic()}
         >
-          <Italic size={18} aria-hidden="true" />
+          {icon(Italic)}
         </Tool>
         <Tool
           editor={editor}
@@ -156,7 +217,7 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken }: P
           active={editor.isActive('code')}
           run={(c) => c.toggleCode()}
         >
-          <Code size={18} aria-hidden="true" />
+          {icon(Code)}
         </Tool>
         <Tool
           editor={editor}
@@ -164,7 +225,7 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken }: P
           active={editor.isActive('heading', { level: 2 })}
           run={(c) => c.toggleHeading({ level: 2 })}
         >
-          <Heading2 size={18} aria-hidden="true" />
+          {icon(Heading2)}
         </Tool>
         <Tool
           editor={editor}
@@ -172,7 +233,7 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken }: P
           active={editor.isActive('heading', { level: 3 })}
           run={(c) => c.toggleHeading({ level: 3 })}
         >
-          <Heading3 size={18} aria-hidden="true" />
+          {icon(Heading3)}
         </Tool>
         <Tool
           editor={editor}
@@ -180,7 +241,7 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken }: P
           active={editor.isActive('bulletList')}
           run={(c) => c.toggleBulletList()}
         >
-          <List size={18} aria-hidden="true" />
+          {icon(List)}
         </Tool>
         <Tool
           editor={editor}
@@ -188,7 +249,7 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken }: P
           active={editor.isActive('orderedList')}
           run={(c) => c.toggleOrderedList()}
         >
-          <ListOrdered size={18} aria-hidden="true" />
+          {icon(ListOrdered)}
         </Tool>
         <Tool
           editor={editor}
@@ -196,21 +257,22 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken }: P
           active={editor.isActive('blockquote')}
           run={(c) => c.toggleBlockquote()}
         >
-          <Quote size={18} aria-hidden="true" />
+          {icon(Quote)}
         </Tool>
         <button
+          ref={linkButton}
           type="button"
           className="btn btn-icon"
-          aria-pressed={editor.isActive('link')}
           aria-expanded={linkOpen}
+          aria-controls="link-panel"
           onClick={() => setLinkOpen((open) => !open)}
         >
-          <LinkIcon size={18} aria-hidden="true" />
+          {icon(LinkIcon)}
           <span className="sr-only">{t('link')}</span>
         </button>
         {editor.isActive('link') ? (
           <Tool editor={editor} label={t('unlink')} run={(c) => c.unsetLink()}>
-            <Unlink size={18} aria-hidden="true" />
+            {icon(Unlink)}
           </Tool>
         ) : null}
         <Tool
@@ -218,7 +280,7 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken }: P
           label={t('table')}
           run={(c) => c.insertTable({ rows: 3, cols: 3, withHeaderRow: true })}
         >
-          <TableIcon size={18} aria-hidden="true" />
+          {icon(TableIcon)}
         </Tool>
         <Tool
           editor={editor}
@@ -226,7 +288,7 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken }: P
           run={(c) => c.undo()}
           disabled={!editor.can().undo()}
         >
-          <Undo2 size={18} aria-hidden="true" />
+          {icon(Undo2)}
         </Tool>
         <Tool
           editor={editor}
@@ -234,17 +296,27 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken }: P
           run={(c) => c.redo()}
           disabled={!editor.can().redo()}
         >
-          <Redo2 size={18} aria-hidden="true" />
+          {icon(Redo2)}
         </Tool>
       </div>
 
       {linkOpen ? (
-        <div className="link-form">
+        <div
+          id="link-panel"
+          className="link-form"
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') {
+              e.preventDefault();
+              closeLink();
+            }
+          }}
+        >
           <label htmlFor="link-href" className="sr-only">
             {t('linkUrl')}
           </label>
           <input
             id="link-href"
+            ref={linkInput}
             placeholder="https://"
             aria-invalid={linkError}
             aria-describedby={linkError ? 'link-error' : undefined}
@@ -256,8 +328,6 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken }: P
                 applyLink(e.currentTarget.value);
               }
             }}
-            ref={linkInput}
-            autoFocus
           />
           <button
             type="button"
@@ -275,21 +345,17 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken }: P
       ) : null}
 
       {editor.isActive('table') ? (
-        <div className="toolbar" role="toolbar" aria-label={t('tableTools')}>
-          <button
-            type="button"
-            className="btn"
-            onClick={() => editor.chain().focus().addRowAfter().run()}
-          >
-            {t('addRow')}
-          </button>
-          <button
-            type="button"
-            className="btn"
-            onClick={() => editor.chain().focus().addColumnAfter().run()}
-          >
-            {t('addColumn')}
-          </button>
+        <div className="toolbar" role="group" aria-label={t('tableTools')}>
+          {tableTools.map(([key, run]) => (
+            <button
+              key={key}
+              type="button"
+              className="btn"
+              onClick={() => run(editor.chain().focus()).run()}
+            >
+              {t(key)}
+            </button>
+          ))}
           <button
             type="button"
             className="btn btn-danger"
@@ -301,9 +367,14 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken }: P
       ) : null}
 
       <EditorContent editor={editor} />
-      <input type="hidden" name="body_json" value={JSON.stringify(doc)} />
-      <p aria-live="polite" className="save-status" data-status={status}>
-        {status === 'idle' ? '' : t(`status.${status}`)}
+      <input type="hidden" name="body_json" value={json} />
+      <p
+        aria-live={assertive ? 'assertive' : 'polite'}
+        className="save-status"
+        data-status={status}
+      >
+        {/* «Modifiche non salvate» e «Salvataggio…» compaiono a ogni pausa: non vanno annunciati ogni volta. */}
+        <span aria-hidden={quiet}>{status === 'idle' ? '' : t(`status.${status}`)}</span>
       </p>
     </div>
   );
@@ -314,7 +385,7 @@ type ToolProps = {
   label: string;
   active?: boolean;
   disabled?: boolean;
-  run: (chain: ReturnType<Editor['chain']>) => ReturnType<Editor['chain']>;
+  run: ChainFn;
   children: ReactNode;
 };
 
@@ -324,8 +395,11 @@ function Tool({ editor, label, active, disabled, run, children }: ToolProps) {
       type="button"
       className="btn btn-icon"
       aria-pressed={active}
-      disabled={disabled}
-      onClick={() => run(editor.chain().focus()).run()}
+      // `aria-disabled` (non `disabled`) mantiene il pulsante nell'ordine di focus anche dopo un click.
+      aria-disabled={disabled || undefined}
+      onClick={() => {
+        if (!disabled) run(editor.chain().focus()).run();
+      }}
     >
       {children}
       <span className="sr-only">{label}</span>

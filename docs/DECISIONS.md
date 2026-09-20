@@ -167,7 +167,8 @@
   niente barrato, sottolineato, blocchi di codice, linea orizzontale). Il documento viaggia nel form come JSON e il server lo sanifica
   di nuovo: l'editor non è un confine di sicurezza. I link sono limitati a http, https, mailto e percorsi del sito (`isSafeHref`).
 - Salvataggio automatico dopo 1,5 s di pausa, solo del corpo, condizionato a `updated_at`; il token nuovo passa al form, così il
-  salvataggio completo non va in conflitto con quello automatico. Conflitto o errore sospendono l'autosave e lo dicono nell'indicatore.
+  salvataggio completo non va in conflitto con quello automatico. Le richieste sono serializzate; Salva attende un autosave in corso e usa il token aggiornato. Dopo un conflitto l'autosave resta sospeso (lo dice l'indicatore) finché non si ricarica; un errore transitorio riprova alla modifica successiva. Con modifiche non salvate lasciare la pagina chiede conferma.
+- Scrittura del corpo: `validateBody` restituisce il documento sanificato o `null` (input non valido, oltre 500 KB, annidamento oltre 30 livelli, tabelle oltre 200 righe o 30 celle per riga): in quel caso si rifiuta e non si scrive mai un ripiego vuoto, che cancellerebbe il corpo. `sanitizeBody` (lenient) resta per la lettura.
 - Senza JavaScript (e prima dell'idratazione) il testo si modifica in un campo semplice, come prima.
 - Le **immagini** richiedono Supabase Storage (bucket privato, policy per mondo, verifica del tipo reale dei file, rotta di
   lettura autenticata): arrivano nella terza PR di #15, che chiuderà l'issue.

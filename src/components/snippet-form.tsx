@@ -1,10 +1,10 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useActionState, useState, useSyncExternalStore } from 'react';
+import { useActionState, useRef, useState, useSyncExternalStore } from 'react';
 import { saveSnippet } from '@/app/worlds/[worldId]/snippets/actions';
 import { CategoryBadge } from '@/components/category-icon';
-import { RichEditor } from '@/components/rich-editor';
+import { RichEditor, type EditorSync } from '@/components/rich-editor';
 import { sanitizeBody, type DocNode } from '@/lib/snippets/body';
 import type { FieldDefinition } from '@/lib/fields/fields';
 import { EDITABLE_TYPES, fieldInputName } from '@/lib/snippets/form';
@@ -43,6 +43,8 @@ export function SnippetForm({ worldId, snippet, categories, defs, refs }: Props)
     () => false,
   );
   const [token, setToken] = useState(snippet.updatedAt);
+  const sync = useRef<EditorSync>(null);
+  const resubmitting = useRef(false);
   const startDoc = (() => {
     if (!draft?.bodyJson) return snippet.doc;
     try {
@@ -55,7 +57,35 @@ export function SnippetForm({ worldId, snippet, categories, defs, refs }: Props)
   const selected = new Set(draft ? draft.categories : snippet.categoryIds);
 
   return (
-    <form action={action} className="form" key={state?.nonce ?? 0}>
+    <form
+      action={action}
+      className="form"
+      key={state?.nonce ?? 0}
+      onSubmit={async (e) => {
+        // Se un salvataggio automatico è in corso si attende e si invia col token aggiornato: altrimenti
+        // Salva darebbe un conflitto contro le modifiche dell'utente stesso.
+        const editor = sync.current;
+        if (!editor || resubmitting.current) {
+          resubmitting.current = false;
+          return;
+        }
+        const form = e.currentTarget;
+        const setToken = () => {
+          const input = form.elements.namedItem('updated');
+          if (input instanceof HTMLInputElement) input.value = editor.token();
+        };
+        if (!editor.busy()) {
+          setToken();
+          return;
+        }
+        const submitter = (e.nativeEvent as SubmitEvent).submitter;
+        e.preventDefault();
+        await editor.wait();
+        setToken();
+        resubmitting.current = true;
+        form.requestSubmit(submitter);
+      }}
+    >
       <input type="hidden" name="world" value={worldId} />
       <input type="hidden" name="id" value={snippet.id} />
       <input type="hidden" name="updated" value={token} />
@@ -116,6 +146,7 @@ export function SnippetForm({ worldId, snippet, categories, defs, refs }: Props)
             initialDoc={startDoc}
             token={token}
             onToken={setToken}
+            ref={sync}
           />
         ) : (
           <textarea

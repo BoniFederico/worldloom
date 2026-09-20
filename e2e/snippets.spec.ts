@@ -38,7 +38,7 @@ async function createSnippet(page: Page, worldId: string, title: string, categor
 const editorOf = (page: Page) => page.getByRole('textbox', { name: 'Testo' });
 async function typeInEditor(page: Page, text: string) {
   const editor = editorOf(page);
-  await expect(page.getByRole('toolbar', { name: 'Formattazione del testo' })).toBeVisible();
+  await expect(page.getByRole('group', { name: 'Formattazione del testo' })).toBeVisible();
   await editor.click();
   await page.keyboard.press('ControlOrMeta+A');
   await page.keyboard.type(text);
@@ -149,6 +149,10 @@ test.describe('snippet', () => {
     await expect(page.getByRole('status')).toHaveText('Snippet salvato.');
 
     await typeInEditor(stale, 'Versione B');
+    // L'autosave della scheda vecchia si sospende e lo dice, senza sovrascrivere nulla.
+    await expect(stale.locator('.save-status')).toContainText('modificato altrove', {
+      timeout: 10_000,
+    });
     await stale.getByRole('button', { name: 'Salva' }).click();
     await expect(stale.getByRole('main').getByRole('alert')).toContainText('modificato altrove');
     // Il testo digitato non va perso: resta nel form.
@@ -188,6 +192,24 @@ test.describe('snippet', () => {
     await expect(page.locator('.save-status')).toHaveText('Salvato', { timeout: 10_000 });
     await page.reload();
     await expect(editorOf(page)).toContainText('Scritto e mai salvato a mano');
+  });
+
+  test('Salva durante un salvataggio automatico lento non dà un falso conflitto', async ({
+    browser,
+  }) => {
+    const { page, worldId } = await worldWithCategory(browser);
+    await createSnippet(page, worldId, 'Rete lenta');
+    // Rallenta solo le chiamate delle server action (quelle con l'header Next-Action).
+    await page.route('**/*', async (route) => {
+      if (route.request().headers()['next-action']) await new Promise((r) => setTimeout(r, 2500));
+      await route.continue();
+    });
+    await typeInEditor(page, 'Scritto con la rete lenta');
+    await expect(page.locator('.save-status')).toHaveText('Salvataggio…', { timeout: 10_000 });
+    await page.getByRole('button', { name: 'Salva' }).click();
+    await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
+    await expect(page.getByRole('status')).toHaveText('Snippet salvato.', { timeout: 15_000 });
+    await expect(editorOf(page)).toContainText('Scritto con la rete lenta');
   });
 
   test('formattazione: grassetto, elenco, tabella e link', async ({ browser }) => {

@@ -412,8 +412,12 @@
         "saving": "Salvataggio…",
         "saved": "Salvato",
         "error": "Salvataggio automatico non riuscito: usa Salva",
-        "conflict": "Lo snippet è stato modificato altrove: il salvataggio automatico è sospeso"
-      }
+        "conflict": "Lo snippet è stato modificato altrove: il salvataggio automatico è sospeso. Copia il testo, ricarica la pagina e riapplica le modifiche.",
+        "tooLarge": "Il testo è troppo lungo per essere salvato: accorcialo"
+      },
+      "deleteRow": "Elimina riga",
+      "deleteColumn": "Elimina colonna",
+      "toggleHeader": "Riga di intestazione"
     }
   }
 }

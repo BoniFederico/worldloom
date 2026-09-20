@@ -8,8 +8,9 @@ import {
   MAX_JSON_LENGTH,
   MAX_TEXT_LENGTH,
   docToText,
-  sanitizeBody,
   textToDoc,
+  validateBody,
+  type DocNode,
 } from '@/lib/snippets/body';
 import { EDITABLE_TYPES, mergeFieldInput } from '@/lib/snippets/form';
 import { snippetTitleSchema } from '@/lib/snippets/schemas';
@@ -103,13 +104,15 @@ export async function saveSnippet(_prev: SaveState, formData: FormData): Promise
   if (text.length > MAX_TEXT_LENGTH || draft.bodyJson.length > MAX_JSON_LENGTH) {
     return fail('body_too_large');
   }
-  let richBody: unknown;
-  if (draft.bodyJson) {
+  // Con l'editor arriva `body_json`: un documento valido, oppure un errore. Mai un ripiego vuoto.
+  let richBody: DocNode | null = null;
+  if (formData.has('body_json')) {
     try {
-      richBody = JSON.parse(draft.bodyJson);
+      richBody = validateBody(JSON.parse(draft.bodyJson));
     } catch {
-      return fail('invalid_body');
+      richBody = null;
     }
+    if (!richBody) return fail('invalid_body');
   }
   const chosen = [...new Set(draft.categories)].filter((c) => uuidSchema.safeParse(c).success);
 
@@ -181,7 +184,7 @@ export async function saveSnippet(_prev: SaveState, formData: FormData): Promise
   // Il corpo si aggiorna solo se il testo è cambiato: altrimenti resta il documento esistente, com'è.
   // Con l'editor arriva il documento (sanificato qui); senza JavaScript arriva il testo semplice.
   const body: Json = richBody
-    ? (sanitizeBody(richBody) as unknown as Json)
+    ? (richBody as unknown as Json)
     : text.trim() === docToText(row.body).trim()
       ? row.body
       : (textToDoc(text) as unknown as Json);
@@ -218,19 +221,15 @@ export async function autosaveBody(input: {
   if (!world.success || !id.success || typeof input.updated !== 'string') {
     return { ok: false, error: 'invalid' };
   }
-  let size: number;
-  try {
-    size = JSON.stringify(input.doc).length;
-  } catch {
-    return { ok: false, error: 'invalid' };
-  }
-  if (size > MAX_JSON_LENGTH) return { ok: false, error: 'invalid' };
+  // Un documento non valido o oltre i limiti non si scrive: sostituirlo con uno vuoto cancellerebbe il corpo.
+  const doc = validateBody(input.doc);
+  if (!doc) return { ok: false, error: 'invalid' };
 
   const { supabase, canWrite } = await loadWorld(world.data);
   if (!canWrite) return { ok: false, error: 'forbidden' };
   const { data, error } = await supabase
     .from('snippets')
-    .update({ body: sanitizeBody(input.doc) as unknown as Json })
+    .update({ body: doc as unknown as Json })
     .eq('id', id.data)
     .eq('world_id', world.data)
     .eq('updated_at', input.updated)
