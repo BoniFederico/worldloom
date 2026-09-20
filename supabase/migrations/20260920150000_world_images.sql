@@ -1,6 +1,8 @@
 -- Immagini dei mondi: bucket privato, un percorso per mondo (`<world_id>/<uuid>.<ext>`).
--- Solo chi può scrivere nel mondo carica ed elimina; chi è membro legge. Il tipo reale del file lo verifica
--- l'applicazione prima del caricamento (byte iniziali), il bucket limita comunque dimensione e tipi MIME.
+-- Solo chi può scrivere nel mondo carica; chi è membro legge. Nessuna policy di UPDATE o DELETE: i file non si
+-- sovrascrivono. Il tipo reale lo verifica la rotta di caricamento (byte iniziali): il bucket limita solo dimensione e
+-- tipo MIME dichiarato, quindi un editor che usa direttamente l'API Storage può caricare byte qualunque; la lettura passa
+-- comunque dalla rotta dell'app, che forza tipo, nosniff e sandbox. La lettura non tiene conto della visibilità degli snippet (D-016).
 
 create or replace function private.world_of_path(name text) returns uuid
 language sql immutable set search_path = '' as $$

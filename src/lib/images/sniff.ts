@@ -1,4 +1,5 @@
-export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+// 4 MiB: sotto il limite di 4,5 MB dei corpi delle funzioni serverless su Vercel.
+export const MAX_IMAGE_BYTES = 4 * 1024 * 1024;
 
 export type ImageKind = { ext: 'png' | 'jpg' | 'webp' | 'gif'; mime: string };
 

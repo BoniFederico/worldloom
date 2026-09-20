@@ -110,4 +110,17 @@ describe('immagini dei mondi (storage)', () => {
       expect((await read(stranger)).rows).toHaveLength(0);
     });
   });
+
+  it('nessuno, nemmeno il proprietario, sovrascrive un file esistente', async () => {
+    await withTx(async (db) => {
+      const owner = await createUser(db);
+      const worldId = await createWorld(db, owner);
+      const name = path(worldId);
+      await upload(db, owner, name);
+      const res = await actAs(db, owner, () =>
+        db.query(`update storage.objects set name = name where name = $1`, [name]),
+      );
+      expect(res.rowCount).toBe(0);
+    });
+  });
 });

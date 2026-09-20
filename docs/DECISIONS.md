@@ -184,6 +184,11 @@
   SVG e tutto il resto; la lettura da `GET /worlds/[id]/images/[file]`, con la sessione dell'utente (un estraneo riceve 404) e
   intestazioni `nosniff` + `sandbox`. Nel documento l'immagine è un nodo con `src` interno a whitelist: URL esterni e `data:` sono scartati
   dalla sanificazione, e le immagini incollate da altri siti non entrano nell'editor.
+- Garanzie e limiti (dalla review): il rifiuto di SVG e di tutto ciò che non è un'immagine vale per la rotta di caricamento; chi ha
+  un JWT da editor può anche scrivere direttamente sull'API Storage (il bucket controlla solo dimensione e MIME dichiarato), ma la
+  lettura passa dalla rotta, che forza tipo, `nosniff` e `sandbox`. **La lettura non tiene conto della visibilità degli snippet**: un
+  lettore può scaricare (o elencare, via Storage) le immagini di uno snippet a lui nascosto. Da chiudere con #32, legando l'immagine
+  allo snippet. Limite di 4 MiB (sotto i 4,5 MB delle funzioni Vercel). Cache privata di un'ora: una revoca non è immediata.
 - Limiti noti: nessuna eliminazione dei file orfani né miniature (arriveranno con la gestione dello spazio); la visibilità
   pubblica delle immagini (wiki, #42) richiederà di rivedere la lettura, oggi solo per i membri.
 - Deciso da: agente

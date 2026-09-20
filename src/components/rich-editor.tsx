@@ -175,6 +175,10 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref
     if (linkOpen) linkInput.current?.focus();
   }, [linkOpen]);
 
+  useEffect(() => {
+    if (imageOpen) imageFile.current?.focus();
+  }, [imageOpen]);
+
   if (!editor) return <div className="editor-content prose" aria-busy="true" />;
 
   const closeLink = () => {
@@ -438,6 +442,9 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref
           >
             {imageState === 'uploading' ? t('imageUploading') : t('imageInsert')}
           </button>
+          <span className="sr-only" aria-live="polite">
+            {imageState === 'uploading' ? t('imageUploading') : ''}
+          </span>
           {imageState === 'error' ? (
             <p role="alert" className="field-hint">
               {imageMessage}

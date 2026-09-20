@@ -17,7 +17,11 @@ export async function GET(
 
   const { supabase } = await loadWorld(worldId);
   const { data, error } = await supabase.storage.from(BUCKET).download(`${worldId}/${file}`);
-  if (error || !data) return new Response('Not found', { status: 404 });
+  if (error || !data) {
+    // Assente o non leggibile → 404; un guasto di Storage non si spaccia per «non trovato».
+    const missing = /not.?found|does not exist|object/i.test(error?.message ?? '');
+    return new Response(missing ? 'Not found' : 'Storage error', { status: missing ? 404 : 502 });
+  }
 
   return new Response(data, {
     headers: {

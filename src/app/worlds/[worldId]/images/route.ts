@@ -11,15 +11,25 @@ const fail = (error: string, status: number) => NextResponse.json({ error }, { s
  * nome o dal Content-Type dichiarati; il file è salvato con un nome casuale e un'estensione scelta da noi.
  */
 export async function POST(request: Request, { params }: { params: Promise<{ worldId: string }> }) {
-  // Difesa in profondità contro richieste da altri siti: l'Origin, se presente, deve essere il nostro.
+  // Difesa in profondità contro richieste da altri siti: l'Origin, se presente, deve essere l'host pubblico
+  // (anche dietro un proxy, dove `request.url` può avere l'host interno).
   const origin = request.headers.get('origin');
-  if (origin && origin !== new URL(request.url).origin) return fail('forbidden', 403);
+  if (origin) {
+    const hosts = [request.headers.get('host'), request.headers.get('x-forwarded-host')];
+    let originHost: string | null = null;
+    try {
+      originHost = new URL(origin).host;
+    } catch {}
+    if (!originHost || !hosts.includes(originHost)) return fail('forbidden', 403);
+  }
 
   const { worldId } = await params;
   const { supabase, canWrite } = await loadWorld(worldId);
   if (!canWrite) return fail('forbidden', 403);
 
-  const declared = Number(request.headers.get('content-length') ?? 0);
+  // Si esige una lunghezza dichiarata valida, così il corpo non viene letto in memoria senza un tetto.
+  const declared = Number(request.headers.get('content-length'));
+  if (!Number.isFinite(declared) || declared <= 0) return fail('invalid', 411);
   if (declared > MAX_IMAGE_BYTES + 64 * 1024) return fail('too_large', 413);
 
   let file: FormDataEntryValue | null;
