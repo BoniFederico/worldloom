@@ -157,3 +157,4 @@
 - Il cestino conserva 30 giorni: `private.purge_expired_snippets()` (schedulata con pg_cron se l'estensione è presente; su un
   database senza pg_cron va chiamata da uno scheduler esterno).
 - Deciso da: agente
+- Limite noto: finché non c'è l'editor rich text, modificare il testo di uno snippet con formattazione la appiattisce in paragrafi (il documento resta intatto se il testo non cambia). Un writer può scrivere `body` direttamente via API: il rendering deve quindi sanificare di nuovo (`sanitizeBody`) prima di mostrare.

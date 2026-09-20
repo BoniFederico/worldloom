@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { CategoryBadge } from '@/components/category-icon';
 import { Feedback } from '@/components/feedback';
@@ -18,6 +19,8 @@ export default async function SnippetsPage({ params, searchParams }: Props) {
   const { error, notice, view: rawView } = await searchParams;
   const view: View = VIEWS.find((v) => v === rawView) ?? 'active';
   const { supabase, world, canWrite } = await loadWorld(worldId);
+  // Il cestino è solo per chi può scrivere.
+  if (view === 'trash' && !canWrite) redirect(`/worlds/${worldId}/snippets`);
   const t = await getTranslations('Snippets');
 
   let query = supabase

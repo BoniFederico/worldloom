@@ -15,6 +15,7 @@ export type DocNode = {
 
 export const EMPTY_DOC: DocNode = { type: 'doc', content: [{ type: 'paragraph' }] };
 
+export const MAX_TEXT_LENGTH = 200_000;
 const MAX_BYTES = 500_000;
 const MAX_DEPTH = 12;
 
@@ -38,7 +39,7 @@ export function isSafeHref(href: unknown): href is string {
   if (typeof href !== 'string' || href.length > 2000) return false;
   const value = href.trim();
   if (/[\u0000-\u001f\u007f\s]/.test(value)) return false;
-  return /^(https?:|mailto:)/i.test(value) || (value.startsWith('/') && !value.startsWith('//'));
+  return /^(https?:|mailto:)/i.test(value) || /^\/(?![/\\])/.test(value);
 }
 
 function cleanMarks(raw: unknown): DocMark[] | undefined {
@@ -90,7 +91,11 @@ function normalize(kind: Kind, children: DocNode[]): DocNode[] {
   };
   for (const child of children) {
     if (isInline(child)) run.push(child);
-    else {
+    else if (child.type === 'listItem') {
+      // Una voce fuori da una lista non è valida: se ne tiene il contenuto.
+      flush();
+      blocks.push(...(child.content ?? []));
+    } else {
       flush();
       blocks.push(child);
     }
@@ -126,6 +131,8 @@ function clean(raw: unknown, depth: number): DocNode[] {
     if (Number.isInteger(start) && start > 1 && start < 1_000_000) node.attrs = { start };
   }
   const content = normalize(kind, children);
+  // Liste, voci e citazioni vuote non sono valide per ProseMirror: si scartano.
+  if (kind !== 'inline' && content.length === 0) return [];
   if (content.length) node.content = content;
   return [node];
 }

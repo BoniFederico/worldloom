@@ -377,7 +377,8 @@
     "errors": {
       "invalid_title": "A title is required (300 characters at most).",
       "invalid_fields": "Some fields are invalid or missing: check the ones flagged.",
-      "conflict": "The snippet was changed elsewhere. Reload the page and try again.",
+      "conflict": "The snippet was changed elsewhere. Your text is still here: copy it, reload the page and reapply your changes.",
+      "body_too_large": "The text is too long (200,000 characters at most).",
       "forbidden": "You do not have permission to edit snippets in this world.",
       "not_found": "Snippet not found.",
       "confirm_required": "Tick the confirmation to delete permanently.",

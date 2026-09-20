@@ -324,6 +324,18 @@ export type Database = {
         };
         Returns: string;
       };
+      save_snippet: {
+        Args: {
+          p_body: Json;
+          p_categories: string[];
+          p_fields: Json;
+          p_id: string;
+          p_status: Database['public']['Enums']['snippet_status'];
+          p_title: string;
+          p_updated: string;
+        };
+        Returns: undefined;
+      };
       transfer_world_ownership: {
         Args: { p_new_owner: string; p_world: string };
         Returns: undefined;

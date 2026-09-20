@@ -88,3 +88,81 @@ describe('cestino degli snippet', () => {
     });
   });
 });
+
+describe('save_snippet', () => {
+  const save = (
+    db: Db,
+    uid: string,
+    id: string,
+    updated: string,
+    cats: string[],
+    title = 'Nuovo',
+  ) =>
+    actAs(db, uid, () =>
+      db.query(`select save_snippet($1, $2, $3, 'draft', '{}'::jsonb, '{}'::jsonb, $4)`, [
+        id,
+        updated,
+        title,
+        cats,
+      ]),
+    );
+
+  async function setup(db: Db) {
+    const owner = await createUser(db);
+    const worldId = await createWorld(db, owner);
+    const id = await addSnippet(db, worldId, owner);
+    const cat = async (name: string) =>
+      (
+        await db.query(`insert into categories (world_id, name) values ($1, $2) returning id`, [
+          worldId,
+          name,
+        ])
+      ).rows[0].id as string;
+    const updated = async () =>
+      (await db.query('select updated_at::text as u from snippets where id = $1', [id])).rows[0]
+        .u as string;
+    return { owner, worldId, id, cat, updated };
+  }
+
+  it('aggiorna i campi e sincronizza le categorie', async () => {
+    await withTx(async (db) => {
+      const { owner, id, cat, updated } = await setup(db);
+      const [a, b] = [await cat('A'), await cat('B')];
+      await save(db, owner, id, await updated(), [a]);
+      await save(db, owner, id, await updated(), [b], 'Secondo');
+      const { rows } = await db.query(
+        'select category_id from snippet_categories where snippet_id = $1',
+        [id],
+      );
+      expect(rows.map((r) => r.category_id)).toEqual([b]);
+      expect((await db.query('select title from snippets where id = $1', [id])).rows[0].title).toBe(
+        'Secondo',
+      );
+    });
+  });
+
+  it('con un token superato dà conflict e non cambia nulla, nemmeno le categorie', async () => {
+    await withTx(async (db) => {
+      const { owner, id, cat } = await setup(db);
+      const a = await cat('A');
+      const stale = '2000-01-01T00:00:00Z'; // la transazione di test congela now()
+      await expect(save(db, owner, id, stale, [a])).rejects.toThrow('conflict');
+      const { rows } = await db.query('select 1 from snippet_categories where snippet_id = $1', [
+        id,
+      ]);
+      expect(rows).toHaveLength(0);
+    });
+  });
+
+  it('un lettore non può salvare', async () => {
+    await withTx(async (db) => {
+      const { worldId, id, updated } = await setup(db);
+      const reader = await createUser(db);
+      await db.query(
+        `insert into world_members (world_id, user_id, role) values ($1, $2, 'reader')`,
+        [worldId, reader],
+      );
+      await expect(save(db, reader, id, await updated(), [])).rejects.toThrow('conflict');
+    });
+  });
+});

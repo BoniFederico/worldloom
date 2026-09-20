@@ -377,7 +377,8 @@
     "errors": {
       "invalid_title": "Il titolo è obbligatorio (massimo 300 caratteri).",
       "invalid_fields": "Alcuni campi non sono validi o mancano: controlla quelli segnalati.",
-      "conflict": "Lo snippet è stato modificato altrove. Ricarica la pagina e riprova.",
+      "conflict": "Lo snippet è stato modificato altrove. Il tuo testo è ancora qui: copialo, ricarica la pagina e riapplica le modifiche.",
+      "body_too_large": "Il testo è troppo lungo (massimo 200.000 caratteri).",
       "forbidden": "Non hai i permessi per modificare gli snippet di questo mondo.",
       "not_found": "Snippet non trovato.",
       "confirm_required": "Spunta la conferma per eliminare definitivamente.",

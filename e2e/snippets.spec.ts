@@ -55,11 +55,14 @@ test.describe('snippet', () => {
   test('uno snippet definitivo richiede i campi obbligatori', async ({ browser }) => {
     const { page, worldId } = await worldWithCategory(browser);
     await createSnippet(page, worldId, 'Incompleto', 'Personaggio');
+    await page.getByLabel('Testo').fill('Testo da non perdere');
     await page.getByLabel('Stato').selectOption('final');
     await page.getByRole('button', { name: 'Salva' }).click();
     await expect(page.getByRole('main').getByRole('alert')).toContainText(
       'Alcuni campi non sono validi',
     );
+    await expect(page.getByLabel('Testo')).toHaveValue('Testo da non perdere');
+    await expect(page.getByLabel('Stato')).toHaveValue('final');
     await expect(page.getByLabel(/^Età/)).toHaveAttribute('aria-invalid', 'true');
 
     await page.getByLabel('Stato').selectOption('final');
@@ -81,6 +84,18 @@ test.describe('snippet', () => {
     await expect(page.getByRole('main').getByRole('alert')).toContainText(
       'Alcuni campi non sono validi',
     );
+  });
+
+  test('un testo troppo lungo viene rifiutato senza perdere il contenuto', async ({ browser }) => {
+    const { page, worldId } = await worldWithCategory(browser);
+    await createSnippet(page, worldId, 'Enorme');
+    // `fill` con 200k caratteri è lento sul mobile: si imposta il valore direttamente.
+    await page.getByLabel('Testo').evaluate((el: HTMLTextAreaElement) => {
+      el.value = 'x'.repeat(200_001);
+    });
+    await page.getByRole('button', { name: 'Salva' }).click();
+    await expect(page.getByRole('main').getByRole('alert')).toContainText('troppo lungo');
+    await expect(page.getByLabel('Testo')).toHaveValue('x'.repeat(200_001));
   });
 
   test('duplica, archivia, cestina e ripristina', async ({ browser }) => {
@@ -136,6 +151,8 @@ test.describe('snippet', () => {
     await stale.getByLabel('Testo').fill('Versione B');
     await stale.getByRole('button', { name: 'Salva' }).click();
     await expect(stale.getByRole('main').getByRole('alert')).toContainText('modificato altrove');
+    // Il testo digitato non va perso: resta nel form.
+    await expect(stale.getByLabel('Testo')).toHaveValue('Versione B');
 
     await page.reload();
     await expect(page.getByLabel('Testo')).toHaveValue('Versione A');
@@ -158,6 +175,8 @@ test.describe('snippet', () => {
     await expect(reader.page.getByRole('button', { name: 'Sposta nel cestino' })).toHaveCount(0);
     await reader.page.goto(`/worlds/${worldId}/snippets`);
     await expect(reader.page.getByRole('link', { name: 'Cestino' })).toHaveCount(0);
+    await reader.page.goto(`/worlds/${worldId}/snippets?view=trash`);
+    await expect(reader.page).toHaveURL(`/worlds/${worldId}/snippets`);
     await expect(reader.page.getByRole('button', { name: 'Crea snippet' })).toHaveCount(0);
   });
 

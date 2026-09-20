@@ -817,3 +817,13 @@ select {
   flex-wrap: wrap;
   align-items: center;
 }
+
+.snippet-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.snippet-body {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}

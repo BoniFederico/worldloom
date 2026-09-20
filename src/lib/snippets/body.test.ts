@@ -49,6 +49,7 @@ describe('sanitizeBody', () => {
     'vbscript:x',
     ' JaVaScRiPt:x',
     '//evil.test',
+    '/\\evil.test',
   ])('toglie il link con href non sicuro %s', (href) => {
     const doc = sanitizeBody({
       type: 'doc',
@@ -102,6 +103,18 @@ describe('sanitizeBody', () => {
     for (let i = 0; i < 60; i++) deep = { type: 'blockquote', content: [deep] };
     const result = sanitizeBody({ type: 'doc', content: [deep] });
     expect(JSON.stringify(result).length).toBeLessThan(2000);
+  });
+
+  it('scarta liste e citazioni vuote e toglie le voci fuori da una lista', () => {
+    const doc = sanitizeBody({
+      type: 'doc',
+      content: [
+        { type: 'bulletList', content: [{ type: 'listItem' }] },
+        { type: 'blockquote' },
+        { type: 'listItem', content: [p('solo')] },
+      ],
+    });
+    expect(doc).toEqual({ type: 'doc', content: [p('solo')] });
   });
 
   it('restituisce un documento vuoto per input non valido', () => {
