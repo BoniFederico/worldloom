@@ -46,6 +46,8 @@ const toColumns = (input: RelationInput) => ({
 
 /** Errori del database che l'utente può correggere. */
 function dbError(error: { code?: string; message?: string }): string {
+  if (error.message?.includes('relation_constraint_source')) return 'constraint_source';
+  if (error.message?.includes('relation_constraint_target')) return 'constraint_target';
   if (error.code === '23505') return 'duplicate_relation';
   if (error.code === '23514') {
     return error.message?.includes('relations_notes_length') ? 'invalid_notes' : 'invalid_validity';
@@ -81,6 +83,16 @@ export async function createRelation(
     .is('deleted_at', null)
     .in('id', [source.data, input.target]);
   if (ends?.length !== 2) return fail('target_missing');
+
+  // Un tipo di relazione con la stessa etichetta fornisce la sua inversa (i vincoli li controlla il database).
+  if (!input.inverse) {
+    const { data: types } = await supabase
+      .from('relation_types')
+      .select('label, inverse_label')
+      .eq('world_id', world.data)
+      .not('inverse_label', 'is', null);
+    input.inverse = inverseFor(input.label, types ?? []);
+  }
 
   // Senza etichetta inversa si riusa quella già associata a questa etichetta nel mondo (confronto in codice,
   // non con `ilike`: nessun carattere jolly). Non è atomico: scritture concorrenti possono dare inverse diverse.

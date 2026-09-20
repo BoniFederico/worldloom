@@ -97,7 +97,8 @@
     },
     "members": "Membri",
     "categories": "Categorie",
-    "snippets": "Snippet"
+    "snippets": "Snippet",
+    "relationTypes": "Tipi di relazione"
   },
   "Members": {
     "title": "Membri",
@@ -486,7 +487,42 @@
       "same_snippet": "Uno snippet non può essere collegato a sé stesso.",
       "target_missing": "Lo snippet da collegare non esiste più.",
       "relation_forbidden": "Non hai i permessi per modificare le relazioni di questo mondo.",
-      "relation_failed": "Operazione non riuscita. Riprova."
-    }
+      "relation_failed": "Operazione non riuscita. Riprova.",
+      "constraint_source": "Questa etichetta richiede che lo snippet di partenza appartenga a una categoria precisa (vedi i tipi di relazione).",
+      "constraint_target": "Questa etichetta richiede che lo snippet di arrivo appartenga a una categoria precisa (vedi i tipi di relazione)."
+    },
+    "manageTypes": "Gestisci i tipi di relazione"
+  },
+  "RelationTypes": {
+    "title": "Tipi di relazione",
+    "intro": "Definisci etichette ricorrenti con la loro inversa e, se vuoi, le categorie che possono collegarsi. Le relazioni con un’etichetta che coincide con un tipo ne rispettano i vincoli; le altre restano libere.",
+    "empty": "Nessun tipo di relazione. Le relazioni con etichetta libera funzionano comunque.",
+    "from": "Da",
+    "to": "A",
+    "any": "Qualsiasi categoria",
+    "edit": "Modifica",
+    "save": "Salva",
+    "remove": "Elimina il tipo",
+    "createTitle": "Nuovo tipo di relazione",
+    "create": "Crea tipo",
+    "label": "Etichetta",
+    "inverse": "Etichetta inversa (facoltativa)",
+    "sourceCategory": "Categoria dello snippet di partenza",
+    "targetCategory": "Categoria dello snippet di arrivo",
+    "constraintHint": "Con una categoria scelta, solo gli snippet di quella categoria possono essere collegati con questa etichetta. Le relazioni già esistenti non cambiano. Rinominare o eliminare un tipo non cambia le relazioni esistenti, che restano con la loro etichetta (ora libera).",
+    "readOnly": "Solo proprietari ed editor possono modificare i tipi.",
+    "notices": {
+      "created": "Tipo creato.",
+      "saved": "Tipo salvato.",
+      "deleted": "Tipo eliminato. Le relazioni esistenti restano."
+    },
+    "errors": {
+      "invalid_label": "L’etichetta è obbligatoria (massimo 120 caratteri, anche per l’inversa).",
+      "invalid_category": "La categoria scelta non è valida.",
+      "duplicate": "Esiste già un tipo con questa etichetta.",
+      "forbidden": "Non hai i permessi per modificare i tipi di relazione.",
+      "generic": "Operazione non riuscita. Riprova."
+    },
+    "inverseIs": "inversa"
   }
 }

@@ -158,10 +158,12 @@ test.describe('relazioni', () => {
     await addRelation(page, 'Arathorn', 'amico di');
     await page.goto(urlB);
     await page.getByRole('button', { name: 'Sposta nel cestino' }).click();
+    await expect(page.getByRole('status')).toHaveText('Snippet spostato nel cestino.');
     await page.goto(urlA);
     await expect(page.locator('.relations li')).toHaveCount(0);
     await page.goto(urlB);
     await page.getByRole('button', { name: 'Ripristina', exact: true }).click();
+    await expect(page.getByRole('status')).toHaveText('Snippet ripristinato.');
     await page.goto(urlA);
     await expect(page.locator('.relations li')).toHaveCount(1);
   });

@@ -202,5 +202,9 @@
   Senza etichetta inversa si riusa l'ultima associata alla stessa etichetta nel mondo. Un doppione (stessa coppia e stessa
   etichetta, senza badare alle maiuscole) è rifiutato da un indice unico. In ingresso senza inversa si mostra l'etichetta
   originale con la frase rovesciata («Aragorn alleato di questo snippet»).
-- I **tipi di relazione con vincoli sulle categorie** arrivano in una seconda PR di #17, che chiuderà l'issue.
+- **Tipi di relazione** (`relation_types`): etichetta unica per mondo, inversa e, facoltativamente, categoria di origine e di destinazione.
+  Se l'etichetta di una relazione coincide con quella di un tipo (senza badare alle maiuscole) valgono i suoi vincoli, applicati da
+  un trigger (quindi anche a chi scrive via API) che fornisce anche l'inversa se manca; le etichette senza tipo restano libere. I vincoli
+  si controllano quando la relazione viene scritta: cambiare in seguito le categorie di uno snippet non tocca le relazioni esistenti.
+  Eliminando una categoria il relativo vincolo decade, il tipo resta.
 - Deciso da: agente

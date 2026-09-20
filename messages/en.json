@@ -97,7 +97,8 @@
     },
     "members": "Members",
     "categories": "Categories",
-    "snippets": "Snippets"
+    "snippets": "Snippets",
+    "relationTypes": "Relation types"
   },
   "Members": {
     "title": "Members",
@@ -486,7 +487,42 @@
       "same_snippet": "A snippet cannot be linked to itself.",
       "target_missing": "The snippet to link no longer exists.",
       "relation_forbidden": "You do not have permission to edit relations in this world.",
-      "relation_failed": "Something went wrong. Please try again."
-    }
+      "relation_failed": "Something went wrong. Please try again.",
+      "constraint_source": "This label requires the starting snippet to belong to a specific category (see relation types).",
+      "constraint_target": "This label requires the target snippet to belong to a specific category (see relation types)."
+    },
+    "manageTypes": "Manage relation types"
+  },
+  "RelationTypes": {
+    "title": "Relation types",
+    "intro": "Define recurring labels with their inverse and, if you like, the categories that may be linked. Relations whose label matches a type follow its constraints; others stay free-form.",
+    "empty": "No relation types yet. Free-form relations work regardless.",
+    "from": "From",
+    "to": "To",
+    "any": "Any category",
+    "edit": "Edit",
+    "save": "Save",
+    "remove": "Delete the type",
+    "createTitle": "New relation type",
+    "create": "Create type",
+    "label": "Label",
+    "inverse": "Inverse label (optional)",
+    "sourceCategory": "Category of the starting snippet",
+    "targetCategory": "Category of the target snippet",
+    "constraintHint": "With a category chosen, only snippets of that category can be linked with this label. Existing relations do not change. Renaming or deleting a type does not change existing relations, which keep their label (now free-form).",
+    "readOnly": "Only owners and editors can edit types.",
+    "notices": {
+      "created": "Type created.",
+      "saved": "Type saved.",
+      "deleted": "Type deleted. Existing relations stay."
+    },
+    "errors": {
+      "invalid_label": "A label is required (120 characters at most, also for the inverse).",
+      "invalid_category": "The chosen category is not valid.",
+      "duplicate": "A type with this label already exists.",
+      "forbidden": "You do not have permission to edit relation types.",
+      "generic": "Something went wrong. Please try again."
+    },
+    "inverseIs": "inverse"
   }
 }
