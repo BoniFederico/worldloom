@@ -7,7 +7,7 @@ import { RelationsPanel } from '@/components/relations-panel';
 import { RichText } from '@/components/rich-text';
 import { SnippetForm } from '@/components/snippet-form';
 import { fieldsSchema, type FieldDefinition } from '@/lib/fields/fields';
-import { docToText, mentionsOf, sanitizeBody } from '@/lib/snippets/body';
+import { docToText, mentionsOf, sanitizeBody, withMentionLabels } from '@/lib/snippets/body';
 import { loadWorld } from '@/lib/worlds/context';
 import { uuidSchema } from '@/lib/worlds/schemas';
 import {
@@ -98,6 +98,7 @@ export default async function SnippetPage({ params, searchParams }: Props) {
         .in('id', mentioned)
     : { data: [] };
   const mentionTitles = Object.fromEntries((mentionRows ?? []).map((m) => [m.id, m.title]));
+  const unavailable = t('mentionUnavailable');
 
   const trashed = snippet.deleted_at !== null;
   const editable = canWrite && !trashed;
@@ -126,8 +127,8 @@ export default async function SnippetPage({ params, searchParams }: Props) {
               id: snippet.id,
               title: snippet.title,
               status: snippet.status,
-              body: docToText(snippet.body),
-              doc: sanitizeBody(snippet.body),
+              body: docToText(snippet.body, { titles: mentionTitles, unavailable }),
+              doc: withMentionLabels(sanitizeBody(snippet.body), mentionTitles, unavailable),
               updatedAt: snippet.updated_at,
               categoryIds,
               tags: snippet.tags,
@@ -146,7 +147,12 @@ export default async function SnippetPage({ params, searchParams }: Props) {
           />
         ) : (
           <>
-            <RichText doc={snippet.body} worldId={world.id} titles={mentionTitles} />
+            <RichText
+              doc={snippet.body}
+              worldId={world.id}
+              titles={mentionTitles}
+              unavailable={unavailable}
+            />
             {trashed && canWrite ? (
               <form action={restoreSnippet}>
                 {ids}

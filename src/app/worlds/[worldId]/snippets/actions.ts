@@ -190,11 +190,25 @@ export async function saveSnippet(_prev: SaveState, formData: FormData): Promise
 
   // Il corpo si aggiorna solo se il testo è cambiato: altrimenti resta il documento esistente, com'è.
   // Con l'editor arriva il documento (sanificato qui); senza JavaScript arriva il testo semplice.
-  const body: Json = richBody
-    ? (richBody as unknown as Json)
-    : text.trim() === docToText(row.body).trim()
-      ? row.body
-      : (textToDoc(text) as unknown as Json);
+  let body: Json;
+  if (richBody) body = richBody as unknown as Json;
+  else {
+    // Senza JavaScript il testo contiene «@Titolo»: per riconoscere «invariato» si confronta con le stesse etichette.
+    const t = await getTranslations('Snippets');
+    const ids = mentionsOf(row.body);
+    const { data: named } = ids.length
+      ? await supabase
+          .from('snippets')
+          .select('id, title')
+          .eq('world_id', world)
+          .is('deleted_at', null)
+          .in('id', ids)
+      : { data: [] };
+    const titles = Object.fromEntries((named ?? []).map((n) => [n.id, n.title]));
+    const same =
+      text.trim() === docToText(row.body, { titles, unavailable: t('mentionUnavailable') }).trim();
+    body = same ? row.body : (textToDoc(text) as unknown as Json);
+  }
 
   const { error } = await supabase.rpc('save_snippet', {
     p_id: id,
@@ -358,6 +372,29 @@ export async function duplicateSnippet(formData: FormData) {
       );
     if (catError) {
       // Una copia a metà (senza categorie) è peggio di nessuna copia.
+      await supabase.from('snippets').delete().eq('id', copy.id);
+      redirect(`${back}?error=generic`);
+    }
+  }
+  // Le menzioni del testo copiato: le relazioni da menzione non si copiano con la riga, si ricreano.
+  const { data: mentioned } = await supabase
+    .from('relations')
+    .select('target_id')
+    .eq('source_id', id)
+    .eq('from_mention', true);
+  if (mentioned?.length) {
+    const { error: mentionError } = await supabase.from('relations').insert(
+      mentioned.map((m) => ({
+        world_id: world,
+        source_id: copy.id,
+        target_id: m.target_id,
+        label: 'menziona',
+        inverse_label: 'menzionato in',
+        from_mention: true,
+        created_by: auth.user.id,
+      })),
+    );
+    if (mentionError) {
       await supabase.from('snippets').delete().eq('id', copy.id);
       redirect(`${back}?error=generic`);
     }

@@ -122,6 +122,8 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref
         role: 'textbox',
         'aria-multiline': 'true',
         'aria-labelledby': 'body-label',
+        'aria-haspopup': 'listbox',
+        'aria-controls': 'mention-list',
         class: 'editor-content prose',
       },
     },
@@ -182,6 +184,18 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref
     window.addEventListener('beforeunload', warn);
     return () => window.removeEventListener('beforeunload', warn);
   }, [status]);
+
+  // L'editor indica quale voce dell'elenco è selezionata (aria-expanded non è ammesso su un textbox).
+  useEffect(() => {
+    const dom = editor?.view.dom;
+    if (!dom) return;
+    if (mention && mention.items.length > 0) {
+      dom.setAttribute('aria-activedescendant', `mention-option-${mention.index}`);
+      document
+        .getElementById(`mention-option-${mention.index}`)
+        ?.scrollIntoView({ block: 'nearest' });
+    } else dom.removeAttribute('aria-activedescendant');
+  }, [editor, mention]);
 
   useEffect(() => {
     if (linkOpen) linkInput.current?.focus();
@@ -490,19 +504,21 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref
       <EditorContent editor={editor} />
       {mention ? (
         <ul
+          id="mention-list"
           role="listbox"
           aria-label={t('mentionList')}
           className="mention-list"
           style={{ top: mention.top, left: Math.max(8, mention.left) }}
         >
           {mention.items.length === 0 ? (
-            <li role="option" aria-selected="false" aria-disabled="true" className="mention-none">
+            <li role="presentation" className="mention-none">
               {t('mentionNone')}
             </li>
           ) : (
             mention.items.map((item, i) => (
               <li
                 key={item.id}
+                id={`mention-option-${i}`}
                 role="option"
                 aria-selected={i === mention.index}
                 className="mention-option"

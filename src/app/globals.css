@@ -1017,7 +1017,7 @@ select {
 .mention-list {
   position: fixed;
   z-index: 20;
-  max-height: 16rem;
+  max-height: 24rem;
   min-width: 14rem;
   margin: 0;
   padding: var(--space-1);

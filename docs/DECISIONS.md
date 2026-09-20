@@ -214,12 +214,18 @@
 - Data: 2026-09-20
 - Contesto: #18. La SPEC dice «menzione = relazione», con alias riconosciuti e backlink.
 - Decisione: `@` nell'editor propone gli snippet per titolo e alias (l'alias trovato è indicato); la menzione è un nodo `mention`
-  `{id, label}`. Al salvataggio (completo o automatico) il database sincronizza le relazioni: per ogni snippet menzionato una
+  che nel database contiene **solo l'id** (il titolo non si salva mai: rivelerebbe a chi legge anche uno snippet che non può vedere;
+  editor e lettura lo risolvono con i permessi di chi guarda, altrimenti «snippet non disponibile»). Al salvataggio (completo o automatico) il database sincronizza le relazioni: per ogni snippet menzionato una
   relazione «menziona» (inversa «menzionato in») marcata `from_mention`; se la menzione sparisce dal testo, sparisce anche quella
   relazione. Le relazioni fatte a mano non si toccano, e quelle da menzione non sono soggette ai vincoli dei tipi. Si ignorano
   se stessi, snippet di altri mondi e snippet nel cestino. I backlink («Menzionato in») sono le relazioni `from_mention` in ingresso;
-  il pannello relazioni le esclude per non duplicarle. La lettura mostra il titolo attuale dello snippet citato; se non c'è più (o
-  non è leggibile) resta testo senza link.
+  il pannello relazioni le esclude per non duplicarle. La lettura mostra il titolo attuale dello snippet citato.
+- Difese: `from_mention` è valido solo con le etichette fisse «menziona»/«menzionato in» e non si cambia dopo la creazione (niente
+  scorciatoie per aggirare i vincoli dei tipi via API); al massimo 200 menzioni per documento (rifiutato in scrittura, mai troncato);
+  duplicare uno snippet ricrea le sue relazioni da menzione.
+- Limiti noti: la relazione da menzione ha la visibilità di default (`members`) indipendentemente da quella degli estremi, quindi
+  un backlink tra due snippet pubblici non è visibile agli anonimi; ripristinare dal cestino uno snippet citato non ricrea la
+  relazione finché il testo non viene risalvato; oltre 500 snippet i menzionabili sono i primi 500 per titolo (poi la ricerca, #19).
 - Alias: si riconoscono nei suggerimenti di `@`; non c'è (ancora) il collegamento automatico del testo libero agli alias.
 - Le etichette «menziona»/«menzionato in» sono salvate in italiano: le viste (#25) dovranno localizzarle usando `from_mention`.
 - Elenco dei menzionabili: caricato alla prima `@` (fino a 500 snippet) e filtrato in locale; oltre, lo sostituisce la ricerca (#19).

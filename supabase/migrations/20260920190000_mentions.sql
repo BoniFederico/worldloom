@@ -10,6 +10,12 @@ language plpgsql security invoker set search_path = '' as $$
 declare
   v_world uuid;
 begin
+  -- Elementi NULL scartati (renderebbero NULL il confronto del delete) e un tetto al numero di menzioni.
+  p_mentions := coalesce(array_remove(p_mentions, null), '{}');
+  if cardinality(p_mentions) > 200 then
+    raise exception 'too_many_mentions' using errcode = 'P0001';
+  end if;
+
   select world_id into v_world from public.snippets where id = p_snippet;
   if v_world is null then
     return;
@@ -37,6 +43,10 @@ declare
   t public.relation_types;
 begin
   if new.from_mention then
+    -- Il bypass dei tipi vale solo per le vere relazioni da menzione: etichette fisse, niente scorciatoie via API.
+    if private.norm_label(new.label) <> 'menziona' or new.inverse_label is distinct from 'menzionato in' then
+      raise exception 'invalid_mention_relation' using errcode = 'P0001';
+    end if;
     return new;
   end if;
   select * into t from public.relation_types
@@ -62,6 +72,19 @@ begin
   return new;
 end;
 $$;
+
+-- `from_mention` non si cambia dopo la creazione (una relazione manuale non diventa una menzione e viceversa).
+create or replace function private.forbid_mention_flag_change() returns trigger
+language plpgsql set search_path = '' as $$
+begin
+  if new.from_mention is distinct from old.from_mention then
+    raise exception 'from_mention è immutabile' using errcode = '42501';
+  end if;
+  return new;
+end;
+$$;
+create trigger relations_mention_flag_immutable before update on public.relations
+  for each row execute function private.forbid_mention_flag_change();
 
 drop function if exists public.save_snippet(uuid, timestamptz, text, public.snippet_status, jsonb, jsonb, uuid[], text[], text[]);
 

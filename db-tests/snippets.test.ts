@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { describe, expect, it } from 'vitest';
 import { actAs, createUser, withTx, type Db } from './helpers';
 
@@ -315,6 +316,64 @@ describe('save_snippet', () => {
           'conflict',
         );
         expect(await mentionRelations(db, id)).toHaveLength(1);
+      });
+    });
+
+    it('elementi NULL e troppe menzioni: NULL scartati, oltre 200 rifiutate', async () => {
+      await withTx(async (db) => {
+        const { owner, worldId, id, updated } = await setup(db);
+        const target = await addSnippet(db, worldId, owner, 'Citato');
+        await save(db, owner, id, await updated(), [], 'T', [], [], [target]);
+        expect(await mentionRelations(db, id)).toHaveLength(1);
+        // Un array con NULL: il NULL è ignorato e la menzione sparita viene comunque rimossa.
+        const token = await updated();
+        await actAs(db, owner, () =>
+          db.query(
+            `select save_snippet($1, $2, 'T', 'draft', '{}'::jsonb, '{}'::jsonb, '{}'::uuid[], '{}'::text[], '{}'::text[], array[null]::uuid[])`,
+            [id, token],
+          ),
+        );
+        expect(await mentionRelations(db, id)).toEqual([]);
+        const many = Array.from({ length: 201 }, () => randomUUID());
+        await expect(save(db, owner, id, await updated(), [], 'T', [], [], many)).rejects.toThrow(
+          'too_many_mentions',
+        );
+      });
+    });
+
+    it('from_mention non si imposta a mano né si cambia dopo, e vale solo con le etichette fisse', async () => {
+      await withTx(async (db) => {
+        const { owner, worldId, id, updated } = await setup(db);
+        void updated;
+        const a = id;
+        const b = await addSnippet(db, worldId, owner, 'Altro');
+        const insert = (label: string, inverse: string | null) =>
+          actAs(db, owner, () =>
+            db.query(
+              `insert into relations (world_id, source_id, target_id, label, inverse_label, from_mention, created_by)
+               values ($1, $2, $3, $4, $5, true, $6)`,
+              [worldId, a, b, label, inverse, owner],
+            ),
+          );
+        await expect(insert('amico di', null)).rejects.toThrow('invalid_mention_relation');
+        await expect(insert('menziona', 'altro')).rejects.toThrow('invalid_mention_relation');
+        await insert(' Menziona ', 'menzionato in');
+        await expect(
+          actAs(db, owner, () =>
+            db.query(`update relations set from_mention = false where source_id = $1`, [a]),
+          ),
+        ).rejects.toThrow();
+        await actAs(db, owner, () =>
+          db.query(
+            `insert into relations (world_id, source_id, target_id, label, created_by) values ($1, $2, $3, 'x', $4)`,
+            [worldId, b, a, owner],
+          ),
+        );
+        await expect(
+          actAs(db, owner, () =>
+            db.query(`update relations set from_mention = true where source_id = $1`, [b]),
+          ),
+        ).rejects.toThrow();
       });
     });
 

@@ -4,6 +4,8 @@ import {
   EMPTY_DOC,
   isSafeHref,
   mentionsOf,
+  withMentionLabels,
+  MAX_MENTIONS,
   sanitizeBody,
   textToDoc,
   validateBody,
@@ -358,26 +360,39 @@ describe('menzioni', () => {
     content: [{ type: 'paragraph', content: inline }],
   });
 
-  it('conserva una menzione con id e etichetta, senza altri attributi', () => {
+  it('conserva solo l’id della menzione: il titolo non si salva mai', () => {
     const result = sanitizeBody(
-      doc(mention({ id, label: 'Elara', onclick: 'x', mentionSuggestionChar: '@' })),
+      doc(mention({ id, label: 'Titolo segreto', onclick: 'x', mentionSuggestionChar: '@' })),
     );
-    expect(result).toEqual(doc(mention({ id, label: 'Elara' })));
+    expect(result).toEqual(doc(mention({ id })));
+    expect(JSON.stringify(result)).not.toContain('segreto');
   });
 
   it.each([
     { id: 'non-un-uuid', label: 'x' },
     { id: 'javascript:alert(1)', label: 'x' },
     { label: 'senza id' },
-    { id, label: 42 },
     null,
   ])('scarta la menzione non valida %j', (attrs) => {
     expect(JSON.stringify(sanitizeBody(doc(mention(attrs))))).not.toContain('mention');
   });
 
-  it('tronca l’etichetta lunga', () => {
-    const result = sanitizeBody(doc(mention({ id, label: 'x'.repeat(400) })));
-    expect(result.content?.[0]?.content?.[0]?.attrs?.label).toHaveLength(300);
+  it('withMentionLabels risolve i titoli con i permessi di chi guarda, altrimenti un segnaposto', () => {
+    const resolved = withMentionLabels(
+      doc(mention({ id }), mention({ id: id2 })) as never,
+      { [id]: 'Elara' },
+      'non disponibile',
+    );
+    const labels = resolved.content?.[0]?.content?.map((n) => n.attrs?.label);
+    expect(labels).toEqual(['Elara', 'non disponibile']);
+  });
+
+  it('un documento con troppe menzioni distinte viene rifiutato in scrittura', () => {
+    const many = Array.from({ length: MAX_MENTIONS + 1 }, (_, i) =>
+      mention({ id: `123e4567-e89b-12d3-a456-${String(i).padStart(12, '0')}` }),
+    );
+    expect(validateBody(doc(...many))).toBeNull();
+    expect(validateBody(doc(...many.slice(0, MAX_MENTIONS)))).not.toBeNull();
   });
 
   it('mentionsOf elenca gli id senza doppioni, anche dentro liste e tabelle', () => {
@@ -405,8 +420,10 @@ describe('menzioni', () => {
   });
 
   it('docToText mostra @etichetta', () => {
-    expect(docToText(doc({ type: 'text', text: 'Vedi ' }, mention({ id, label: 'Elara' })))).toBe(
-      'Vedi @Elara',
+    const text = doc({ type: 'text', text: 'Vedi ' }, mention({ id }), mention({ id: id2 }));
+    expect(docToText(text, { titles: { [id]: 'Elara' }, unavailable: 'n/d' })).toBe(
+      'Vedi @Elara@n/d',
     );
+    expect(docToText(text)).toBe('Vedi @@');
   });
 });

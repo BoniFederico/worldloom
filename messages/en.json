@@ -447,7 +447,8 @@
     "filterAll": "All",
     "filterApply": "Filter",
     "filterReset": "Clear filters",
-    "filters": "Filters"
+    "filters": "Filters",
+    "mentionUnavailable": "snippet unavailable"
   },
   "Relations": {
     "title": "Relations",

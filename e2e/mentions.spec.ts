@@ -70,7 +70,7 @@ test.describe('menzioni', () => {
 
     await page.keyboard.type(' e @zzzz');
     const list = page.getByRole('listbox', { name: 'Snippet da menzionare' });
-    await expect(list.getByRole('option')).toHaveText('Nessuno snippet corrisponde');
+    await expect(list.locator('.mention-none')).toHaveText('Nessuno snippet corrisponde');
     await page.keyboard.press('Escape');
     await expect(list).toHaveCount(0);
   });
@@ -156,8 +156,27 @@ test.describe('menzioni', () => {
     const reader = await newUser(browser, 'Lettore');
     await addMember(page, worldId, reader.email, 'reader');
     await reader.page.goto(aurelia);
-    await expect(reader.page.locator('.prose .mention-missing')).toHaveText('@Elara');
+    // Nessun titolo dello snippet non leggibile: solo un segnaposto neutro.
+    await expect(reader.page.locator('.prose .mention-missing')).toHaveText(
+      '@snippet non disponibile',
+    );
+    await expect(reader.page.getByText('Elara', { exact: true })).toHaveCount(0);
     await expect(reader.page.locator('.prose a.mention')).toHaveCount(0);
+  });
+
+  test('duplicare uno snippet mantiene le sue menzioni tra i backlink', async ({ browser }) => {
+    const { page, elara } = await setup(browser);
+    await mentionElara(page);
+    await saved(page);
+    await page.getByRole('button', { name: 'Duplica' }).click();
+    await expect(page.getByRole('heading', { level: 1, name: 'Aurelia (copia)' })).toBeVisible();
+    await ready(page);
+    // Il titolo della menzione è risolto all'apertura, non salvato nel testo.
+    await expect(editor(page).locator('.mention')).toHaveText('@Elara');
+
+    await page.goto(elara);
+    const links = page.getByRole('region', { name: 'Menzionato in' }).getByRole('link');
+    await expect(links).toHaveText(['Aurelia', 'Aurelia (copia)']);
   });
 
   test('un id di menzione non valido inviato via API viene scartato dal server', async ({

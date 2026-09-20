@@ -28,10 +28,21 @@ export function createMentionController(
   onChange: (state: MentionState | null) => void,
 ) {
   let targets: Promise<MentionCandidate[]> | null = null;
+  let loadedAt = 0;
   let current: MentionState | null = null;
 
+  // L'elenco si rinnova dopo mezzo minuto (gli snippet creati nel frattempo compaiono) e dopo un errore.
   const load = () => {
-    targets ??= listMentionTargets({ world: scope.worldId, id: scope.snippetId }).catch(() => []);
+    if (!targets || Date.now() - loadedAt > 30_000) {
+      loadedAt = Date.now();
+      const request = listMentionTargets({ world: scope.worldId, id: scope.snippetId }).catch(
+        () => {
+          targets = null;
+          return [] as MentionCandidate[];
+        },
+      );
+      targets = request;
+    }
     return targets;
   };
   const show = (next: MentionState | null) => {
@@ -56,7 +67,8 @@ export function createMentionController(
         onStart: open,
         onUpdate: open,
         onKeyDown: ({ event }: { event: KeyboardEvent }) => {
-          if (!current) return false;
+          // Durante la composizione (IME) Invio conferma il testo, non sceglie una voce.
+          if (!current || event.isComposing) return false;
           const count = current.items.length;
           if (event.key === 'Escape') {
             show(null);

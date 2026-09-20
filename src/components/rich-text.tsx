@@ -11,11 +11,13 @@ type Context = {
   worldId?: string;
   /** Titoli attuali degli snippet menzionati; un id assente è cancellato o non leggibile. */
   titles?: Record<string, string>;
+  /** Testo neutro per una menzione che chi guarda non può risolvere. */
+  unavailable: string;
 };
 
-export function RichText({ doc, worldId, titles }: { doc: unknown } & Context) {
+export function RichText({ doc, worldId, titles, unavailable }: { doc: unknown } & Context) {
   const clean = sanitizeBody(doc);
-  const context = { worldId, titles };
+  const context = { worldId, titles, unavailable };
   return <div className="prose">{(clean.content ?? []).map((n, i) => block(n, i, context))}</div>;
 }
 
@@ -23,20 +25,19 @@ function inline(nodes: DocNode[] = [], context: Context): ReactNode[] {
   return nodes.map((node, i) => {
     if (node.type === 'hardBreak') return <br key={i} />;
     if (node.type === 'mention') {
+      // Il titolo si risolve con i permessi di chi guarda: uno snippet non leggibile o cancellato non rivela nulla.
       const id = String(node.attrs?.id ?? '');
-      const stored = String(node.attrs?.label ?? '');
       const title = context.titles?.[id];
-      // Titolo attuale se noto; se lo snippet non c'è più (o non è leggibile) resta il testo, senza link.
-      if (!context.worldId || (context.titles && title === undefined)) {
+      if (!context.worldId || title === undefined) {
         return (
           <span key={i} className="mention mention-missing">
-            @{stored}
+            @{context.unavailable}
           </span>
         );
       }
       return (
         <Link key={i} className="mention" href={`/worlds/${context.worldId}/snippets/${id}`}>
-          @{title ?? stored}
+          @{title}
         </Link>
       );
     }
