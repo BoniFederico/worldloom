@@ -44,18 +44,25 @@ export async function importPresets(formData: FormData) {
   if (chosen.length === 0) redirect(`${listPath(world)}?error=nothing_selected`);
 
   const t = await getTranslations('Presets');
-  const rows = chosen.map((preset) => {
-    const built = buildPreset(preset, { text: (key) => t(key) });
-    return {
-      world_id: world,
-      name: built.name,
-      icon: built.icon,
-      color: built.color,
-      fields_schema: built.fields as unknown as Json,
-    };
-  });
-
   const supabase = await createClient();
+  // Un preset già importato (stesso nome) non si duplica.
+  const { data: existing } = await supabase.from('categories').select('name').eq('world_id', world);
+  const taken = new Set((existing ?? []).map((c) => c.name));
+  const rows = chosen.flatMap((preset) => {
+    const built = buildPreset(preset, { text: (key) => t(key) });
+    if (taken.has(built.name)) return [];
+    return [
+      {
+        world_id: world,
+        name: built.name,
+        icon: built.icon,
+        color: built.color,
+        fields_schema: built.fields as unknown as Json,
+      },
+    ];
+  });
+  if (rows.length === 0) redirect(`${listPath(world)}?error=already_imported`);
+
   const { error } = await supabase.from('categories').insert(rows);
   if (error) redirect(`${listPath(world)}?error=generic`);
   redirect(`${listPath(world)}?notice=imported`);

@@ -250,7 +250,8 @@
       "invalid_input": "Check name, icon and color.",
       "nothing_selected": "Select at least one preset.",
       "confirm_required": "Tick the confirmation to delete the category.",
-      "generic": "The operation failed. Try again in a moment."
+      "generic": "The operation failed. Try again in a moment.",
+      "already_imported": "These presets are already in this world."
     },
     "icons": {
       "user": "Person",

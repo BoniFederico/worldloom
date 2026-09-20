@@ -112,6 +112,19 @@ describe('validateValue', () => {
     expect(validateValue(d, { path: '../etc/passwd' }).ok).toBe(false);
     expect(validateValue(d, { path: '/assoluto.png' }).ok).toBe(false);
     expect(validateValue(d, { path: 'https://evil.test/x.png' }).ok).toBe(false);
+    for (const path of [
+      '%2e%2e/x.png',
+      'a\\b.png',
+      'a//b.png',
+      './x.png',
+      '.nascosto',
+      'a/../b',
+      'a\u0000b',
+      'a b.png',
+      'a/',
+    ]) {
+      expect(validateValue(d, { path }).ok, path).toBe(false);
+    }
   });
 });
 

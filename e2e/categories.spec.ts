@@ -55,6 +55,9 @@ test.describe('categorie', () => {
     await page.getByLabel('Luogo').check();
     await page.getByRole('button', { name: 'Importa i selezionati' }).click();
     await expect(page.getByRole('status')).toHaveText('Preset importati.');
+    await page.getByLabel('Personaggio').check();
+    await page.getByRole('button', { name: 'Importa i selezionati' }).click();
+    await expect(page.getByRole('main').getByRole('alert')).toContainText('già presenti');
     await page.getByRole('link', { name: /Personaggio/ }).click();
     await expect(page.getByText('Scelta: Vivo, Morto, Disperso, Sconosciuto')).toBeVisible();
     await expect(page.getByText('Data in calendario').first()).toBeVisible();

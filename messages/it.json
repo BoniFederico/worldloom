@@ -250,7 +250,8 @@
       "invalid_input": "Controlla nome, icona e colore.",
       "nothing_selected": "Seleziona almeno un preset.",
       "confirm_required": "Spunta la conferma per eliminare la categoria.",
-      "generic": "Operazione non riuscita. Riprova tra poco."
+      "generic": "Operazione non riuscita. Riprova tra poco.",
+      "already_imported": "Questi preset sono già presenti in questo mondo."
     },
     "icons": {
       "user": "Persona",

@@ -69,12 +69,13 @@ const coordinates = z.object({
   map: uuid.optional(),
 });
 
-// Solo percorsi relativi dello storage: niente URL, percorsi assoluti o risalite di directory.
+// Percorso relativo dello storage a whitelist: segmenti non vuoti di [A-Za-z0-9_-.] che non iniziano
+// con un punto (quindi niente `.`/`..`), senza URL, backslash, percent-encoding o caratteri di controllo.
+const SEGMENT = /^[A-Za-z0-9_-][A-Za-z0-9_.-]*$/;
 const imagePath = z
   .string()
-  .min(1)
   .max(300)
-  .refine((p) => !p.startsWith('/') && !p.includes('..') && !/^[a-z][a-z0-9+.-]*:/i.test(p));
+  .refine((p) => p.split('/').every((segment) => SEGMENT.test(segment)));
 const image = z.object({ path: imagePath, alt: z.string().max(300).optional() });
 
 function isRealIsoDate(value: string): boolean {
