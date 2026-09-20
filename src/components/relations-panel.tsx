@@ -44,13 +44,15 @@ export async function RelationsPanel({
     .eq('world_id', worldId)
     .or(`source_id.eq.${snippetId},target_id.eq.${snippetId}`)
     .order('created_at');
-  const views = (rows ?? []).map((row) => ({ row, view: relationView(row, snippetId) }));
+  const allViews = (rows ?? []).map((row) => ({ row, view: relationView(row, snippetId) }));
 
-  const otherIds = [...new Set(views.map((v) => v.view.otherId))];
+  const otherIds = [...new Set(allViews.map((v) => v.view.otherId))];
   const { data: others } = otherIds.length
-    ? await supabase.from('snippets').select('id, title').in('id', otherIds)
+    ? await supabase.from('snippets').select('id, title').in('id', otherIds).is('deleted_at', null)
     : { data: [] };
   const titles = new Map((others ?? []).map((s) => [s.id, s.title]));
+  // Le relazioni verso snippet nel cestino non si mostrano (tornano se lo snippet viene ripristinato).
+  const views = allViews.filter((v) => titles.has(v.view.otherId));
 
   // Suggerimenti: etichette già usate nel mondo e possibili destinazioni.
   const [{ data: used }, { data: targets }] = canWrite
@@ -170,19 +172,21 @@ export async function RelationsPanel({
                         {t('save')}
                       </button>
                     </form>
-                    <form action={deleteRelation}>
-                      <input type="hidden" name="world" value={worldId} />
-                      <input type="hidden" name="id" value={snippetId} />
-                      <input type="hidden" name="relation" value={row.id} />
-                      <button type="submit" className="btn btn-danger">
-                        {t('remove')}
-                        <span className="sr-only">
-                          {' '}
-                          {row.label} — {otherTitle}
-                        </span>
-                      </button>
-                    </form>
                   </details>
+                ) : null}
+                {canWrite ? (
+                  <form action={deleteRelation}>
+                    <input type="hidden" name="world" value={worldId} />
+                    <input type="hidden" name="id" value={snippetId} />
+                    <input type="hidden" name="relation" value={row.id} />
+                    <button type="submit" className="btn btn-danger">
+                      {t('remove')}
+                      <span className="sr-only">
+                        {' '}
+                        {row.label} — {otherTitle}
+                      </span>
+                    </button>
+                  </form>
                 ) : null}
               </li>
             );

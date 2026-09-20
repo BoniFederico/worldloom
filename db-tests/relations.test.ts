@@ -72,6 +72,8 @@ describe('relazioni: vincoli sui dati', () => {
         { year: 1.5 },
         { year: 1, month: 0 },
         { year: 1, day: 100 },
+        { year: 1, month: '5' },
+        { year: 1, day: 5 },
         [],
       ]) {
         await expect(relate('r', { from: bad })).rejects.toThrow(/relations_valid_time/);
@@ -80,11 +82,23 @@ describe('relazioni: vincoli sui dati', () => {
     });
   });
 
+  it('con due estremi malformati fallisce il CHECK, non un errore di cast', async () => {
+    await withTx(async (db) => {
+      const { relate } = await setup(db);
+      await expect(relate('r', { from: { year: 'x' }, to: { year: 5 } })).rejects.toThrow(
+        /relations_valid_time/,
+      );
+      await expect(relate('r', { from: { year: 1.5 }, to: { year: 5 } })).rejects.toThrow(
+        /relations_valid_time/,
+      );
+    });
+  });
+
   it('la fine non può precedere l’inizio', async () => {
     await withTx(async (db) => {
       const { relate } = await setup(db);
       await expect(relate('r', { from: { year: 20 }, to: { year: 10 } })).rejects.toThrow(
-        /relations_valid_order/,
+        /relations_valid_time/,
       );
       await relate('uguali', { from: { year: 10 }, to: { year: 10 } });
     });

@@ -1,7 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { parseRelationInput, type RelationInput } from '@/lib/relations/input';
+import { inverseFor, parseRelationInput, type RelationInput } from '@/lib/relations/input';
 import { loadWorld } from '@/lib/worlds/context';
 import { uuidSchema } from '@/lib/worlds/schemas';
 
@@ -47,7 +47,9 @@ const toColumns = (input: RelationInput) => ({
 /** Errori del database che l'utente può correggere. */
 function dbError(error: { code?: string; message?: string }): string {
   if (error.code === '23505') return 'duplicate_relation';
-  if (error.code === '23514') return 'invalid_validity';
+  if (error.code === '23514') {
+    return error.message?.includes('relations_notes_length') ? 'invalid_notes' : 'invalid_validity';
+  }
   return 'relation_failed';
 }
 
@@ -80,17 +82,17 @@ export async function createRelation(
     .in('id', [source.data, input.target]);
   if (ends?.length !== 2) return fail('target_missing');
 
-  // Senza etichetta inversa si riusa quella già associata a questa etichetta nel mondo.
+  // Senza etichetta inversa si riusa quella già associata a questa etichetta nel mondo (confronto in codice,
+  // non con `ilike`: nessun carattere jolly). Non è atomico: scritture concorrenti possono dare inverse diverse.
   if (!input.inverse) {
     const { data: known } = await supabase
       .from('relations')
-      .select('inverse_label')
+      .select('label, inverse_label')
       .eq('world_id', world.data)
-      .ilike('label', input.label.replace(/[\\%_]/g, '\\$&'))
       .not('inverse_label', 'is', null)
       .order('created_at', { ascending: false })
-      .limit(1);
-    input.inverse = known?.[0]?.inverse_label ?? null;
+      .limit(1000);
+    input.inverse = inverseFor(input.label, known ?? []);
   }
 
   const { error } = await supabase.from('relations').insert({

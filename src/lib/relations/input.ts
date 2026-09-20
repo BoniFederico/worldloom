@@ -146,3 +146,22 @@ export function topLabels(values: (string | null)[], limit = 30): string[] {
     .slice(0, limit)
     .map((e) => e.label);
 }
+
+const norm = (value: string) => value.replace(/\s+/g, ' ').trim().toLowerCase();
+
+/**
+ * Etichetta inversa da riusare per `label`, in base alle relazioni già presenti (dalla più recente):
+ * se `label` è già usata con un'inversa si riusa quella; se `label` è a sua volta l'inversa di un'altra
+ * etichetta, l'inversa è quell'altra («padre di» dopo «figlio di» ↔ «padre di»).
+ */
+export function inverseFor(
+  label: string,
+  rows: { label: string; inverse_label: string | null }[],
+): string | null {
+  const key = norm(label);
+  for (const row of rows) {
+    if (row.inverse_label && norm(row.label) === key) return row.inverse_label;
+    if (row.inverse_label && norm(row.inverse_label) === key) return row.label;
+  }
+  return null;
+}

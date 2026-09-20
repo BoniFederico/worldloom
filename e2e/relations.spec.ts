@@ -119,7 +119,6 @@ test.describe('relazioni', () => {
     await expect(page.locator('.relations li').first()).toContainText('Da sempre.');
     await expect(page.locator('.relations li').first()).toContainText('Dal 10');
 
-    await page.locator('.relations li').first().locator('summary').click();
     await page.getByRole('button', { name: /^Rimuovi la relazione/ }).click();
     await expect(page.getByRole('status')).toHaveText('Relazione rimossa.');
     await expect(page.locator('.relations li')).toHaveCount(0);
@@ -149,6 +148,22 @@ test.describe('relazioni', () => {
     await expect(
       page.getByRole('alert').filter({ hasText: 'intervallo di validità' }),
     ).toBeVisible();
+  });
+
+  test('una relazione verso uno snippet nel cestino non si mostra e torna al ripristino', async ({
+    browser,
+  }) => {
+    const { page, urlA, urlB } = await twoSnippets(browser);
+    await page.goto(urlA);
+    await addRelation(page, 'Arathorn', 'amico di');
+    await page.goto(urlB);
+    await page.getByRole('button', { name: 'Sposta nel cestino' }).click();
+    await page.goto(urlA);
+    await expect(page.locator('.relations li')).toHaveCount(0);
+    await page.goto(urlB);
+    await page.getByRole('button', { name: 'Ripristina', exact: true }).click();
+    await page.goto(urlA);
+    await expect(page.locator('.relations li')).toHaveCount(1);
   });
 
   test('un lettore vede le relazioni ma non i controlli di modifica', async ({ browser }) => {

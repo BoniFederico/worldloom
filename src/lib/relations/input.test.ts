@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { parseRelationInput, relationView, topLabels } from './input';
+import { inverseFor, parseRelationInput, relationView, topLabels } from './input';
 
 const uuid = '123e4567-e89b-12d3-a456-426614174000';
 const form = (values: Record<string, string | undefined>) => (name: string) => values[name];
@@ -114,5 +114,23 @@ describe('topLabels', () => {
   });
   it('rispetta il limite', () => {
     expect(topLabels(['a', 'b', 'c'], 2)).toHaveLength(2);
+  });
+});
+
+describe('inverseFor', () => {
+  const rows = [
+    { label: 'figlio di', inverse_label: 'padre di' },
+    { label: 'alleato di', inverse_label: null },
+  ];
+  it('riusa l’inversa già associata all’etichetta', () => {
+    expect(inverseFor(' Figlio  DI ', rows)).toBe('padre di');
+  });
+  it('se l’etichetta è a sua volta un’inversa, la sua inversa è l’altra etichetta', () => {
+    expect(inverseFor('padre di', rows)).toBe('figlio di');
+  });
+  it('senza corrispondenze o con caratteri speciali non riusa nulla', () => {
+    expect(inverseFor('alleato di', rows)).toBeNull();
+    expect(inverseFor('fig*', rows)).toBeNull();
+    expect(inverseFor('%', rows)).toBeNull();
   });
 });
