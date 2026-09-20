@@ -173,6 +173,54 @@ describe('cronologia versioni', () => {
     });
   });
 
+  it('il ripristino riallinea le relazioni da menzione al testo ripristinato', async () => {
+    await withTx(async (db) => {
+      const { owner, worldId, id } = await setup(db);
+      const mk = async (title: string) =>
+        (
+          await actAs(db, owner, () =>
+            db.query(
+              'insert into snippets (world_id, title, created_by) values ($1, $2, $3) returning id',
+              [worldId, title, owner],
+            ),
+          )
+        ).rows[0].id as string;
+      const [a, b] = [await mk('Aragorn'), await mk('Boromir')];
+      const doc = (target: string) =>
+        JSON.stringify({
+          type: 'doc',
+          content: [{ type: 'paragraph', content: [{ type: 'mention', attrs: { id: target } }] }],
+        });
+      const save = async (target: string) => {
+        const cur = await db.query('select updated_at::text as u from snippets where id = $1', [
+          id,
+        ]);
+        await actAs(db, owner, () =>
+          db.query('select public.autosave_snippet_body($1, $2, $3::jsonb, $4::uuid[])', [
+            id,
+            cur.rows[0].u,
+            doc(target),
+            [target],
+          ]),
+        );
+      };
+      await save(a);
+      await backdate(db);
+      await save(b);
+      const targets = () =>
+        db
+          .query('select target_id from relations where source_id = $1 and from_mention', [id])
+          .then((r) => r.rows.map((x) => x.target_id));
+      expect(await targets()).toEqual([b]);
+
+      const cur = await db.query('select updated_at::text as u from snippets where id = $1', [id]);
+      await actAs(db, owner, () =>
+        db.query('select public.restore_snippet_version($1, 1, $2)', [id, cur.rows[0].u]),
+      );
+      expect(await targets()).toEqual([a]);
+    });
+  });
+
   it('il ripristino rifiuta un token superato e un lettore', async () => {
     await withTx(async (db) => {
       const { owner, reader, id } = await setup(db);

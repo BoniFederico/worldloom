@@ -267,6 +267,6 @@
 - Ripristino: `restore_snippet_version(snippet, versione, updated_at)` (security invoker, condizionata a `updated_at` come il salvataggio) riporta
   il contenuto e registra una nuova versione con `restored_from`; il ripristino non si fonde mai. Il confronto è con la versione precedente
   (righe del testo, tag, alias, campi, titolo, stato).
-- Limiti noti: le categorie e le relazioni non fanno parte della versione (dopo un ripristino le relazioni da menzione si riallineano solo al successivo salvataggio del testo); le menzioni nel confronto non mostrano il titolo;
+- Limiti noti: le categorie e le relazioni non fanno parte della versione (il ripristino invece riallinea le relazioni da menzione, ricavando gli id dal documento lato server); dopo un ripristino le categorie restano quelle attuali; le menzioni nel confronto non mostrano il titolo;
   le versioni sono cancellate con lo snippet.
 - Deciso da: agente

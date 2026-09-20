@@ -96,6 +96,18 @@ begin
   if v_id is null then
     raise exception 'conflict' using errcode = 'P0001';
   end if;
+
+  -- Le relazioni da menzione seguono il testo ripristinato (ids ricavati dal documento, non dal client).
+  perform private.sync_mentions(
+    p_snippet,
+    coalesce(
+      (select array_agg(distinct m::uuid)
+         from jsonb_path_query(v.body, '$.** ? (@.type == "mention").attrs.id') as j,
+              lateral (select j #>> '{}' as m) as x
+        where m ~* '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'),
+      '{}'
+    )
+  );
 end;
 $$;
 
