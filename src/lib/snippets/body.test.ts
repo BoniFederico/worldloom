@@ -1,5 +1,15 @@
 import { describe, expect, it } from 'vitest';
-import { docToText, EMPTY_DOC, isSafeHref, sanitizeBody, textToDoc, validateBody } from './body';
+import {
+  docToText,
+  EMPTY_DOC,
+  isSafeHref,
+  mentionsOf,
+  withMentionLabels,
+  MAX_MENTIONS,
+  sanitizeBody,
+  textToDoc,
+  validateBody,
+} from './body';
 
 const p = (text: string) => ({ type: 'paragraph', content: [{ type: 'text', text }] });
 
@@ -339,4 +349,81 @@ describe('isSafeHref', () => {
     42,
     null,
   ])('rifiuta %j', (href) => expect(isSafeHref(href)).toBe(false));
+});
+
+describe('menzioni', () => {
+  const id = '123e4567-e89b-12d3-a456-426614174000';
+  const id2 = '223e4567-e89b-12d3-a456-426614174000';
+  const mention = (attrs: unknown) => ({ type: 'mention', attrs });
+  const doc = (...inline: unknown[]) => ({
+    type: 'doc',
+    content: [{ type: 'paragraph', content: inline }],
+  });
+
+  it('conserva solo l’id della menzione: il titolo non si salva mai', () => {
+    const result = sanitizeBody(
+      doc(mention({ id, label: 'Titolo segreto', onclick: 'x', mentionSuggestionChar: '@' })),
+    );
+    expect(result).toEqual(doc(mention({ id })));
+    expect(JSON.stringify(result)).not.toContain('segreto');
+  });
+
+  it.each([
+    { id: 'non-un-uuid', label: 'x' },
+    { id: 'javascript:alert(1)', label: 'x' },
+    { label: 'senza id' },
+    null,
+  ])('scarta la menzione non valida %j', (attrs) => {
+    expect(JSON.stringify(sanitizeBody(doc(mention(attrs))))).not.toContain('mention');
+  });
+
+  it('withMentionLabels risolve i titoli con i permessi di chi guarda, altrimenti un segnaposto', () => {
+    const resolved = withMentionLabels(
+      doc(mention({ id }), mention({ id: id2 })) as never,
+      { [id]: 'Elara' },
+      'non disponibile',
+    );
+    const labels = resolved.content?.[0]?.content?.map((n) => n.attrs?.label);
+    expect(labels).toEqual(['Elara', 'non disponibile']);
+  });
+
+  it('un documento con troppe menzioni distinte viene rifiutato in scrittura', () => {
+    const many = Array.from({ length: MAX_MENTIONS + 1 }, (_, i) =>
+      mention({ id: `123e4567-e89b-12d3-a456-${String(i).padStart(12, '0')}` }),
+    );
+    expect(validateBody(doc(...many))).toBeNull();
+    expect(validateBody(doc(...many.slice(0, MAX_MENTIONS)))).not.toBeNull();
+  });
+
+  it('mentionsOf elenca gli id senza doppioni, anche dentro liste e tabelle', () => {
+    const d = {
+      type: 'doc',
+      content: [
+        { type: 'paragraph', content: [mention({ id, label: 'A' }), mention({ id, label: 'A' })] },
+        {
+          type: 'bulletList',
+          content: [
+            {
+              type: 'listItem',
+              content: [{ type: 'paragraph', content: [mention({ id: id2, label: 'B' })] }],
+            },
+          ],
+        },
+      ],
+    };
+    expect(mentionsOf(d).sort()).toEqual([id, id2].sort());
+  });
+
+  it('mentionsOf ignora input non valido e id non uuid', () => {
+    expect(mentionsOf(null)).toEqual([]);
+    expect(mentionsOf(doc(mention({ id: 'x', label: 'y' })))).toEqual([]);
+  });
+
+  it('docToText mostra @etichetta', () => {
+    const text = doc({ type: 'text', text: 'Vedi ' }, mention({ id }), mention({ id: id2 }));
+    expect(docToText(text, { titles: { [id]: 'Elara' }, unavailable: 'n/d' })).toBe(
+      'Vedi @Elara@n/d',
+    );
+    expect(docToText(text)).toBe('Vedi @@');
+  });
 });

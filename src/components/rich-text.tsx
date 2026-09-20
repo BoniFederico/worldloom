@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { ReactNode } from 'react';
 import { sanitizeBody, type DocNode } from '@/lib/snippets/body';
 
@@ -5,14 +6,41 @@ import { sanitizeBody, type DocNode } from '@/lib/snippets/body';
  * Mostra un corpo rich text. Il documento viene sanificato di nuovo (chi scrive può salvare `body` anche via API)
  * e reso come elementi React: nessun `innerHTML`.
  */
-export function RichText({ doc }: { doc: unknown }) {
+type Context = {
+  /** Mondo dello snippet: serve a costruire i link delle menzioni. */
+  worldId?: string;
+  /** Titoli attuali degli snippet menzionati; un id assente è cancellato o non leggibile. */
+  titles?: Record<string, string>;
+  /** Testo neutro per una menzione che chi guarda non può risolvere. */
+  unavailable: string;
+};
+
+export function RichText({ doc, worldId, titles, unavailable }: { doc: unknown } & Context) {
   const clean = sanitizeBody(doc);
-  return <div className="prose">{(clean.content ?? []).map((n, i) => block(n, i))}</div>;
+  const context = { worldId, titles, unavailable };
+  return <div className="prose">{(clean.content ?? []).map((n, i) => block(n, i, context))}</div>;
 }
 
-function inline(nodes: DocNode[] = []): ReactNode[] {
+function inline(nodes: DocNode[] = [], context: Context): ReactNode[] {
   return nodes.map((node, i) => {
     if (node.type === 'hardBreak') return <br key={i} />;
+    if (node.type === 'mention') {
+      // Il titolo si risolve con i permessi di chi guarda: uno snippet non leggibile o cancellato non rivela nulla.
+      const id = String(node.attrs?.id ?? '');
+      const title = context.titles?.[id];
+      if (!context.worldId || title === undefined) {
+        return (
+          <span key={i} className="mention mention-missing">
+            @{context.unavailable}
+          </span>
+        );
+      }
+      return (
+        <Link key={i} className="mention" href={`/worlds/${context.worldId}/snippets/${id}`}>
+          @{title}
+        </Link>
+      );
+    }
     let out: ReactNode = node.text ?? '';
     for (const mark of node.marks ?? []) {
       if (mark.type === 'bold') out = <strong>{out}</strong>;
@@ -30,16 +58,16 @@ function inline(nodes: DocNode[] = []): ReactNode[] {
   });
 }
 
-function block(node: DocNode, key: number): ReactNode {
-  const children = () => (node.content ?? []).map((n, i) => block(n, i));
+function block(node: DocNode, key: number, context: Context): ReactNode {
+  const children = () => (node.content ?? []).map((n, i) => block(n, i, context));
   switch (node.type) {
     case 'paragraph':
-      return <p key={key}>{inline(node.content)}</p>;
+      return <p key={key}>{inline(node.content, context)}</p>;
     case 'heading': {
       // Il titolo dello snippet è l'h1 della pagina: i titoli del testo partono da h2.
       const level = Math.min(4, Number(node.attrs?.level ?? 1) + 1);
       const Tag = `h${level}` as 'h2' | 'h3' | 'h4';
-      return <Tag key={key}>{inline(node.content)}</Tag>;
+      return <Tag key={key}>{inline(node.content, context)}</Tag>;
     }
     case 'blockquote':
       return <blockquote key={key}>{children()}</blockquote>;

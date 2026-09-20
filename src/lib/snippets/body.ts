@@ -17,6 +17,7 @@ export type DocNode = {
 
 export const EMPTY_DOC: DocNode = { type: 'doc', content: [{ type: 'paragraph' }] };
 
+export const MAX_MENTIONS = 200;
 export const MAX_TEXT_LENGTH = 200_000;
 export const MAX_JSON_LENGTH = 500_000;
 const MAX_BYTES = MAX_JSON_LENGTH;
@@ -71,7 +72,10 @@ function cleanMarks(raw: unknown): DocMark[] | undefined {
   return marks.length ? marks : undefined;
 }
 
-const isInline = (node: DocNode) => node.type === 'text' || node.type === 'hardBreak';
+const isInline = (node: DocNode) =>
+  node.type === 'text' || node.type === 'hardBreak' || node.type === 'mention';
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 /** Porta i figli al modello di contenuto del genitore (blocchi, inline o voci di lista). */
 function normalize(kind: Kind, children: DocNode[]): DocNode[] {
@@ -128,6 +132,13 @@ function clean(raw: unknown, depth: number): DocNode[] {
     return [marks ? { type: 'text', text: raw.text, marks } : { type: 'text', text: raw.text }];
   }
   if (raw.type === 'hardBreak') return [{ type: 'hardBreak' }];
+  if (raw.type === 'mention') {
+    // Solo l'id (uuid). Il titolo NON si salva: un titolo nel testo rivelerebbe a chi legge anche uno snippet che non
+    // può vedere; la lettura e l'editor lo risolvono con i permessi di chi guarda (`withMentionLabels`).
+    const attrs = isRecord(raw.attrs) ? raw.attrs : {};
+    if (typeof attrs.id !== 'string' || !UUID.test(attrs.id)) return [];
+    return [{ type: 'mention', attrs: { id: attrs.id } }];
+  }
   if (raw.type === 'image') {
     // Solo immagini caricate nell'app (percorso interno a whitelist): mai URL esterni né data:.
     const attrs = isRecord(raw.attrs) ? raw.attrs : {};
@@ -195,7 +206,9 @@ export function validateBody(raw: unknown): DocNode | null {
     return null;
   }
   if (!withinLimits(raw, 0)) return null;
-  return sanitizeBody(raw);
+  const clean = sanitizeBody(raw);
+  // Ogni menzione diventa una relazione: un tetto evita documenti che ne generano migliaia.
+  return mentionsOf(clean).length > MAX_MENTIONS ? null : clean;
 }
 
 /** Ricostruisce il documento con la sola allowlist. Input non valido o troppo grande → documento vuoto (per la lettura: usa `validateBody` per scrivere). */
@@ -233,7 +246,11 @@ export function textToDoc(input: string): DocNode {
 
 function inlineText(nodes: DocNode[] = []): string {
   return nodes
-    .map((n) => (n.type === 'hardBreak' ? '\n' : (n.text ?? inlineText(n.content))))
+    .map((n) => {
+      if (n.type === 'hardBreak') return '\n';
+      if (n.type === 'mention') return `@${String(n.attrs?.label ?? '')}`; // label solo se risolta (`withMentionLabels`)
+      return n.text ?? inlineText(n.content);
+    })
     .join('');
 }
 
@@ -245,7 +262,47 @@ function blockText(node: DocNode): string {
 }
 
 /** Testo semplice del documento (per il campo di testo senza JavaScript, per gli estratti e la ricerca). */
-export function docToText(doc: unknown): string {
-  const clean = sanitizeBody(doc);
+export function docToText(
+  doc: unknown,
+  labels?: { titles: Record<string, string>; unavailable: string },
+): string {
+  const sanitized = sanitizeBody(doc);
+  const clean = labels
+    ? withMentionLabels(sanitized, labels.titles, labels.unavailable)
+    : sanitized;
   return (clean.content ?? []).map(blockText).filter(Boolean).join('\n\n');
+}
+
+/** Id degli snippet menzionati nel documento, senza doppioni (solo uuid validi). */
+export function mentionsOf(doc: unknown): string[] {
+  const found = new Set<string>();
+  const walk = (node: unknown, depth: number) => {
+    if (!isRecord(node) || depth > MAX_DEPTH + 2) return;
+    if (node.type === 'mention' && isRecord(node.attrs)) {
+      const id = node.attrs.id;
+      if (typeof id === 'string' && UUID.test(id)) found.add(id);
+    }
+    if (Array.isArray(node.content)) for (const child of node.content) walk(child, depth + 1);
+  };
+  walk(doc, 0);
+  return [...found];
+}
+
+/**
+ * Copia del documento con l'etichetta di ogni menzione risolta: il titolo attuale se lo snippet è leggibile,
+ * altrimenti `unavailable`. Le etichette non si persistono mai (vedi `sanitizeBody`).
+ */
+export function withMentionLabels(
+  doc: DocNode,
+  titles: Record<string, string>,
+  unavailable: string,
+): DocNode {
+  const walk = (node: DocNode): DocNode => {
+    if (node.type === 'mention') {
+      const id = String(node.attrs?.id ?? '');
+      return { ...node, attrs: { ...node.attrs, label: titles[id] ?? unavailable } };
+    }
+    return node.content ? { ...node, content: node.content.map(walk) } : node;
+  };
+  return walk(doc);
 }

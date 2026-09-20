@@ -150,6 +150,7 @@ export type Database = {
           created_at: string;
           created_by: string;
           fields: Json;
+          from_mention: boolean;
           id: string;
           inverse_label: string | null;
           label: string;
@@ -166,6 +167,7 @@ export type Database = {
           created_at?: string;
           created_by: string;
           fields?: Json;
+          from_mention?: boolean;
           id?: string;
           inverse_label?: string | null;
           label: string;
@@ -182,6 +184,7 @@ export type Database = {
           created_at?: string;
           created_by?: string;
           fields?: Json;
+          from_mention?: boolean;
           id?: string;
           inverse_label?: string | null;
           label?: string;
@@ -379,6 +382,15 @@ export type Database = {
         };
         Returns: string;
       };
+      autosave_snippet_body: {
+        Args: {
+          p_body: Json;
+          p_id: string;
+          p_mentions: string[];
+          p_updated: string;
+        };
+        Returns: string;
+      };
       save_snippet: {
         Args: {
           p_aliases: string[];
@@ -386,6 +398,7 @@ export type Database = {
           p_categories: string[];
           p_fields: Json;
           p_id: string;
+          p_mentions: string[];
           p_status: Database['public']['Enums']['snippet_status'];
           p_tags: string[];
           p_title: string;

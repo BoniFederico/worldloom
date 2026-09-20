@@ -431,7 +431,11 @@
         "unsupported": "Unsupported format: only PNG, JPEG, WebP and GIF are allowed.",
         "too_large": "The file is larger than 4 MB.",
         "generic": "Upload failed. Please try again."
-      }
+      },
+      "mentionList": "Snippets to mention",
+      "mentionNone": "No snippet matches",
+      "mentionAlias": "alias: {alias}",
+      "mentionCount": "{count, plural, one {# suggestion} other {# suggestions}}."
     },
     "tagsLabel": "Tags",
     "tagsHint": "Comma-separated. Upper and lower case are equivalent (30 tags at most).",
@@ -443,7 +447,8 @@
     "filterAll": "All",
     "filterApply": "Filter",
     "filterReset": "Clear filters",
-    "filters": "Filters"
+    "filters": "Filters",
+    "mentionUnavailable": "snippet unavailable"
   },
   "Relations": {
     "title": "Relations",
@@ -524,5 +529,9 @@
       "generic": "Something went wrong. Please try again."
     },
     "inverseIs": "inverse"
+  },
+  "Backlinks": {
+    "title": "Mentioned in",
+    "empty": "No snippet mentions this one with an @mention."
   }
 }

@@ -42,6 +42,7 @@ export async function RelationsPanel({
     .from('relations')
     .select('id, source_id, target_id, label, inverse_label, notes, valid_from, valid_to')
     .eq('world_id', worldId)
+    .eq('from_mention', false) // le menzioni hanno il loro pannello (backlink)
     .or(`source_id.eq.${snippetId},target_id.eq.${snippetId}`)
     .order('created_at');
   const allViews = (rows ?? []).map((row) => ({ row, view: relationView(row, snippetId) }));
@@ -61,6 +62,7 @@ export async function RelationsPanel({
           .from('relations')
           .select('label, inverse_label')
           .eq('world_id', worldId)
+          .eq('from_mention', false)
           .order('created_at', { ascending: false })
           .limit(1000),
         supabase

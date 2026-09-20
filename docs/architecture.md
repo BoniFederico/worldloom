@@ -103,3 +103,5 @@ Cambio ruolo, rimozione e uscita usano direttamente le policy RLS di `world_memb
 - Una relazione è visibile solo se lo sono entrambi gli estremi (policy `relations_read`).
 - **Tipi di relazione** (`/worlds/[id]/relation-types`, D-017): vincoli opzionali sulle categorie collegabili, imposti dal trigger
   `enforce_relation_type`; suggeriscono etichette e inversa nel pannello.
+- **Menzioni e backlink** (D-018): nodo `mention` nel corpo → relazioni `from_mention` sincronizzate da `private.sync_mentions`
+  dentro `save_snippet` e `autosave_snippet_body`; pannello «Menzionato in» (`src/components/backlinks-panel.tsx`).
