@@ -346,35 +346,103 @@ describe('ricerca: visibilità lato server', () => {
   });
 });
 
+describe('policy snippets_read: matrice ruolo × visibilità × cestino', () => {
+  // Selezione diretta sulla tabella (come farebbe PostgREST): è la policy, non la funzione, a decidere.
+  it('ogni ruolo vede esattamente ciò che la vecchia policy consentiva', async () => {
+    await withTx(async (db) => {
+      const ctx = await setup(db);
+      const { owner, worldId, snippet } = ctx;
+      const join = async (role: string) => {
+        const id = await createUser(db);
+        await db.query(`insert into world_members (world_id, user_id, role) values ($1, $2, $3)`, [
+          worldId,
+          id,
+          role,
+        ]);
+        return id;
+      };
+      const editor = await join('editor');
+      const commenter = await join('commenter');
+      const reader = await join('reader');
+      const stranger = await createUser(db);
+
+      for (const visibility of ['public', 'members', 'shared', 'secret']) {
+        await snippet(`${visibility}`, { visibility });
+        await snippet(`${visibility}-cestino`, { visibility, deleted: true });
+      }
+      const seen = async (as: string | null) =>
+        (
+          await actAs(db, as, () =>
+            db.query(`select title from snippets where world_id = $1 order by title`, [worldId]),
+          )
+        ).rows.map((r) => r.title as string);
+
+      const all = [
+        'members',
+        'members-cestino',
+        'public',
+        'public-cestino',
+        'secret',
+        'secret-cestino',
+        'shared',
+        'shared-cestino',
+      ];
+      expect(await seen(owner)).toEqual(all);
+      expect(await seen(editor)).toEqual(all);
+      expect(await seen(commenter)).toEqual(['members', 'public']);
+      expect(await seen(reader)).toEqual(['members', 'public']);
+      expect(await seen(stranger)).toEqual(['public']);
+      expect(await seen(null)).toEqual(['public']);
+    });
+  });
+});
+
 describe('ricerca: prestazioni', () => {
-  it('su 3.000 snippet risponde in meno di 200 ms', async () => {
+  const median = (xs: number[]) =>
+    [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)] as number;
+
+  it('su 3.000 snippet con testi realistici risponde in modo rapido a proprietari e lettori', async () => {
     await withTx(async (db) => {
       const { owner, worldId, search } = await setup(db);
+      const reader = await createUser(db);
+      await db.query(
+        `insert into world_members (world_id, user_id, role) values ($1, $2, 'reader')`,
+        [worldId, reader],
+      );
+      // Testi di circa 2 KB: `ts_headline` e il vettore hanno un costo reale.
       await db.query(
         `insert into snippets (world_id, title, body, tags, created_by)
          select $1, 'Snippet ' || n || ' ' || (array['drago','castello','fiume','strega','mappa'])[1 + n % 5],
                 jsonb_build_object('type','doc','content', jsonb_build_array(jsonb_build_object('type','paragraph','content',
-                  jsonb_build_array(jsonb_build_object('type','text','text','Testo di prova numero ' || n || ' con parole varie come ombra e luna'))))),
+                  jsonb_build_array(jsonb_build_object('type','text','text',
+                    repeat('Testo di prova numero ' || n || ' con parole varie come ombra e luna. ', 30))))) ),
                 array['t' || (n % 20)], $2
            from generate_series(1, 3000) as n`,
         [worldId, owner],
       );
       await db.query('analyze snippets');
-      const timed = async (query: string, extra = {}) => {
+      const timed = async (as: string, query: string, extra = {}) => {
         const start = performance.now();
-        const rows = await search(owner, query, extra);
+        const rows = await search(as, query, extra);
         return { ms: performance.now() - start, rows };
       };
-      for (const [query, extra] of [
-        ['drago', {}],
-        ['ombra luna', {}],
-        ['sn', {}],
-        ['', { tags: ['t3'] }],
-      ] as const) {
-        await timed(query, extra); // riscaldamento
-        const { ms, rows } = await timed(query, extra);
-        expect(rows.length).toBeGreaterThan(0);
-        expect(ms).toBeLessThan(200);
+      for (const as of [owner, reader]) {
+        for (const [query, extra] of [
+          ['drago', {}],
+          ['ombra luna', {}],
+          ['sn', {}],
+          ['', { tags: ['t3'] }],
+        ] as const) {
+          await timed(as, query, extra); // riscaldamento
+          const samples: number[] = [];
+          for (let i = 0; i < 5; i++) {
+            const { ms, rows } = await timed(as, query, extra);
+            expect(rows.length).toBeGreaterThan(0);
+            samples.push(ms);
+          }
+          // Soglia larga e mediana: intercetta il ritorno a una valutazione della policy per riga (~secondi), non il rumore.
+          expect(median(samples)).toBeLessThan(500);
+        }
       }
     });
   });

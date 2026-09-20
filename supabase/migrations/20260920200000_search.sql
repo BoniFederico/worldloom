@@ -60,15 +60,18 @@ $$;
 create trigger snippets_search before insert or update of title, body, aliases, tags on public.snippets
   for each row execute function private.snippets_search_update();
 
--- Ripopola le righe esistenti (il trigger scatta su un update di `title`).
+-- Ripopola le righe esistenti (il trigger scatta su un update di `title`). `snippets_touch` resta spento: altrimenti tutti
+-- gli `updated_at` diventerebbero «adesso», perdendo l'ordine per recenza e invalidando i token di concorrenza degli editor aperti.
+alter table public.snippets disable trigger snippets_touch;
 update public.snippets set title = title;
+alter table public.snippets enable trigger snippets_touch;
 
 create index snippets_search_idx on public.snippets using gin (search);
 
 -- Da testo libero a tsquery: solo parole (lettere e cifre, massimo 8) con ricerca per prefisso. Nessun operatore
 -- dell'utente arriva alla query, quindi non c'è modo di rompere la sintassi né di iniettare.
 create or replace function private.prefix_query(q text) returns tsquery
-language sql immutable set search_path = '' as $$
+language sql stable set search_path = '' as $$
   select case when count(*) = 0 then null::tsquery
     else to_tsquery('public.simple_unaccent', string_agg(t || ':*', ' & ')) end
   from (

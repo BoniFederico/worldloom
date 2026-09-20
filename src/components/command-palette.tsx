@@ -4,7 +4,11 @@ import { Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
-import { quickSearch, type QuickResult } from '@/app/worlds/[worldId]/search/actions';
+import {
+  quickSearch,
+  type QuickResult,
+  type QuickSearchResponse,
+} from '@/app/worlds/[worldId]/search/actions';
 import { splitExcerpt } from '@/lib/search/params';
 
 const DEBOUNCE_MS = 120;
@@ -21,6 +25,7 @@ export function CommandPalette({ worldId }: { worldId: string }) {
   const [results, setResults] = useState<QuickResult[]>([]);
   const [active, setActive] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [failed, setFailed] = useState(false);
   const request = useRef(0);
   const listId = useId();
 
@@ -45,20 +50,23 @@ export function CommandPalette({ worldId }: { worldId: string }) {
 
   // Ricerca con un breve ritardo; una risposta arrivata in ritardo non sovrascrive una più recente.
   useEffect(() => {
-    if (!query.trim()) return;
+    // Anche con il campo vuoto: una risposta in volo non deve riapparire con la query successiva.
     const id = ++request.current;
+    if (!query.trim()) return;
     const timer = setTimeout(async () => {
-      setLoading(true);
-      const found = await quickSearch({ world: worldId, query }).catch(() => []);
+      const response = await quickSearch({ world: worldId, query }).catch(
+        (): QuickSearchResponse => ({ ok: false }),
+      );
       if (id !== request.current) return;
-      setResults(found);
+      setFailed(!response.ok);
+      setResults(response.ok ? response.results : []);
       setActive(0);
       setLoading(false);
     }, DEBOUNCE_MS);
     return () => clearTimeout(timer);
   }, [query, worldId]);
 
-  const shown = query.trim() ? results : [];
+  const shown = query.trim() && !loading ? results : [];
   // Ultima voce: apre la ricerca completa con lo stesso testo.
   const total = shown.length + 1;
   const advanced = `/worlds/${worldId}/search${query.trim() ? `?q=${encodeURIComponent(query.trim())}` : ''}`;
@@ -90,6 +98,7 @@ export function CommandPalette({ worldId }: { worldId: string }) {
           setQuery('');
           setResults([]);
           setLoading(false);
+          setFailed(false);
           request.current++;
         }}
         onClick={(e) => {
@@ -115,6 +124,10 @@ export function CommandPalette({ worldId }: { worldId: string }) {
             onChange={(e) => {
               setQuery(e.target.value);
               setActive(0);
+              // I risultati della query precedente non sono più selezionabili: Invio andrebbe sullo snippet sbagliato.
+              setResults([]);
+              setFailed(false);
+              setLoading(Boolean(e.target.value.trim()));
             }}
             onKeyDown={(e) => {
               if (e.nativeEvent.isComposing) return;
@@ -172,8 +185,13 @@ export function CommandPalette({ worldId }: { worldId: string }) {
           ) : (
             <p className="field-hint">{t('hint')}</p>
           )}
+          {failed && !loading ? (
+            <p role="alert" className="message message-error">
+              {t('error')}
+            </p>
+          ) : null}
           <p className="sr-only" aria-live="polite">
-            {query.trim() && !loading ? t('count', { count: shown.length }) : ''}
+            {query.trim() && !loading && !failed ? t('count', { count: shown.length }) : ''}
           </p>
         </div>
       </dialog>

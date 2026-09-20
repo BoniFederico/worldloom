@@ -565,6 +565,7 @@
     "hint": "Scrivi per cercare. Freccia su e giù per scegliere, Invio per aprire, Esc per chiudere.",
     "results": "Risultati",
     "advanced": "Ricerca completa con filtri…",
-    "count": "{count, plural, =0 {Nessun risultato} one {# risultato} other {# risultati}}"
+    "count": "{count, plural, =0 {Nessun risultato} one {# risultato} other {# risultati}}",
+    "error": "Ricerca non riuscita. Riprova."
   }
 }
