@@ -218,7 +218,9 @@ test.describe('snippet', () => {
     await typeInEditor(page, 'Testo in grassetto');
     await page.keyboard.press('ControlOrMeta+A');
     await page.getByRole('button', { name: 'Grassetto' }).click();
+    await expect(editorOf(page).locator('strong')).toContainText('Testo in grassetto');
     await page.getByRole('button', { name: 'Elenco puntato' }).click();
+    await expect(editorOf(page).locator('ul li')).toHaveCount(1);
     // Due invii escono dall'elenco: la tabella va inserita in un paragrafo, non in una voce.
     await editorOf(page).press('ControlOrMeta+End');
     await page.keyboard.press('Enter');
