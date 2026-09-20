@@ -55,7 +55,7 @@ export async function RelationsPanel({
   const views = allViews.filter((v) => titles.has(v.view.otherId));
 
   // Suggerimenti: etichette già usate nel mondo e possibili destinazioni.
-  const [{ data: used }, { data: targets }] = canWrite
+  const [{ data: used }, { data: targets }, { data: types }] = canWrite
     ? await Promise.all([
         supabase
           .from('relations')
@@ -71,8 +71,9 @@ export async function RelationsPanel({
           .neq('id', snippetId)
           .order('title')
           .limit(500),
+        supabase.from('relation_types').select('label, inverse_label').eq('world_id', worldId),
       ])
-    : [{ data: [] }, { data: [] }];
+    : [{ data: [] }, { data: [] }, { data: [] }];
 
   return (
     <section aria-labelledby="relations">
@@ -197,12 +198,21 @@ export async function RelationsPanel({
       {canWrite ? (
         <>
           <h3>{t('addTitle')}</h3>
+          <p className="field-hint">
+            <Link href={`/worlds/${worldId}/relation-types`}>{t('manageTypes')}</Link>
+          </p>
           <RelationForm
             worldId={worldId}
             snippetId={snippetId}
             targets={targets ?? []}
-            labels={topLabels((used ?? []).map((r) => r.label))}
-            inverses={topLabels((used ?? []).map((r) => r.inverse_label))}
+            labels={topLabels([
+              ...(types ?? []).map((r) => r.label),
+              ...(used ?? []).map((r) => r.label),
+            ])}
+            inverses={topLabels([
+              ...(types ?? []).map((r) => r.inverse_label),
+              ...(used ?? []).map((r) => r.inverse_label),
+            ])}
           />
         </>
       ) : null}

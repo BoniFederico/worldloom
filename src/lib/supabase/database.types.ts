@@ -90,6 +90,61 @@ export type Database = {
         };
         Relationships: [];
       };
+      relation_types: {
+        Row: {
+          created_at: string;
+          id: string;
+          inverse_label: string | null;
+          label: string;
+          source_category_id: string | null;
+          target_category_id: string | null;
+          updated_at: string;
+          world_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          inverse_label?: string | null;
+          label: string;
+          source_category_id?: string | null;
+          target_category_id?: string | null;
+          updated_at?: string;
+          world_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          inverse_label?: string | null;
+          label?: string;
+          source_category_id?: string | null;
+          target_category_id?: string | null;
+          updated_at?: string;
+          world_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'relation_types_world_id_fkey';
+            columns: ['world_id'];
+            isOneToOne: false;
+            referencedRelation: 'worlds';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'relation_types_world_id_source_category_id_fkey';
+            columns: ['world_id', 'source_category_id'];
+            isOneToOne: false;
+            referencedRelation: 'categories';
+            referencedColumns: ['world_id', 'id'];
+          },
+          {
+            foreignKeyName: 'relation_types_world_id_target_category_id_fkey';
+            columns: ['world_id', 'target_category_id'];
+            isOneToOne: false;
+            referencedRelation: 'categories';
+            referencedColumns: ['world_id', 'id'];
+          },
+        ];
+      };
       relations: {
         Row: {
           created_at: string;

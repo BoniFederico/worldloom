@@ -101,3 +101,5 @@ Cambio ruolo, rimozione e uscita usano direttamente le policy RLS di `world_memb
   Dal punto di vista di uno snippet si mostra l'etichetta in uscita o l'inversa in ingresso (`src/lib/relations/input.ts`,
   `relationView`). Pannello nello snippet (`src/components/relations-panel.tsx`); le etichette già usate sono suggerimenti.
 - Una relazione è visibile solo se lo sono entrambi gli estremi (policy `relations_read`).
+- **Tipi di relazione** (`/worlds/[id]/relation-types`, D-017): vincoli opzionali sulle categorie collegabili, imposti dal trigger
+  `enforce_relation_type`; suggeriscono etichette e inversa nel pannello.
