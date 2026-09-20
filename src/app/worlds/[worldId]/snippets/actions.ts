@@ -8,6 +8,7 @@ import {
   MAX_JSON_LENGTH,
   MAX_TEXT_LENGTH,
   docToText,
+  mentionsOf,
   textToDoc,
   validateBody,
   type DocNode,
@@ -205,6 +206,7 @@ export async function saveSnippet(_prev: SaveState, formData: FormData): Promise
     p_categories: validCategories,
     p_tags: tags.values,
     p_aliases: aliases.values,
+    p_mentions: mentionsOf(body),
   });
   if (error) {
     return fail(
@@ -241,17 +243,14 @@ export async function autosaveBody(input: {
 
   const { supabase, canWrite } = await loadWorld(world.data);
   if (!canWrite) return { ok: false, error: 'forbidden' };
-  const { data, error } = await supabase
-    .from('snippets')
-    .update({ body: doc as unknown as Json })
-    .eq('id', id.data)
-    .eq('world_id', world.data)
-    .eq('updated_at', input.updated)
-    .is('deleted_at', null)
-    .select('updated_at');
-  if (error) return { ok: false, error: 'generic' };
-  const row = data?.[0];
-  return row ? { ok: true, updated: row.updated_at } : { ok: false, error: 'conflict' };
+  const { data, error } = await supabase.rpc('autosave_snippet_body', {
+    p_id: id.data,
+    p_updated: input.updated,
+    p_body: doc as unknown as Json,
+    p_mentions: mentionsOf(doc),
+  });
+  if (error) return { ok: false, error: error.message === 'conflict' ? 'conflict' : 'generic' };
+  return typeof data === 'string' ? { ok: true, updated: data } : { ok: false, error: 'generic' };
 }
 
 type Patch = { archived_at?: string | null; deleted_at?: string | null };
@@ -364,4 +363,30 @@ export async function duplicateSnippet(formData: FormData) {
     }
   }
   redirect(`${listPath(world)}/${copy.id}?notice=duplicated`);
+}
+
+export type MentionTarget = { id: string; title: string; aliases: string[] };
+
+/**
+ * Snippet che si possono menzionare da `snippetId`: attivi, dello stesso mondo, esclusi se stesso (i non leggibili non
+ * compaiono per la RLS). Il client filtra per titolo e alias mentre si digita; con mondi molto grandi lo sostituirà la ricerca (#19).
+ */
+export async function listMentionTargets(input: {
+  world: string;
+  id: string;
+}): Promise<MentionTarget[]> {
+  const world = uuidSchema.safeParse(input.world);
+  const id = uuidSchema.safeParse(input.id);
+  if (!world.success || !id.success) return [];
+  const { supabase, canWrite } = await loadWorld(world.data);
+  if (!canWrite) return [];
+  const { data } = await supabase
+    .from('snippets')
+    .select('id, title, aliases')
+    .eq('world_id', world.data)
+    .is('deleted_at', null)
+    .neq('id', id.data)
+    .order('title')
+    .limit(500);
+  return data ?? [];
 }

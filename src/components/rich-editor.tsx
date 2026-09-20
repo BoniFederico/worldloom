@@ -1,6 +1,7 @@
 'use client';
 
 import Image from '@tiptap/extension-image';
+import Mention from '@tiptap/extension-mention';
 import { TableKit } from '@tiptap/extension-table';
 import { EditorContent, useEditor, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
@@ -23,6 +24,7 @@ import {
 import { useTranslations } from 'next-intl';
 import { useEffect, useImperativeHandle, useRef, useState, type ReactNode, type Ref } from 'react';
 import { autosaveBody } from '@/app/worlds/[worldId]/snippets/actions';
+import { createMentionController, type MentionState } from '@/components/mention-controller';
 import { MAX_JSON_LENGTH, isSafeHref, type DocNode } from '@/lib/snippets/body';
 
 const AUTOSAVE_DELAY_MS = 1500;
@@ -69,6 +71,9 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref
   const inFlight = useRef<Promise<void> | null>(null);
   const linkInput = useRef<HTMLInputElement>(null);
   const linkButton = useRef<HTMLButtonElement>(null);
+  const [mention, setMention] = useState<MentionState | null>(null);
+  // Il controllo dei suggerimenti tiene il proprio stato mutabile fuori dal render.
+  const [mentions] = useState(() => createMentionController({ worldId, snippetId }, setMention));
 
   useEffect(() => {
     tokenRef.current = token;
@@ -102,6 +107,11 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref
       TableKit.configure({ table: { resizable: false } }),
       // Blocco, non inline; `src` ammesso solo se punta a un'immagine caricata nell'app (lo impone anche il server).
       Image.configure({ inline: false, allowBase64: false }),
+      // `@` apre i suggerimenti (titoli e alias); la menzione diventa una relazione al salvataggio.
+      Mention.configure({
+        HTMLAttributes: { class: 'mention' },
+        suggestion: { char: '@', items: mentions.items, render: mentions.render },
+      }),
     ],
     content: initialDoc,
     editorProps: {
@@ -117,8 +127,10 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref
     },
     onUpdate: ({ editor: e }) => {
       version.current += 1;
-      docRef.current = e.getJSON();
-      const serialized = JSON.stringify(docRef.current);
+      // Copia «piatta» via JSON: gli `attrs` di ProseMirror non sono oggetti semplici e la serializzazione delle
+      // server action li sostituirebbe con un segnaposto (perdendo ad esempio l'id di una menzione).
+      const serialized = JSON.stringify(e.getJSON());
+      docRef.current = JSON.parse(serialized);
       setJson(serialized);
       setRev(version.current);
       // Dopo un conflitto l'autosave resta sospeso finché l'utente non ricarica: riprovare col token vecchio non serve.
@@ -476,6 +488,46 @@ export function RichEditor({ worldId, snippetId, initialDoc, token, onToken, ref
       ) : null}
 
       <EditorContent editor={editor} />
+      {mention ? (
+        <ul
+          role="listbox"
+          aria-label={t('mentionList')}
+          className="mention-list"
+          style={{ top: mention.top, left: Math.max(8, mention.left) }}
+        >
+          {mention.items.length === 0 ? (
+            <li role="option" aria-selected="false" aria-disabled="true" className="mention-none">
+              {t('mentionNone')}
+            </li>
+          ) : (
+            mention.items.map((item, i) => (
+              <li
+                key={item.id}
+                role="option"
+                aria-selected={i === mention.index}
+                className="mention-option"
+                // mousedown (no click): l'editor non deve perdere il focus prima di inserire la menzione.
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  mention.command(item);
+                }}
+              >
+                {item.title}
+                {item.alias ? (
+                  <span className="role"> ({t('mentionAlias', { alias: item.alias })})</span>
+                ) : null}
+              </li>
+            ))
+          )}
+        </ul>
+      ) : null}
+      <span className="sr-only" aria-live="polite">
+        {mention
+          ? mention.items.length === 0
+            ? t('mentionNone')
+            : `${t('mentionCount', { count: mention.items.length })} ${mention.items[mention.index]?.title ?? ''}`
+          : ''}
+      </span>
       <input type="hidden" name="body_json" value={json} />
       <p
         aria-live={assertive ? 'assertive' : 'polite'}

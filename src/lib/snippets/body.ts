@@ -71,7 +71,10 @@ function cleanMarks(raw: unknown): DocMark[] | undefined {
   return marks.length ? marks : undefined;
 }
 
-const isInline = (node: DocNode) => node.type === 'text' || node.type === 'hardBreak';
+const isInline = (node: DocNode) =>
+  node.type === 'text' || node.type === 'hardBreak' || node.type === 'mention';
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 
 /** Porta i figli al modello di contenuto del genitore (blocchi, inline o voci di lista). */
 function normalize(kind: Kind, children: DocNode[]): DocNode[] {
@@ -128,6 +131,13 @@ function clean(raw: unknown, depth: number): DocNode[] {
     return [marks ? { type: 'text', text: raw.text, marks } : { type: 'text', text: raw.text }];
   }
   if (raw.type === 'hardBreak') return [{ type: 'hardBreak' }];
+  if (raw.type === 'mention') {
+    // Solo id (uuid) ed etichetta: l'id è ciò che conta, l'etichetta è il titolo al momento della menzione.
+    const attrs = isRecord(raw.attrs) ? raw.attrs : {};
+    if (typeof attrs.id !== 'string' || !UUID.test(attrs.id) || typeof attrs.label !== 'string')
+      return [];
+    return [{ type: 'mention', attrs: { id: attrs.id, label: attrs.label.slice(0, 300) } }];
+  }
   if (raw.type === 'image') {
     // Solo immagini caricate nell'app (percorso interno a whitelist): mai URL esterni né data:.
     const attrs = isRecord(raw.attrs) ? raw.attrs : {};
@@ -233,7 +243,11 @@ export function textToDoc(input: string): DocNode {
 
 function inlineText(nodes: DocNode[] = []): string {
   return nodes
-    .map((n) => (n.type === 'hardBreak' ? '\n' : (n.text ?? inlineText(n.content))))
+    .map((n) => {
+      if (n.type === 'hardBreak') return '\n';
+      if (n.type === 'mention') return `@${String(n.attrs?.label ?? '')}`;
+      return n.text ?? inlineText(n.content);
+    })
     .join('');
 }
 
@@ -248,4 +262,19 @@ function blockText(node: DocNode): string {
 export function docToText(doc: unknown): string {
   const clean = sanitizeBody(doc);
   return (clean.content ?? []).map(blockText).filter(Boolean).join('\n\n');
+}
+
+/** Id degli snippet menzionati nel documento, senza doppioni (solo uuid validi). */
+export function mentionsOf(doc: unknown): string[] {
+  const found = new Set<string>();
+  const walk = (node: unknown, depth: number) => {
+    if (!isRecord(node) || depth > MAX_DEPTH + 2) return;
+    if (node.type === 'mention' && isRecord(node.attrs)) {
+      const id = node.attrs.id;
+      if (typeof id === 'string' && UUID.test(id)) found.add(id);
+    }
+    if (Array.isArray(node.content)) for (const child of node.content) walk(child, depth + 1);
+  };
+  walk(doc, 0);
+  return [...found];
 }

@@ -431,7 +431,11 @@
         "unsupported": "Formato non supportato: sono ammessi solo PNG, JPEG, WebP e GIF.",
         "too_large": "Il file supera i 4 MB.",
         "generic": "Caricamento non riuscito. Riprova."
-      }
+      },
+      "mentionList": "Snippet da menzionare",
+      "mentionNone": "Nessuno snippet corrisponde",
+      "mentionAlias": "alias: {alias}",
+      "mentionCount": "{count, plural, one {# suggerimento} other {# suggerimenti}}."
     },
     "tagsLabel": "Tag",
     "tagsHint": "Separati da virgola. Maiuscole e minuscole sono equivalenti (massimo 30 tag).",
@@ -524,5 +528,9 @@
       "generic": "Operazione non riuscita. Riprova."
     },
     "inverseIs": "inversa"
+  },
+  "Backlinks": {
+    "title": "Menzionato in",
+    "empty": "Nessuno snippet cita questo snippet con una @menzione."
   }
 }

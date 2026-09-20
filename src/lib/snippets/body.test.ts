@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { docToText, EMPTY_DOC, isSafeHref, sanitizeBody, textToDoc, validateBody } from './body';
+import {
+  docToText,
+  EMPTY_DOC,
+  isSafeHref,
+  mentionsOf,
+  sanitizeBody,
+  textToDoc,
+  validateBody,
+} from './body';
 
 const p = (text: string) => ({ type: 'paragraph', content: [{ type: 'text', text }] });
 
@@ -339,4 +347,66 @@ describe('isSafeHref', () => {
     42,
     null,
   ])('rifiuta %j', (href) => expect(isSafeHref(href)).toBe(false));
+});
+
+describe('menzioni', () => {
+  const id = '123e4567-e89b-12d3-a456-426614174000';
+  const id2 = '223e4567-e89b-12d3-a456-426614174000';
+  const mention = (attrs: unknown) => ({ type: 'mention', attrs });
+  const doc = (...inline: unknown[]) => ({
+    type: 'doc',
+    content: [{ type: 'paragraph', content: inline }],
+  });
+
+  it('conserva una menzione con id e etichetta, senza altri attributi', () => {
+    const result = sanitizeBody(
+      doc(mention({ id, label: 'Elara', onclick: 'x', mentionSuggestionChar: '@' })),
+    );
+    expect(result).toEqual(doc(mention({ id, label: 'Elara' })));
+  });
+
+  it.each([
+    { id: 'non-un-uuid', label: 'x' },
+    { id: 'javascript:alert(1)', label: 'x' },
+    { label: 'senza id' },
+    { id, label: 42 },
+    null,
+  ])('scarta la menzione non valida %j', (attrs) => {
+    expect(JSON.stringify(sanitizeBody(doc(mention(attrs))))).not.toContain('mention');
+  });
+
+  it('tronca l’etichetta lunga', () => {
+    const result = sanitizeBody(doc(mention({ id, label: 'x'.repeat(400) })));
+    expect(result.content?.[0]?.content?.[0]?.attrs?.label).toHaveLength(300);
+  });
+
+  it('mentionsOf elenca gli id senza doppioni, anche dentro liste e tabelle', () => {
+    const d = {
+      type: 'doc',
+      content: [
+        { type: 'paragraph', content: [mention({ id, label: 'A' }), mention({ id, label: 'A' })] },
+        {
+          type: 'bulletList',
+          content: [
+            {
+              type: 'listItem',
+              content: [{ type: 'paragraph', content: [mention({ id: id2, label: 'B' })] }],
+            },
+          ],
+        },
+      ],
+    };
+    expect(mentionsOf(d).sort()).toEqual([id, id2].sort());
+  });
+
+  it('mentionsOf ignora input non valido e id non uuid', () => {
+    expect(mentionsOf(null)).toEqual([]);
+    expect(mentionsOf(doc(mention({ id: 'x', label: 'y' })))).toEqual([]);
+  });
+
+  it('docToText mostra @etichetta', () => {
+    expect(docToText(doc({ type: 'text', text: 'Vedi ' }, mention({ id, label: 'Elara' })))).toBe(
+      'Vedi @Elara',
+    );
+  });
 });

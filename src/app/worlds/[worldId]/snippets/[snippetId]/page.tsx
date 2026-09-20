@@ -2,11 +2,12 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Feedback } from '@/components/feedback';
+import { BacklinksPanel } from '@/components/backlinks-panel';
 import { RelationsPanel } from '@/components/relations-panel';
 import { RichText } from '@/components/rich-text';
 import { SnippetForm } from '@/components/snippet-form';
 import { fieldsSchema, type FieldDefinition } from '@/lib/fields/fields';
-import { docToText, sanitizeBody } from '@/lib/snippets/body';
+import { docToText, mentionsOf, sanitizeBody } from '@/lib/snippets/body';
 import { loadWorld } from '@/lib/worlds/context';
 import { uuidSchema } from '@/lib/worlds/schemas';
 import {
@@ -86,6 +87,18 @@ export default async function SnippetPage({ params, searchParams }: Props) {
     .slice(0, 20)
     .map(([tag]) => tag);
 
+  // Titoli attuali degli snippet menzionati nel testo (i cancellati o non leggibili restano senza link).
+  const mentioned = mentionsOf(snippet.body);
+  const { data: mentionRows } = mentioned.length
+    ? await supabase
+        .from('snippets')
+        .select('id, title')
+        .eq('world_id', worldId)
+        .is('deleted_at', null)
+        .in('id', mentioned)
+    : { data: [] };
+  const mentionTitles = Object.fromEntries((mentionRows ?? []).map((m) => [m.id, m.title]));
+
   const trashed = snippet.deleted_at !== null;
   const editable = canWrite && !trashed;
   const ids = (
@@ -133,7 +146,7 @@ export default async function SnippetPage({ params, searchParams }: Props) {
           />
         ) : (
           <>
-            <RichText doc={snippet.body} />
+            <RichText doc={snippet.body} worldId={world.id} titles={mentionTitles} />
             {trashed && canWrite ? (
               <form action={restoreSnippet}>
                 {ids}
@@ -148,6 +161,7 @@ export default async function SnippetPage({ params, searchParams }: Props) {
         {!trashed ? (
           <>
             <Feedback scope="Relations" notice={notice} error={error} />
+            <BacklinksPanel supabase={supabase} worldId={world.id} snippetId={snippet.id} />
             <RelationsPanel
               supabase={supabase}
               worldId={world.id}

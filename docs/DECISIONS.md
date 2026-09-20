@@ -208,3 +208,21 @@
   si controllano quando la relazione viene scritta: cambiare in seguito le categorie di uno snippet non tocca le relazioni esistenti.
   Eliminando una categoria il relativo vincolo decade, il tipo resta.
 - Deciso da: agente
+
+### D-018: Menzioni (@) come relazioni
+
+- Data: 2026-09-20
+- Contesto: #18. La SPEC dice «menzione = relazione», con alias riconosciuti e backlink.
+- Decisione: `@` nell'editor propone gli snippet per titolo e alias (l'alias trovato è indicato); la menzione è un nodo `mention`
+  `{id, label}`. Al salvataggio (completo o automatico) il database sincronizza le relazioni: per ogni snippet menzionato una
+  relazione «menziona» (inversa «menzionato in») marcata `from_mention`; se la menzione sparisce dal testo, sparisce anche quella
+  relazione. Le relazioni fatte a mano non si toccano, e quelle da menzione non sono soggette ai vincoli dei tipi. Si ignorano
+  se stessi, snippet di altri mondi e snippet nel cestino. I backlink («Menzionato in») sono le relazioni `from_mention` in ingresso;
+  il pannello relazioni le esclude per non duplicarle. La lettura mostra il titolo attuale dello snippet citato; se non c'è più (o
+  non è leggibile) resta testo senza link.
+- Alias: si riconoscono nei suggerimenti di `@`; non c'è (ancora) il collegamento automatico del testo libero agli alias.
+- Le etichette «menziona»/«menzionato in» sono salvate in italiano: le viste (#25) dovranno localizzarle usando `from_mention`.
+- Elenco dei menzionabili: caricato alla prima `@` (fino a 500 snippet) e filtrato in locale; oltre, lo sostituisce la ricerca (#19).
+- Nota tecnica: gli `attrs` di ProseMirror non sono oggetti semplici e la serializzazione delle server action li sostituiva con un
+  segnaposto; il documento inviato dall'editor è quindi una copia via JSON.
+- Deciso da: agente
