@@ -3,6 +3,7 @@ export type SnippetDraft = {
   title: string;
   status: string;
   body: string;
+  bodyJson: string;
   categories: string[];
   fields: Record<string, string>;
 };

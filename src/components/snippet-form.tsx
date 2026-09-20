@@ -1,9 +1,11 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useActionState } from 'react';
+import { useActionState, useState, useSyncExternalStore } from 'react';
 import { saveSnippet } from '@/app/worlds/[worldId]/snippets/actions';
 import { CategoryBadge } from '@/components/category-icon';
+import { RichEditor } from '@/components/rich-editor';
+import { sanitizeBody, type DocNode } from '@/lib/snippets/body';
 import type { FieldDefinition } from '@/lib/fields/fields';
 import { EDITABLE_TYPES, fieldInputName } from '@/lib/snippets/form';
 import type { SaveState } from '@/lib/snippets/state';
@@ -15,6 +17,7 @@ type Props = {
     title: string;
     status: string;
     body: string;
+    doc: DocNode;
     updatedAt: string;
     categoryIds: string[];
     values: Record<string, unknown>;
@@ -33,6 +36,21 @@ export function SnippetForm({ worldId, snippet, categories, defs, refs }: Props)
   const tc = useTranslations('Categories');
   const [state, action] = useActionState<SaveState, FormData>(saveSnippet, null);
   const draft = state?.draft;
+  // Prima dell'idratazione (e senza JavaScript) il testo si modifica in un campo semplice; dopo, con l'editor.
+  const hydrated = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+  const [token, setToken] = useState(snippet.updatedAt);
+  const startDoc = (() => {
+    if (!draft?.bodyJson) return snippet.doc;
+    try {
+      return sanitizeBody(JSON.parse(draft.bodyJson));
+    } catch {
+      return snippet.doc;
+    }
+  })();
   const badKeys = new Set(state?.keys ?? []);
   const selected = new Set(draft ? draft.categories : snippet.categoryIds);
 
@@ -40,7 +58,7 @@ export function SnippetForm({ worldId, snippet, categories, defs, refs }: Props)
     <form action={action} className="form" key={state?.nonce ?? 0}>
       <input type="hidden" name="world" value={worldId} />
       <input type="hidden" name="id" value={snippet.id} />
-      <input type="hidden" name="updated" value={snippet.updatedAt} />
+      <input type="hidden" name="updated" value={token} />
       {state ? (
         <p role="alert" className="message message-error">
           {t.has(`errors.${state.error}`) ? t(`errors.${state.error}`) : t('errors.generic')}
@@ -88,8 +106,26 @@ export function SnippetForm({ worldId, snippet, categories, defs, refs }: Props)
       </div>
 
       <div className="field">
-        <label htmlFor="body">{t('bodyLabel')}</label>
-        <textarea id="body" name="body" rows={12} defaultValue={draft?.body ?? snippet.body} />
+        <span id="body-label" className="label">
+          {t('bodyLabel')}
+        </span>
+        {hydrated ? (
+          <RichEditor
+            worldId={worldId}
+            snippetId={snippet.id}
+            initialDoc={startDoc}
+            token={token}
+            onToken={setToken}
+          />
+        ) : (
+          <textarea
+            id="body"
+            name="body"
+            rows={12}
+            aria-labelledby="body-label"
+            defaultValue={draft?.body ?? snippet.body}
+          />
+        )}
       </div>
 
       {defs.length ? <h2>{t('fieldsTitle')}</h2> : null}

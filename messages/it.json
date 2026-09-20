@@ -382,7 +382,38 @@
       "forbidden": "Non hai i permessi per modificare gli snippet di questo mondo.",
       "not_found": "Snippet non trovato.",
       "confirm_required": "Spunta la conferma per eliminare definitivamente.",
-      "generic": "Operazione non riuscita. Riprova."
+      "generic": "Operazione non riuscita. Riprova.",
+      "invalid_body": "Il testo non è valido. Riprova."
+    },
+    "editor": {
+      "toolbar": "Formattazione del testo",
+      "bold": "Grassetto",
+      "italic": "Corsivo",
+      "code": "Codice",
+      "heading2": "Titolo",
+      "heading3": "Sottotitolo",
+      "bulletList": "Elenco puntato",
+      "orderedList": "Elenco numerato",
+      "quote": "Citazione",
+      "link": "Link",
+      "unlink": "Rimuovi link",
+      "linkUrl": "Indirizzo del link",
+      "linkApply": "Applica",
+      "linkInvalid": "Indirizzo non valido: sono ammessi solo http, https, mailto e percorsi del sito.",
+      "table": "Inserisci tabella",
+      "tableTools": "Strumenti della tabella",
+      "addRow": "Aggiungi riga",
+      "addColumn": "Aggiungi colonna",
+      "deleteTable": "Elimina tabella",
+      "undo": "Annulla",
+      "redo": "Ripeti",
+      "status": {
+        "dirty": "Modifiche non salvate",
+        "saving": "Salvataggio…",
+        "saved": "Salvato",
+        "error": "Salvataggio automatico non riuscito: usa Salva",
+        "conflict": "Lo snippet è stato modificato altrove: il salvataggio automatico è sospeso"
+      }
     }
   }
 }

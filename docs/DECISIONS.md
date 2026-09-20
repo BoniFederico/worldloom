@@ -158,3 +158,17 @@
   database senza pg_cron va chiamata da uno scheduler esterno).
 - Deciso da: agente
 - Limite noto: finché non c'è l'editor rich text, modificare il testo di uno snippet con formattazione la appiattisce in paragrafi (il documento resta intatto se il testo non cambia). Un writer può scrivere `body` direttamente via API: il rendering deve quindi sanificare di nuovo (`sanitizeBody`) prima di mostrare.
+
+### D-015: Editor Tiptap, salvataggio automatico e immagini in una PR a parte
+
+- Data: 2026-09-20
+- Contesto: #15, seconda parte. Dipendenze nuove: `@tiptap/react`, `@tiptap/pm`, `@tiptap/starter-kit`, `@tiptap/extension-table` (MIT, ProseMirror).
+- Decisione: l'editor è configurato con un sottoinsieme (titoli 1–3, grassetto, corsivo, codice inline, liste, citazione, link, tabelle;
+  niente barrato, sottolineato, blocchi di codice, linea orizzontale). Il documento viaggia nel form come JSON e il server lo sanifica
+  di nuovo: l'editor non è un confine di sicurezza. I link sono limitati a http, https, mailto e percorsi del sito (`isSafeHref`).
+- Salvataggio automatico dopo 1,5 s di pausa, solo del corpo, condizionato a `updated_at`; il token nuovo passa al form, così il
+  salvataggio completo non va in conflitto con quello automatico. Conflitto o errore sospendono l'autosave e lo dicono nell'indicatore.
+- Senza JavaScript (e prima dell'idratazione) il testo si modifica in un campo semplice, come prima.
+- Le **immagini** richiedono Supabase Storage (bucket privato, policy per mondo, verifica del tipo reale dei file, rotta di
+  lettura autenticata): arrivano nella terza PR di #15, che chiuderà l'issue.
+- Deciso da: agente

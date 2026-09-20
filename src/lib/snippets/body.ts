@@ -16,10 +16,11 @@ export type DocNode = {
 export const EMPTY_DOC: DocNode = { type: 'doc', content: [{ type: 'paragraph' }] };
 
 export const MAX_TEXT_LENGTH = 200_000;
-const MAX_BYTES = 500_000;
+export const MAX_JSON_LENGTH = 500_000;
+const MAX_BYTES = MAX_JSON_LENGTH;
 const MAX_DEPTH = 12;
 
-type Kind = 'blocks' | 'inline' | 'items';
+type Kind = 'blocks' | 'inline' | 'items' | 'rows' | 'cells';
 const NODES: Record<string, Kind> = {
   doc: 'blocks',
   paragraph: 'inline',
@@ -28,7 +29,15 @@ const NODES: Record<string, Kind> = {
   bulletList: 'items',
   orderedList: 'items',
   listItem: 'blocks',
+  table: 'rows',
+  tableRow: 'cells',
+  tableCell: 'blocks',
+  tableHeader: 'blocks',
 };
+
+/** Nodi che hanno senso solo dentro un genitore preciso: fuori posto se ne tiene il contenuto. */
+const CONTAINED = new Set(['listItem', 'tableRow', 'tableCell', 'tableHeader']);
+const CELLS = new Set(['tableCell', 'tableHeader']);
 const MARKS = new Set(['bold', 'italic', 'code', 'link']);
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -67,6 +76,8 @@ function normalize(kind: Kind, children: DocNode[]): DocNode[] {
       isInline(child) ? [child] : normalize('inline', child.content ?? []),
     );
   }
+  if (kind === 'rows') return children.filter((c) => c.type === 'tableRow');
+  if (kind === 'cells') return children.filter((c) => CELLS.has(c.type));
   if (kind === 'items') {
     const items: DocNode[] = [];
     let loose: DocNode[] = [];
@@ -91,10 +102,10 @@ function normalize(kind: Kind, children: DocNode[]): DocNode[] {
   };
   for (const child of children) {
     if (isInline(child)) run.push(child);
-    else if (child.type === 'listItem') {
-      // Una voce fuori da una lista non è valida: se ne tiene il contenuto.
+    else if (CONTAINED.has(child.type)) {
+      // Voce, riga o cella fuori dal proprio genitore: non è valida, se ne tiene il contenuto.
       flush();
-      blocks.push(...(child.content ?? []));
+      blocks.push(...normalize('blocks', child.content ?? []));
     } else {
       flush();
       blocks.push(child);
@@ -130,8 +141,21 @@ function clean(raw: unknown, depth: number): DocNode[] {
     const start = isRecord(raw.attrs) ? Number(raw.attrs.start) : 1;
     if (Number.isInteger(start) && start > 1 && start < 1_000_000) node.attrs = { start };
   }
-  const content = normalize(kind, children);
-  // Liste, voci e citazioni vuote non sono valide per ProseMirror: si scartano.
+  if (CELLS.has(raw.type)) {
+    const span = (value: unknown) => {
+      const n = Number(value);
+      return Number.isInteger(n) && n > 1 ? Math.min(n, 20) : undefined;
+    };
+    const source = isRecord(raw.attrs) ? raw.attrs : {};
+    const colspan = span(source.colspan);
+    const rowspan = span(source.rowspan);
+    if (colspan || rowspan)
+      node.attrs = { ...(colspan && { colspan }), ...(rowspan && { rowspan }) };
+  }
+  let content = normalize(kind, children);
+  // Una cella vuota resta una cella (la riga perderebbe una colonna).
+  if (CELLS.has(raw.type) && content.length === 0) content = [{ type: 'paragraph' }];
+  // Liste, voci, tabelle e citazioni vuote non sono valide per ProseMirror: si scartano.
   if (kind !== 'inline' && content.length === 0) return [];
   if (content.length) node.content = content;
   return [node];
@@ -178,6 +202,8 @@ function inlineText(nodes: DocNode[] = []): string {
 
 function blockText(node: DocNode): string {
   if (node.type === 'paragraph' || node.type === 'heading') return inlineText(node.content);
+  if (node.type === 'tableRow') return (node.content ?? []).map(blockText).join(' | ');
+  if (node.type === 'table') return (node.content ?? []).map(blockText).join('\n');
   return (node.content ?? []).map(blockText).filter(Boolean).join('\n\n');
 }
 

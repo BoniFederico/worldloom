@@ -87,3 +87,5 @@ Cambio ruolo, rimozione e uscita usano direttamente le policy RLS di `world_memb
   ripropone quanto digitato, quindi nulla si perde. Il testo è limitato a 200.000 caratteri; il corpo non cambia se il testo non cambia.
 - **Ciclo di vita**: archiviato (`archived_at`, fuori dall'elenco attivo) → cestino (`deleted_at`, visibile solo a chi può scrivere)
   → eliminato dopo 30 giorni (`private.purge_expired_snippets`, pg_cron). L'eliminazione definitiva manuale è possibile solo dal cestino.
+- **Editor** (`src/components/rich-editor.tsx`, D-015): Tiptap con salvataggio automatico (`autosaveBody`) e indicatore di stato. Il
+  corpo si mostra in sola lettura con `RichText`, che sanifica di nuovo e produce elementi React (mai `innerHTML`).

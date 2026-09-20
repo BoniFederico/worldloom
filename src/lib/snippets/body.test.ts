@@ -129,6 +129,64 @@ describe('sanitizeBody', () => {
   });
 });
 
+describe('tabelle', () => {
+  const cell = (type: string, text: string, attrs?: Record<string, unknown>) => ({
+    type,
+    ...(attrs ? { attrs } : {}),
+    content: [p(text)],
+  });
+  const table = (rows: unknown[]) => ({ type: 'doc', content: [{ type: 'table', content: rows }] });
+
+  it('conserva righe, celle e intestazioni', () => {
+    const doc = table([
+      { type: 'tableRow', content: [cell('tableHeader', 'A'), cell('tableHeader', 'B')] },
+      { type: 'tableRow', content: [cell('tableCell', '1'), cell('tableCell', '2')] },
+    ]);
+    expect(sanitizeBody(doc)).toEqual(doc);
+  });
+
+  it('limita colspan e rowspan e scarta gli altri attributi', () => {
+    const result = sanitizeBody(
+      table([
+        {
+          type: 'tableRow',
+          content: [
+            cell('tableCell', 'x', { colspan: 999, rowspan: 2, colwidth: [10], onclick: 'x' }),
+          ],
+        },
+      ]),
+    );
+    const attrs = result.content?.[0]?.content?.[0]?.content?.[0]?.attrs;
+    expect(attrs).toEqual({ colspan: 20, rowspan: 2 });
+  });
+
+  it('una cella vuota resta una cella con un paragrafo', () => {
+    const result = sanitizeBody(table([{ type: 'tableRow', content: [{ type: 'tableCell' }] }]));
+    expect(result.content?.[0]?.content?.[0]?.content?.[0]).toEqual({
+      type: 'tableCell',
+      content: [{ type: 'paragraph' }],
+    });
+  });
+
+  it('scarta righe e celle fuori posto mantenendo il testo', () => {
+    const result = sanitizeBody({
+      type: 'doc',
+      content: [
+        { type: 'tableRow', content: [cell('tableCell', 'orfana')] },
+        cell('tableCell', 'sola'),
+      ],
+    });
+    expect(result).toEqual({ type: 'doc', content: [p('orfana'), p('sola')] });
+  });
+
+  it('docToText separa le celle', () => {
+    const doc = table([
+      { type: 'tableRow', content: [cell('tableCell', 'A'), cell('tableCell', 'B')] },
+    ]);
+    expect(docToText(doc)).toBe('A | B');
+  });
+});
+
 describe('textToDoc / docToText', () => {
   it('trasforma il testo in paragrafi, una riga vuota separa i paragrafi', () => {
     expect(textToDoc('uno\ndue\n\ntre')).toEqual({
