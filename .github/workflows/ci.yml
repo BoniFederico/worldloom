@@ -21,11 +21,23 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
 
       - name: Rileva progetto Node
         id: detect
         run: |
           if [ -f package.json ]; then echo "node=true" >> "$GITHUB_OUTPUT"; else echo "node=false" >> "$GITHUB_OUTPUT"; fi
+
+      # Sulle PR che toccano solo documentazione salta db, build ed e2e (lint, typecheck e unit girano comunque).
+      - name: Rileva modifiche al codice
+        id: changes
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ] &&              ! git diff --name-only "origin/${{ github.base_ref }}...HEAD" | grep -qvE '^(docs/|.*\.md$|\.github/ISSUE_TEMPLATE/|LICENSE)'; then
+            echo "code=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "code=true" >> "$GITHUB_OUTPUT"
+          fi
 
       - uses: actions/setup-node@v7
         if: steps.detect.outputs.node == 'true'
@@ -50,24 +62,33 @@ jobs:
         run: npm test --if-present
 
       - name: Avvia Supabase locale (Postgres reale con schema auth)
-        if: steps.detect.outputs.node == 'true' && hashFiles('supabase/config.toml') != ''
+        if: steps.changes.outputs.code == 'true' && steps.detect.outputs.node == 'true' && hashFiles('supabase/config.toml') != ''
         run: npm run db:start
 
       - name: Test DB (RLS e vincoli)
-        if: steps.detect.outputs.node == 'true' && hashFiles('supabase/config.toml') != ''
+        if: steps.changes.outputs.code == 'true' && steps.detect.outputs.node == 'true' && hashFiles('supabase/config.toml') != ''
         run: npm run test:db
 
       - name: Build
-        if: steps.detect.outputs.node == 'true'
+        if: steps.changes.outputs.code == 'true' && steps.detect.outputs.node == 'true'
         run: npm run build --if-present
 
+      - name: Cache browser Playwright
+        id: pw-cache
+        if: steps.changes.outputs.code == 'true' && hashFiles('playwright.config.*') != ''
+        uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
       - name: Install Playwright browsers
-        if: steps.detect.outputs.node == 'true' && hashFiles('playwright.config.*') != ''
+        if: steps.changes.outputs.code == 'true' && steps.detect.outputs.node == 'true' && hashFiles('playwright.config.*') != ''
         run: npx playwright install --with-deps
 
       - name: E2E (Playwright)
-        if: steps.detect.outputs.node == 'true' && hashFiles('playwright.config.*') != ''
-        run: npm run test:e2e
+        if: steps.changes.outputs.code == 'true' && steps.detect.outputs.node == 'true' && hashFiles('playwright.config.*') != ''
+        # Sulle PR solo il progetto desktop (metà del tempo); il mobile gira su main dopo il merge.
+        run: npm run test:e2e ${{ github.event_name == 'pull_request' && '-- --project=desktop' || '' }}
 
       - name: Upload report Playwright
         if: always() && steps.detect.outputs.node == 'true' && hashFiles('playwright.config.*') != ''
