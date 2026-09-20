@@ -244,14 +244,20 @@
       "created": "Category created.",
       "imported": "Presets imported.",
       "saved": "Category saved.",
-      "deleted": "Category deleted."
+      "deleted": "Category deleted.",
+      "field_added": "Field added.",
+      "field_saved": "Field saved.",
+      "field_removed": "Field removed.",
+      "field_moved": "Field moved."
     },
     "errors": {
       "invalid_input": "Check name, icon and color.",
       "nothing_selected": "Select at least one preset.",
       "confirm_required": "Tick the confirmation to delete the category.",
       "generic": "The operation failed. Try again in a moment.",
-      "already_imported": "These presets are already in this world."
+      "already_imported": "These presets are already in this world.",
+      "invalid_field": "The field is not valid: check the name, options (no duplicates) and limits.",
+      "conflict": "Someone else changed the category in the meantime. Reload the page and try again."
     },
     "icons": {
       "user": "Person",
@@ -294,6 +300,22 @@
       "snippet_ref": "Snippet reference",
       "coordinates": "Coordinates",
       "image": "Image"
-    }
+    },
+    "moveUp": "Move {name} up",
+    "moveDown": "Move {name} down",
+    "editField": "Edit",
+    "fieldLabel": "Field name",
+    "fieldType": "Type",
+    "fieldRequired": "Required for final snippets",
+    "fieldOptions": "Options",
+    "fieldOptionsHint": "One per line. Options already used in snippets stay in their values.",
+    "fieldOptionsOnlyChoice": "Only for the Choice type: one option per line.",
+    "fieldMin": "Minimum",
+    "fieldMax": "Maximum",
+    "fieldLimitsOnlyNumber": "Minimum and maximum only apply to the Number type.",
+    "addFieldTitle": "Add a field",
+    "addField": "Add field",
+    "removeField": "Remove the field",
+    "removeFieldHint": "Values already written in snippets are not deleted: they reappear if you recreate a field with the same name."
   }
 }

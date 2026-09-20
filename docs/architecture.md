@@ -70,3 +70,7 @@ Cambio ruolo, rimozione e uscita usano direttamente le policy RLS di `world_memb
 - Icone e colori sono cataloghi chiusi (`catalog.ts`); i colori sono token `--cat-*` con contrasto ≥ 4:1 in entrambi i temi.
 - Permessi: owner ed editor scrivono, gli altri leggono (RLS, con test DB). Nota: la migrazione `20260920120000` corregge il trigger
   di immutabilità che impediva ogni UPDATE su `categories`.
+- **Editor dei campi** (`src/components/fields-editor.tsx`, azioni in `categories/actions.ts`): aggiunta, modifica, riordino e
+  rimozione, tutto con form nativi (senza JavaScript). La chiave di un campo (che indicizza i valori negli snippet) e il tipo non
+  cambiano mai dopo la creazione; rimuovere un campo non cancella i valori già scritti. Ogni modifica si applica allo stato corrente
+  della categoria (read-modify-write con controllo su `updated_at`), quindi due pagine aperte insieme non si sovrascrivono.
