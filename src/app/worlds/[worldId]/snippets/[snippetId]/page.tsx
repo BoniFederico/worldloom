@@ -75,6 +75,7 @@ export default async function SnippetPage({ params, searchParams }: Props) {
     .select('tags')
     .eq('world_id', worldId)
     .is('deleted_at', null)
+    .order('updated_at', { ascending: false })
     .limit(500);
   const counts = new Map<string, number>();
   for (const row of tagRows ?? [])

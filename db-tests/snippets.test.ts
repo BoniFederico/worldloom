@@ -201,4 +201,20 @@ describe('save_snippet', () => {
       await expect(save(db, owner, id, await updated(), [], 'X', [], many(21))).rejects.toThrow();
     });
   });
+
+  it('i vincoli valgono anche per gli update diretti sulla tabella', async () => {
+    await withTx(async (db) => {
+      const { owner, id } = await setup(db);
+      const direct = (col: string, value: string[]) =>
+        actAs(db, owner, () =>
+          db.query(`update snippets set ${col} = $1::text[] where id = $2`, [value, id]),
+        );
+      await expect(direct('tags', ['x'.repeat(41)])).rejects.toThrow(/snippets_tags_valid/);
+      await expect(direct('tags', ['a,b'])).rejects.toThrow(/snippets_tags_valid/);
+      await expect(direct('tags', ['a"b'])).rejects.toThrow(/snippets_tags_valid/);
+      await expect(direct('tags', ['  '])).rejects.toThrow(/snippets_tags_valid/);
+      await expect(direct('aliases', ['y'.repeat(101)])).rejects.toThrow(/snippets_aliases_valid/);
+      await direct('aliases', ['Smith, John']);
+    });
+  });
 });

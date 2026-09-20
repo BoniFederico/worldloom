@@ -17,6 +17,10 @@ describe('parseTags', () => {
     expect(parseTags(' , \n ')).toEqual({ ok: true, values: [] });
   });
 
+  it.each(['a{b', 'a}b', 'a"b', 'a\\b'])('rifiuta il carattere speciale in %s', (tag) => {
+    expect(parseTags(tag)).toEqual({ ok: false });
+  });
+
   it('rifiuta un tag troppo lungo e troppi tag', () => {
     expect(parseTags('x'.repeat(41))).toEqual({ ok: false });
     expect(parseTags(Array.from({ length: 31 }, (_, i) => `t${i}`).join(','))).toEqual({
@@ -27,8 +31,15 @@ describe('parseTags', () => {
 });
 
 describe('parseAliases', () => {
+  it('la virgola fa parte dell’alias', () => {
+    expect(parseAliases('Smith, John\nJohn Smith')).toEqual({
+      ok: true,
+      values: ['Smith, John', 'John Smith'],
+    });
+  });
+
   it('conserva la grafia e unisce i doppioni', () => {
-    expect(parseAliases('Il Lupo Grigio\nil lupo grigio, Gandalf')).toEqual({
+    expect(parseAliases('Il Lupo Grigio\nil lupo grigio\nGandalf')).toEqual({
       ok: true,
       values: ['Il Lupo Grigio', 'Gandalf'],
     });

@@ -3,32 +3,46 @@ import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { CategoryBadge } from '@/components/category-icon';
 import { Feedback } from '@/components/feedback';
+import { parseTags } from '@/lib/snippets/labels';
 import { loadWorld } from '@/lib/worlds/context';
 import { createSnippet, deleteSnippetForever, restoreSnippet } from './actions';
 
 type Props = {
   params: Promise<{ worldId: string }>;
   searchParams: Promise<{
-    error?: string;
-    notice?: string;
-    view?: string;
-    tag?: string;
-    status?: string;
+    error?: string | string[];
+    notice?: string | string[];
+    view?: string | string[];
+    tag?: string | string[];
+    status?: string | string[];
   }>;
 };
+
+/** Un parametro ripetuto (`?tag=a&tag=b`) arriva come array: si prende il primo valore. */
+const one = (value: string | string[] | undefined) => (Array.isArray(value) ? value[0] : value);
 
 const VIEWS = ['active', 'archived', 'trash'] as const;
 type View = (typeof VIEWS)[number];
 
 export default async function SnippetsPage({ params, searchParams }: Props) {
   const { worldId } = await params;
-  const { error, notice, view: rawView, tag: rawTag, status: rawStatus } = await searchParams;
+  const query_ = await searchParams;
+  const [error, notice, rawView, rawTag, rawStatus] = [
+    one(query_.error),
+    one(query_.notice),
+    one(query_.view),
+    one(query_.tag),
+    one(query_.status),
+  ];
   const view: View = VIEWS.find((v) => v === rawView) ?? 'active';
   const { supabase, world, canWrite } = await loadWorld(worldId);
   // Il cestino è solo per chi può scrivere.
   if (view === 'trash' && !canWrite) redirect(`/worlds/${worldId}/snippets`);
   const t = await getTranslations('Snippets');
-  const tag = (rawTag ?? '').trim().toLowerCase().slice(0, 40);
+  // Il filtro usa le stesse regole dei tag salvati: minuscole, spazi normalizzati, nessun carattere speciale.
+  const tagFilter = parseTags(rawTag ?? '');
+  const tags = tagFilter.ok ? tagFilter.values : [];
+  const tag = tags.join(', ');
   const status = rawStatus === 'draft' || rawStatus === 'final' ? rawStatus : undefined;
 
   let query = supabase
@@ -50,10 +64,10 @@ export default async function SnippetsPage({ params, searchParams }: Props) {
       .is('archived_at', null)
       .order('updated_at', { ascending: false });
 
-  if (tag) query = query.contains('tags', [tag]);
+  if (tags.length) query = query.contains('tags', tags);
   if (status) query = query.eq('status', status);
 
-  const [{ data: snippets }, { data: categories }] = await Promise.all([
+  const [{ data: snippets, error: listError }, { data: categories }] = await Promise.all([
     query.limit(200),
     supabase.from('categories').select('id, name').eq('world_id', worldId).order('name'),
   ]);
@@ -67,7 +81,16 @@ export default async function SnippetsPage({ params, searchParams }: Props) {
           <Link href={`/worlds/${world.id}`}>{world.name}</Link>
         </p>
         <h1>{t('title')}</h1>
-        <Feedback scope="Snippets" notice={notice} error={error} />
+        <Feedback
+          scope="Snippets"
+          notice={notice}
+          error={error ?? (listError ? 'generic' : undefined)}
+        />
+        {rawTag && !tagFilter.ok ? (
+          <p role="alert" className="message message-error">
+            {t('errors.invalid_labels')}
+          </p>
+        ) : null}
 
         <nav aria-label={t('views')} className="tabs">
           {VIEWS.filter((v) => v !== 'trash' || showTrash).map((v) => (
@@ -94,7 +117,7 @@ export default async function SnippetsPage({ params, searchParams }: Props) {
                 id="filter-tag"
                 name="tag"
                 defaultValue={tag}
-                maxLength={40}
+                maxLength={200}
                 autoComplete="off"
               />
             </div>
