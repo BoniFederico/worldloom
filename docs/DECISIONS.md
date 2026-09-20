@@ -142,3 +142,18 @@
 - Motivo: la SPEC chiede che cambiare categoria «non perda dati»; una pulizia silenziosa sarebbe distruttiva. Valutare uno strumento
   esplicito di pulizia dei valori orfani quando esisteranno gli snippet (#15).
 - Deciso da: agente
+
+### D-014: Corpo degli snippet come documento JSON sanificato; #15 in due PR
+
+- Data: 2026-09-20
+- Contesto: #15 chiede rich text con sanificazione XSS, salvataggio automatico e cestino a 30 giorni.
+- Decisione: il corpo (`snippets.body`, jsonb) è un documento in formato ProseMirror, mai HTML. Ogni scrittura passa da
+  `sanitizeBody` (`src/lib/snippets/body.ts`), che ricostruisce il documento con una allowlist di nodi, marcature e attributi;
+  i link ammessi sono solo `http(s):`, `mailto:` e percorsi relativi. Il rendering dovrà usare il documento, non `innerHTML`.
+- L'editor sarà **Tiptap** (ProseMirror): è la libreria più diffusa, con estensioni per titoli, liste, citazioni, link, immagini,
+  tabelle e menzioni (#18). Arriva nella seconda PR di #15, insieme a immagini, tabelle e salvataggio automatico. Questa prima PR
+  consegna CRUD, campi tipizzati, duplicazione, archivio e cestino con un campo di testo nativo (funziona senza JavaScript). Il testo
+  semplice diventa paragrafi; se il testo non cambia il documento esistente resta intatto, quindi nessuna formattazione si perde.
+- Il cestino conserva 30 giorni: `private.purge_expired_snippets()` (schedulata con pg_cron se l'estensione è presente; su un
+  database senza pg_cron va chiamata da uno scheduler esterno).
+- Deciso da: agente
