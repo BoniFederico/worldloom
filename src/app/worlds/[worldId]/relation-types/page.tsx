@@ -75,7 +75,13 @@ export default async function RelationTypesPage({ params, searchParams }: Props)
               <li key={type.id}>
                 <p className="relation-line">
                   <span className="rel-label">{type.label}</span>
-                  {type.inverse_label ? <> ↔ {type.inverse_label}</> : null}
+                  {type.inverse_label ? (
+                    <>
+                      {' '}
+                      <span aria-hidden="true">↔</span>
+                      <span className="sr-only"> {t('inverseIs')}: </span> {type.inverse_label}
+                    </>
+                  ) : null}
                 </p>
                 <p className="role">
                   {t('from')}: {nameOf(type.source_category_id) ?? t('any')} · {t('to')}:{' '}

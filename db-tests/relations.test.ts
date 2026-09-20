@@ -204,14 +204,78 @@ describe('tipi di relazione', () => {
       const person = await category('Personaggio');
       await type('nato a', null, person, null);
       const [a, b] = [await snippet('A', person), await snippet('B')];
-      await relate(a, b, 'libera');
-      await expect(
-        q(`update relations set label = 'nato a' where source_id = $1`, [b]),
-      ).resolves.toBeDefined();
+
+      // Una relazione libera tra i due, poi si prova a farla diventare «nato a» partendo da B (senza categoria).
       await relate(b, a, 'libera');
       await expect(
         q(`update relations set label = 'nato a' where source_id = $1`, [b]),
       ).rejects.toThrow('relation_constraint_source');
+      // Partendo da A (con la categoria) la stessa modifica è valida e colpisce una riga.
+      await relate(a, b, 'libera');
+      const ok = await q(`update relations set label = 'nato a' where source_id = $1`, [a]);
+      expect(ok.rowCount).toBe(1);
+
+      // Ora la relazione è tipizzata: spostare l'origine su B (senza categoria) è rifiutato.
+      await expect(
+        q(`update relations set source_id = $1, target_id = $2 where label = 'nato a'`, [b, a]),
+      ).rejects.toThrow('relation_constraint_source');
+    });
+  });
+
+  it('spazi doppi, tabulazioni e spazi non separabili non aggirano il tipo', async () => {
+    await withTx(async (db) => {
+      const { category, snippet, type, relate } = await typed(db);
+      const person = await category('Personaggio');
+      await type('nato a', null, person, null);
+      const [a, b] = [await snippet('A'), await snippet('B')];
+      for (const label of ['nato  a', ' nato	a ', 'nato a', 'NATO A']) {
+        await expect(relate(a, b, label)).rejects.toThrow('relation_constraint_source');
+      }
+      await expect(type('Nato   A', null, null, null)).rejects.toThrow(/relation_types_label/);
+    });
+  });
+
+  it('il mondo di un tipo è immutabile e non si crea un tipo in un mondo altrui', async () => {
+    await withTx(async (db) => {
+      const { q, worldId, type } = await typed(db);
+      await type('alleato di', null, null, null);
+      const other = await createUser(db);
+      const { rows } = await actAs(db, other, () =>
+        db.query(`insert into worlds (name, owner_id) values ('Altro', $1) returning id`, [other]),
+      );
+      await expect(q(`update relation_types set world_id = $1`, [rows[0].id])).rejects.toThrow();
+      await expect(
+        actAs(db, other, () =>
+          db.query(`insert into relation_types (world_id, label) values ($1, 'x')`, [worldId]),
+        ),
+      ).rejects.toThrow();
+    });
+  });
+
+  it('una categoria di un altro mondo è rifiutata dalla chiave composita', async () => {
+    await withTx(async (db) => {
+      const { worldId, q } = await typed(db);
+      const other = await createUser(db);
+      const foreignWorld = (
+        await actAs(db, other, () =>
+          db.query(`insert into worlds (name, owner_id) values ('Altro', $1) returning id`, [
+            other,
+          ]),
+        )
+      ).rows[0].id;
+      const foreignCategory = (
+        await actAs(db, other, () =>
+          db.query(`insert into categories (world_id, name) values ($1, 'Estranea') returning id`, [
+            foreignWorld,
+          ]),
+        )
+      ).rows[0].id;
+      await expect(
+        q(`insert into relation_types (world_id, label, source_category_id) values ($1, 'x', $2)`, [
+          worldId,
+          foreignCategory,
+        ]),
+      ).rejects.toThrow(/foreign key/);
     });
   });
 

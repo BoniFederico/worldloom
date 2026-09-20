@@ -2,6 +2,14 @@
 -- Se l'etichetta di una relazione coincide con quella di un tipo, valgono i suoi vincoli; il tipo fornisce anche
 -- l'etichetta inversa se manca. Le relazioni con etichette senza tipo restano libere.
 
+-- Etichetta normalizzata come fa l'app: spazi (anche non separabili) collassati, ai lati tolti, minuscole.
+-- Vale per indici e trigger, così chi scrive via API non aggira i vincoli con spazi doppi o tabulazioni.
+create or replace function private.norm_label(t text) returns text
+language sql immutable set search_path = '' as $$
+  select lower(btrim(regexp_replace(translate(t, chr(160), ' '), '[[:space:]]+', ' ', 'g')))
+$$;
+grant execute on function private.norm_label(text) to anon, authenticated;
+
 create table public.relation_types (
   id uuid primary key default gen_random_uuid(),
   world_id uuid not null references public.worlds (id) on delete cascade,
@@ -11,14 +19,18 @@ create table public.relation_types (
   target_category_id uuid,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
-  unique (world_id, id),
   -- Se la categoria viene eliminata il vincolo decade (l'etichetta resta un tipo senza quel limite).
   foreign key (world_id, source_category_id) references public.categories (world_id, id)
     on delete set null (source_category_id),
   foreign key (world_id, target_category_id) references public.categories (world_id, id)
     on delete set null (target_category_id)
 );
-create unique index relation_types_label on public.relation_types (world_id, lower(btrim(label)));
+create unique index relation_types_label on public.relation_types (world_id, private.norm_label(label));
+
+-- Anche i doppioni tra relazioni usano la stessa normalizzazione.
+drop index if exists public.relations_no_duplicates;
+create unique index relations_no_duplicates
+  on public.relations (source_id, target_id, private.norm_label(label));
 create trigger relation_types_touch before update on public.relation_types
   for each row execute function private.touch_updated_at();
 
@@ -38,7 +50,7 @@ declare
   t public.relation_types;
 begin
   select * into t from public.relation_types
-   where world_id = new.world_id and lower(btrim(label)) = lower(btrim(new.label));
+   where world_id = new.world_id and private.norm_label(label) = private.norm_label(new.label);
   if not found then
     return new;
   end if;

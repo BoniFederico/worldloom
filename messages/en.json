@@ -509,7 +509,7 @@
     "inverse": "Inverse label (optional)",
     "sourceCategory": "Category of the starting snippet",
     "targetCategory": "Category of the target snippet",
-    "constraintHint": "With a category chosen, only snippets of that category can be linked with this label. Existing relations do not change.",
+    "constraintHint": "With a category chosen, only snippets of that category can be linked with this label. Existing relations do not change. Renaming or deleting a type does not change existing relations, which keep their label (now free-form).",
     "readOnly": "Only owners and editors can edit types.",
     "notices": {
       "created": "Type created.",
@@ -522,6 +522,7 @@
       "duplicate": "A type with this label already exists.",
       "forbidden": "You do not have permission to edit relation types.",
       "generic": "Something went wrong. Please try again."
-    }
+    },
+    "inverseIs": "inverse"
   }
 }
