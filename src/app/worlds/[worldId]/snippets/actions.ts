@@ -4,7 +4,14 @@ import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
 import { fieldsSchema, validateSnippetFields, type FieldDefinition } from '@/lib/fields/fields';
 import type { Json } from '@/lib/supabase/database.types';
-import { MAX_TEXT_LENGTH, docToText, textToDoc } from '@/lib/snippets/body';
+import {
+  MAX_JSON_LENGTH,
+  MAX_TEXT_LENGTH,
+  docToText,
+  textToDoc,
+  validateBody,
+  type DocNode,
+} from '@/lib/snippets/body';
 import { EDITABLE_TYPES, mergeFieldInput } from '@/lib/snippets/form';
 import { snippetTitleSchema } from '@/lib/snippets/schemas';
 import type { SaveState, SnippetDraft } from '@/lib/snippets/state';
@@ -68,6 +75,7 @@ function draftOf(formData: FormData): SnippetDraft {
     title: field(formData, 'title'),
     status: field(formData, 'status'),
     body: field(formData, 'body'),
+    bodyJson: field(formData, 'body_json'),
     categories: formData.getAll('category').map(String),
     fields,
   };
@@ -93,7 +101,19 @@ export async function saveSnippet(_prev: SaveState, formData: FormData): Promise
   const status = STATUSES.find((s) => s === draft.status) ?? 'draft';
   const token = field(formData, 'updated');
   const text = draft.body.replace(/\r\n?/g, '\n');
-  if (text.length > MAX_TEXT_LENGTH) return fail('body_too_large');
+  if (text.length > MAX_TEXT_LENGTH || draft.bodyJson.length > MAX_JSON_LENGTH) {
+    return fail('body_too_large');
+  }
+  // Con l'editor arriva `body_json`: un documento valido, oppure un errore. Mai un ripiego vuoto.
+  let richBody: DocNode | null = null;
+  if (formData.has('body_json')) {
+    try {
+      richBody = validateBody(JSON.parse(draft.bodyJson));
+    } catch {
+      richBody = null;
+    }
+    if (!richBody) return fail('invalid_body');
+  }
   const chosen = [...new Set(draft.categories)].filter((c) => uuidSchema.safeParse(c).success);
 
   const { supabase, canWrite } = await loadWorld(world);
@@ -162,8 +182,12 @@ export async function saveSnippet(_prev: SaveState, formData: FormData): Promise
   }
 
   // Il corpo si aggiorna solo se il testo è cambiato: altrimenti resta il documento esistente, com'è.
-  const body =
-    text.trim() === docToText(row.body).trim() ? row.body : (textToDoc(text) as unknown as Json);
+  // Con l'editor arriva il documento (sanificato qui); senza JavaScript arriva il testo semplice.
+  const body: Json = richBody
+    ? (richBody as unknown as Json)
+    : text.trim() === docToText(row.body).trim()
+      ? row.body
+      : (textToDoc(text) as unknown as Json);
 
   const { error } = await supabase.rpc('save_snippet', {
     p_id: id,
@@ -176,6 +200,44 @@ export async function saveSnippet(_prev: SaveState, formData: FormData): Promise
   });
   if (error) return fail(error.message === 'conflict' ? 'conflict' : 'generic');
   redirect(`${listPath(world)}/${id}?notice=saved`);
+}
+
+export type AutosaveResult =
+  | { ok: true; updated: string }
+  | { ok: false; error: 'conflict' | 'invalid' | 'forbidden' | 'generic' };
+
+/**
+ * Salvataggio automatico del solo corpo. Come il salvataggio completo è condizionato a `updated_at`
+ * e restituisce il nuovo valore, che il client usa per i salvataggi successivi.
+ */
+export async function autosaveBody(input: {
+  world: string;
+  id: string;
+  updated: string;
+  doc: unknown;
+}): Promise<AutosaveResult> {
+  const world = uuidSchema.safeParse(input.world);
+  const id = uuidSchema.safeParse(input.id);
+  if (!world.success || !id.success || typeof input.updated !== 'string') {
+    return { ok: false, error: 'invalid' };
+  }
+  // Un documento non valido o oltre i limiti non si scrive: sostituirlo con uno vuoto cancellerebbe il corpo.
+  const doc = validateBody(input.doc);
+  if (!doc) return { ok: false, error: 'invalid' };
+
+  const { supabase, canWrite } = await loadWorld(world.data);
+  if (!canWrite) return { ok: false, error: 'forbidden' };
+  const { data, error } = await supabase
+    .from('snippets')
+    .update({ body: doc as unknown as Json })
+    .eq('id', id.data)
+    .eq('world_id', world.data)
+    .eq('updated_at', input.updated)
+    .is('deleted_at', null)
+    .select('updated_at');
+  if (error) return { ok: false, error: 'generic' };
+  const row = data?.[0];
+  return row ? { ok: true, updated: row.updated_at } : { ok: false, error: 'conflict' };
 }
 
 type Patch = { archived_at?: string | null; deleted_at?: string | null };

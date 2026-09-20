@@ -827,3 +827,119 @@ select {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+
+.field .label {
+  display: block;
+  margin-bottom: var(--space-1);
+  font-weight: 500;
+}
+
+.editor {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.toolbar .btn {
+  padding: 0 var(--space-3);
+}
+
+.toolbar .btn[aria-pressed='true'] {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--primary-contrast);
+}
+
+.link-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.link-form input {
+  flex: 1 1 240px;
+}
+
+.editor-content {
+  min-height: 240px;
+  padding: var(--space-4);
+}
+
+.editor-content:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: -2px;
+}
+
+.save-status {
+  margin: 0;
+  padding: var(--space-2) var(--space-4);
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  min-height: 1.5em;
+}
+
+.save-status[data-status='error'],
+.save-status[data-status='conflict'] {
+  color: var(--danger);
+}
+
+.prose {
+  font-family: var(--font-serif);
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.prose blockquote {
+  margin: var(--space-4) 0;
+  padding-left: var(--space-4);
+  border-left: 3px solid var(--border-strong);
+  color: var(--text-muted);
+}
+
+.prose code {
+  padding: 0 var(--space-1);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: 0.9em;
+}
+
+.prose a {
+  color: var(--primary);
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+.prose table {
+  border-collapse: collapse;
+  margin: var(--space-4) 0;
+}
+
+.prose th,
+.prose td {
+  min-width: 4em;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-strong);
+  vertical-align: top;
+  text-align: left;
+}
+
+.prose th {
+  background: var(--surface-2);
+}

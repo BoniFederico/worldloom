@@ -382,7 +382,42 @@
       "forbidden": "You do not have permission to edit snippets in this world.",
       "not_found": "Snippet not found.",
       "confirm_required": "Tick the confirmation to delete permanently.",
-      "generic": "Something went wrong. Please try again."
+      "generic": "Something went wrong. Please try again.",
+      "invalid_body": "The text is not valid. Please try again."
+    },
+    "editor": {
+      "toolbar": "Text formatting",
+      "bold": "Bold",
+      "italic": "Italic",
+      "code": "Code",
+      "heading2": "Heading",
+      "heading3": "Subheading",
+      "bulletList": "Bulleted list",
+      "orderedList": "Numbered list",
+      "quote": "Quote",
+      "link": "Link",
+      "unlink": "Remove link",
+      "linkUrl": "Link address",
+      "linkApply": "Apply",
+      "linkInvalid": "Invalid address: only http, https, mailto and site paths are allowed.",
+      "table": "Insert table",
+      "tableTools": "Table tools",
+      "addRow": "Add row",
+      "addColumn": "Add column",
+      "deleteTable": "Delete table",
+      "undo": "Undo",
+      "redo": "Redo",
+      "status": {
+        "dirty": "Unsaved changes",
+        "saving": "Saving…",
+        "saved": "Saved",
+        "error": "Autosave failed: use Save",
+        "conflict": "The snippet was changed elsewhere: autosave is paused. Copy your text, reload the page and reapply your changes.",
+        "tooLarge": "The text is too long to be saved: shorten it"
+      },
+      "deleteRow": "Delete row",
+      "deleteColumn": "Delete column",
+      "toggleHeader": "Header row"
     }
   }
 }

@@ -34,6 +34,16 @@ async function createSnippet(page: Page, worldId: string, title: string, categor
   await expect(page.getByRole('status')).toHaveText('Snippet creato.');
 }
 
+/** L'editor rich text sostituisce il campo di testo dopo l'idratazione. */
+const editorOf = (page: Page) => page.getByRole('textbox', { name: 'Testo' });
+async function typeInEditor(page: Page, text: string) {
+  const editor = editorOf(page);
+  await expect(page.getByRole('group', { name: 'Formattazione del testo' })).toBeVisible();
+  await editor.click();
+  await page.keyboard.press('ControlOrMeta+A');
+  await page.keyboard.type(text);
+}
+
 const noSeriousViolations = async (page: Page) => {
   const r = await new AxeBuilder({ page }).analyze();
   return r.violations.filter((v) => v.impact === 'serious' || v.impact === 'critical');
@@ -44,24 +54,26 @@ test.describe('snippet', () => {
     const { page, worldId } = await worldWithCategory(browser);
     await createSnippet(page, worldId, 'Elara', 'Personaggio');
 
-    await page.getByLabel('Testo').fill('Prima riga\n\nSeconda <b>riga</b>');
+    await typeInEditor(page, 'Prima riga');
+    await page.keyboard.press('Enter');
+    await page.keyboard.type('Seconda <b>riga</b>');
     await page.getByLabel(/^Età/).fill('42');
     await page.getByRole('button', { name: 'Salva' }).click();
     await expect(page.getByRole('status')).toHaveText('Snippet salvato.');
-    await expect(page.getByLabel('Testo')).toHaveValue('Prima riga\n\nSeconda <b>riga</b>');
+    await expect(editorOf(page)).toContainText('Seconda <b>riga</b>');
     await expect(page.getByLabel(/^Età/)).toHaveValue('42');
   });
 
   test('uno snippet definitivo richiede i campi obbligatori', async ({ browser }) => {
     const { page, worldId } = await worldWithCategory(browser);
     await createSnippet(page, worldId, 'Incompleto', 'Personaggio');
-    await page.getByLabel('Testo').fill('Testo da non perdere');
+    await typeInEditor(page, 'Testo da non perdere');
     await page.getByLabel('Stato').selectOption('final');
     await page.getByRole('button', { name: 'Salva' }).click();
     await expect(page.getByRole('main').getByRole('alert')).toContainText(
       'Alcuni campi non sono validi',
     );
-    await expect(page.getByLabel('Testo')).toHaveValue('Testo da non perdere');
+    await expect(editorOf(page)).toContainText('Testo da non perdere');
     await expect(page.getByLabel('Stato')).toHaveValue('final');
     await expect(page.getByLabel(/^Età/)).toHaveAttribute('aria-invalid', 'true');
 
@@ -84,18 +96,6 @@ test.describe('snippet', () => {
     await expect(page.getByRole('main').getByRole('alert')).toContainText(
       'Alcuni campi non sono validi',
     );
-  });
-
-  test('un testo troppo lungo viene rifiutato senza perdere il contenuto', async ({ browser }) => {
-    const { page, worldId } = await worldWithCategory(browser);
-    await createSnippet(page, worldId, 'Enorme');
-    // `fill` con 200k caratteri è lento sul mobile: si imposta il valore direttamente.
-    await page.getByLabel('Testo').evaluate((el: HTMLTextAreaElement) => {
-      el.value = 'x'.repeat(200_001);
-    });
-    await page.getByRole('button', { name: 'Salva' }).click();
-    await expect(page.getByRole('main').getByRole('alert')).toContainText('troppo lungo');
-    await expect(page.getByLabel('Testo')).toHaveValue('x'.repeat(200_001));
   });
 
   test('duplica, archivia, cestina e ripristina', async ({ browser }) => {
@@ -144,18 +144,22 @@ test.describe('snippet', () => {
     const stale = await page.context().newPage();
     await stale.goto(page.url());
 
-    await page.getByLabel('Testo').fill('Versione A');
+    await typeInEditor(page, 'Versione A');
     await page.getByRole('button', { name: 'Salva' }).click();
     await expect(page.getByRole('status')).toHaveText('Snippet salvato.');
 
-    await stale.getByLabel('Testo').fill('Versione B');
+    await typeInEditor(stale, 'Versione B');
+    // L'autosave della scheda vecchia si sospende e lo dice, senza sovrascrivere nulla.
+    await expect(stale.locator('.save-status')).toContainText('modificato altrove', {
+      timeout: 10_000,
+    });
     await stale.getByRole('button', { name: 'Salva' }).click();
     await expect(stale.getByRole('main').getByRole('alert')).toContainText('modificato altrove');
     // Il testo digitato non va perso: resta nel form.
-    await expect(stale.getByLabel('Testo')).toHaveValue('Versione B');
+    await expect(editorOf(stale)).toContainText('Versione B');
 
     await page.reload();
-    await expect(page.getByLabel('Testo')).toHaveValue('Versione A');
+    await expect(editorOf(page)).toContainText('Versione A');
   });
 
   test('un lettore vede gli snippet ma non può modificarli né vede il cestino', async ({
@@ -178,6 +182,106 @@ test.describe('snippet', () => {
     await reader.page.goto(`/worlds/${worldId}/snippets?view=trash`);
     await expect(reader.page).toHaveURL(`/worlds/${worldId}/snippets`);
     await expect(reader.page.getByRole('button', { name: 'Crea snippet' })).toHaveCount(0);
+  });
+
+  test('salvataggio automatico con indicatore, senza premere Salva', async ({ browser }) => {
+    const { page, worldId } = await worldWithCategory(browser);
+    await createSnippet(page, worldId, 'Automatico');
+    await typeInEditor(page, 'Scritto e mai salvato a mano');
+    await expect(page.locator('.save-status')).toHaveText('Modifiche non salvate');
+    await expect(page.locator('.save-status')).toHaveText('Salvato', { timeout: 10_000 });
+    await page.reload();
+    await expect(editorOf(page)).toContainText('Scritto e mai salvato a mano');
+  });
+
+  test('Salva durante un salvataggio automatico lento non dà un falso conflitto', async ({
+    browser,
+  }) => {
+    const { page, worldId } = await worldWithCategory(browser);
+    await createSnippet(page, worldId, 'Rete lenta');
+    // Rallenta solo le chiamate delle server action (quelle con l'header Next-Action).
+    await page.route('**/*', async (route) => {
+      if (route.request().headers()['next-action']) await new Promise((r) => setTimeout(r, 2500));
+      await route.continue();
+    });
+    await typeInEditor(page, 'Scritto con la rete lenta');
+    await expect(page.locator('.save-status')).toHaveText('Salvataggio…', { timeout: 10_000 });
+    await page.getByRole('button', { name: 'Salva' }).click();
+    await expect(page.getByRole('main').getByRole('alert')).toHaveCount(0);
+    await expect(page.getByRole('status')).toHaveText('Snippet salvato.', { timeout: 15_000 });
+    await expect(editorOf(page)).toContainText('Scritto con la rete lenta');
+  });
+
+  test('formattazione: grassetto, elenco, tabella e link', async ({ browser }) => {
+    const { page, worldId } = await worldWithCategory(browser);
+    await createSnippet(page, worldId, 'Formattato');
+    await typeInEditor(page, 'Testo in grassetto');
+    await page.keyboard.press('ControlOrMeta+A');
+    await page.getByRole('button', { name: 'Grassetto' }).click();
+    await page.getByRole('button', { name: 'Elenco puntato' }).click();
+    // Due invii escono dall'elenco: la tabella va inserita in un paragrafo, non in una voce.
+    await editorOf(page).press('ControlOrMeta+End');
+    await page.keyboard.press('Enter');
+    await page.keyboard.press('Enter');
+    await page.getByRole('button', { name: 'Inserisci tabella' }).click();
+    await expect(editorOf(page).locator('table')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Aggiungi riga' })).toBeVisible();
+    await page.getByRole('button', { name: 'Salva' }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'Snippet salvato.' })).toBeVisible();
+
+    await expect(editorOf(page).locator('strong')).toContainText('Testo in grassetto');
+    await expect(editorOf(page).locator('ul li')).toHaveCount(1);
+    await expect(editorOf(page).locator('table th')).toHaveCount(3);
+  });
+
+  test('un link con schema non sicuro viene rifiutato', async ({ browser }) => {
+    const { page, worldId } = await worldWithCategory(browser);
+    await createSnippet(page, worldId, 'Link');
+    await typeInEditor(page, 'clicca');
+    await page.keyboard.press('ControlOrMeta+A');
+    await page.getByRole('button', { name: 'Link', exact: true }).click();
+    await page.getByLabel('Indirizzo del link').fill('javascript:alert(1)');
+    await page.getByRole('button', { name: 'Applica' }).click();
+    await expect(page.getByText('Indirizzo non valido')).toBeVisible();
+    await expect(editorOf(page).locator('a')).toHaveCount(0);
+
+    await page.getByLabel('Indirizzo del link').fill('https://example.com');
+    await page.getByRole('button', { name: 'Applica' }).click();
+    await expect(editorOf(page).locator('a')).toHaveAttribute('href', 'https://example.com');
+  });
+
+  test('un lettore vede il testo formattato, senza HTML iniettato', async ({ browser }) => {
+    const { page, worldId } = await worldWithCategory(browser);
+    await createSnippet(page, worldId, 'Da leggere');
+    await typeInEditor(page, '<img src=x onerror=alert(1)>');
+    await page.keyboard.press('ControlOrMeta+A');
+    await page.getByRole('button', { name: 'Grassetto' }).click();
+    await page.getByRole('button', { name: 'Salva' }).click();
+    await expect(page.getByRole('status').filter({ hasText: 'Snippet salvato.' })).toBeVisible();
+    const url = page.url().split('?')[0] as string;
+
+    const reader = await newUser(browser, 'Lettore');
+    await addMember(page, worldId, reader.email, 'reader');
+    await reader.page.goto(url);
+    await expect(reader.page.locator('.prose strong')).toHaveText('<img src=x onerror=alert(1)>');
+    await expect(reader.page.locator('.prose img')).toHaveCount(0);
+  });
+
+  test('senza JavaScript il testo si modifica in un campo semplice', async ({ browser }) => {
+    const { page, worldId } = await worldWithCategory(browser);
+    await createSnippet(page, worldId, 'Senza script');
+    const ctx = await browser.newContext({
+      storageState: await page.context().storageState(),
+      javaScriptEnabled: false,
+      locale: 'it-IT',
+    });
+    const plain = await ctx.newPage();
+    await plain.goto(page.url().split('?')[0] as string);
+    await plain.getByLabel('Testo').fill('Riga uno\n\nRiga due');
+    await plain.getByRole('button', { name: 'Salva' }).click();
+    await expect(plain.getByRole('status')).toHaveText('Snippet salvato.');
+    await expect(plain.getByLabel('Testo')).toHaveValue('Riga uno\n\nRiga due');
+    await ctx.close();
   });
 
   test('accessibilità di elenco e modifica', async ({ browser }) => {

@@ -2,9 +2,10 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Feedback } from '@/components/feedback';
+import { RichText } from '@/components/rich-text';
 import { SnippetForm } from '@/components/snippet-form';
 import { fieldsSchema, type FieldDefinition } from '@/lib/fields/fields';
-import { docToText } from '@/lib/snippets/body';
+import { docToText, sanitizeBody } from '@/lib/snippets/body';
 import { loadWorld } from '@/lib/worlds/context';
 import { uuidSchema } from '@/lib/worlds/schemas';
 import {
@@ -96,6 +97,7 @@ export default async function SnippetPage({ params, searchParams }: Props) {
               title: snippet.title,
               status: snippet.status,
               body: docToText(snippet.body),
+              doc: sanitizeBody(snippet.body),
               updatedAt: snippet.updated_at,
               categoryIds,
               values: asRecord(snippet.fields),
@@ -111,7 +113,7 @@ export default async function SnippetPage({ params, searchParams }: Props) {
           />
         ) : (
           <>
-            <p className="snippet-body">{docToText(snippet.body)}</p>
+            <RichText doc={snippet.body} />
             {trashed && canWrite ? (
               <form action={restoreSnippet}>
                 {ids}

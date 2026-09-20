@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { docToText, EMPTY_DOC, sanitizeBody, textToDoc } from './body';
+import { docToText, EMPTY_DOC, isSafeHref, sanitizeBody, textToDoc, validateBody } from './body';
 
 const p = (text: string) => ({ type: 'paragraph', content: [{ type: 'text', text }] });
 
@@ -129,6 +129,64 @@ describe('sanitizeBody', () => {
   });
 });
 
+describe('tabelle', () => {
+  const cell = (type: string, text: string, attrs?: Record<string, unknown>) => ({
+    type,
+    ...(attrs ? { attrs } : {}),
+    content: [p(text)],
+  });
+  const table = (rows: unknown[]) => ({ type: 'doc', content: [{ type: 'table', content: rows }] });
+
+  it('conserva righe, celle e intestazioni', () => {
+    const doc = table([
+      { type: 'tableRow', content: [cell('tableHeader', 'A'), cell('tableHeader', 'B')] },
+      { type: 'tableRow', content: [cell('tableCell', '1'), cell('tableCell', '2')] },
+    ]);
+    expect(sanitizeBody(doc)).toEqual(doc);
+  });
+
+  it('limita colspan e rowspan e scarta gli altri attributi', () => {
+    const result = sanitizeBody(
+      table([
+        {
+          type: 'tableRow',
+          content: [
+            cell('tableCell', 'x', { colspan: 999, rowspan: 2, colwidth: [10], onclick: 'x' }),
+          ],
+        },
+      ]),
+    );
+    const attrs = result.content?.[0]?.content?.[0]?.content?.[0]?.attrs;
+    expect(attrs).toEqual({ colspan: 20, rowspan: 2 });
+  });
+
+  it('una cella vuota resta una cella con un paragrafo', () => {
+    const result = sanitizeBody(table([{ type: 'tableRow', content: [{ type: 'tableCell' }] }]));
+    expect(result.content?.[0]?.content?.[0]?.content?.[0]).toEqual({
+      type: 'tableCell',
+      content: [{ type: 'paragraph' }],
+    });
+  });
+
+  it('scarta righe e celle fuori posto mantenendo il testo', () => {
+    const result = sanitizeBody({
+      type: 'doc',
+      content: [
+        { type: 'tableRow', content: [cell('tableCell', 'orfana')] },
+        cell('tableCell', 'sola'),
+      ],
+    });
+    expect(result).toEqual({ type: 'doc', content: [p('orfana'), p('sola')] });
+  });
+
+  it('docToText separa le celle', () => {
+    const doc = table([
+      { type: 'tableRow', content: [cell('tableCell', 'A'), cell('tableCell', 'B')] },
+    ]);
+    expect(docToText(doc)).toBe('A | B');
+  });
+});
+
 describe('textToDoc / docToText', () => {
   it('trasforma il testo in paragrafi, una riga vuota separa i paragrafi', () => {
     expect(textToDoc('uno\ndue\n\ntre')).toEqual({
@@ -163,4 +221,87 @@ describe('textToDoc / docToText', () => {
       text: '<img src=x onerror=alert(1)>',
     });
   });
+});
+
+describe('validateBody (scrittura)', () => {
+  it('accetta un documento valido e lo sanifica', () => {
+    expect(validateBody({ type: 'doc', content: [p('ciao')] })).toEqual({
+      type: 'doc',
+      content: [p('ciao')],
+    });
+  });
+
+  it.each([null, undefined, 'testo', 42, [], {}, { type: 'paragraph' }])(
+    'rifiuta %j invece di produrre un documento vuoto',
+    (bad) => {
+      expect(validateBody(bad)).toBeNull();
+    },
+  );
+
+  it('rifiuta un documento troppo grande invece di svuotarlo', () => {
+    expect(validateBody({ type: 'doc', content: [p('x'.repeat(600_000))] })).toBeNull();
+  });
+
+  it('rifiuta un annidamento troppo profondo invece di troncarlo', () => {
+    let deep: unknown = p('fondo');
+    for (let i = 0; i < 40; i++) deep = { type: 'blockquote', content: [deep] };
+    expect(validateBody({ type: 'doc', content: [deep] })).toBeNull();
+  });
+
+  it('accetta liste annidate ragionevoli', () => {
+    let inner: unknown = p('fondo');
+    for (let i = 0; i < 8; i++) {
+      inner = { type: 'bulletList', content: [{ type: 'listItem', content: [inner] }] };
+    }
+    expect(validateBody({ type: 'doc', content: [inner] })).not.toBeNull();
+  });
+
+  it('rifiuta tabelle con troppe righe o celle', () => {
+    const cell = { type: 'tableCell', content: [p('x')] };
+    const rows = Array.from({ length: 201 }, () => ({ type: 'tableRow', content: [cell] }));
+    expect(validateBody({ type: 'doc', content: [{ type: 'table', content: rows }] })).toBeNull();
+    const wide = { type: 'tableRow', content: Array.from({ length: 31 }, () => cell) };
+    expect(validateBody({ type: 'doc', content: [{ type: 'table', content: [wide] }] })).toBeNull();
+  });
+
+  it('colspan non interi, negativi o enormi non entrano nel documento', () => {
+    const table = (colspan: unknown) => ({
+      type: 'doc',
+      content: [
+        {
+          type: 'table',
+          content: [
+            {
+              type: 'tableRow',
+              content: [{ type: 'tableCell', attrs: { colspan }, content: [p('x')] }],
+            },
+          ],
+        },
+      ],
+    });
+    for (const bad of [-3, 1.5, 'x', null, 1]) {
+      const cell = validateBody(table(bad))?.content?.[0]?.content?.[0]?.content?.[0];
+      expect(cell?.attrs).toBeUndefined();
+    }
+  });
+});
+
+describe('isSafeHref', () => {
+  it.each(['https://a.it', 'http://a.it/x?y=1', 'mailto:a@b.it', '/worlds/x', ' https://a.it '])(
+    'ammette %s',
+    (href) => expect(isSafeHref(href)).toBe(true),
+  );
+  it.each([
+    'javascript:x',
+    'JAVASCRIPT:x',
+    'data:text/html,x',
+    '//evil.test',
+    '/\\evil.test',
+    'https://a.it/ x',
+    'java\nscript:x',
+    '',
+    'ftp://a.it',
+    42,
+    null,
+  ])('rifiuta %j', (href) => expect(isSafeHref(href)).toBe(false));
 });
