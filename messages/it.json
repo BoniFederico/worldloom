@@ -96,7 +96,8 @@
       "generic": "Operazione non riuscita. Riprova tra poco."
     },
     "members": "Membri",
-    "categories": "Categorie"
+    "categories": "Categorie",
+    "snippets": "Snippet"
   },
   "Members": {
     "title": "Membri",
@@ -319,5 +320,69 @@
     "addField": "Aggiungi campo",
     "removeField": "Rimuovi il campo",
     "removeFieldHint": "I valori già scritti negli snippet non vengono cancellati: tornano visibili se ricrei un campo con lo stesso nome."
+  },
+  "Snippets": {
+    "title": "Snippet",
+    "views": "Vista elenco",
+    "view": {
+      "active": "Attivi",
+      "archived": "Archiviati",
+      "trash": "Cestino"
+    },
+    "empty": {
+      "active": "Nessuno snippet. Creane uno per iniziare.",
+      "archived": "Nessuno snippet archiviato.",
+      "trash": "Il cestino è vuoto."
+    },
+    "trashHint": "Gli snippet eliminati restano nel cestino per 30 giorni, poi vengono cancellati.",
+    "createTitle": "Nuovo snippet",
+    "create": "Crea snippet",
+    "titleLabel": "Titolo",
+    "categoryLabel": "Categoria",
+    "noCategory": "Nessuna categoria",
+    "categoriesLegend": "Categorie",
+    "noCategoriesYet": "Il mondo non ha ancora categorie.",
+    "statusLabel": "Stato",
+    "statusHint": "Gli snippet definitivi richiedono i campi obbligatori delle loro categorie.",
+    "status": {
+      "draft": "Bozza",
+      "final": "Definitivo"
+    },
+    "bodyLabel": "Testo",
+    "fieldsTitle": "Campi",
+    "fieldInvalid": "Valore non valido o mancante.",
+    "editElsewhere": "si modifica dalla vista dedicata",
+    "save": "Salva",
+    "actionsTitle": "Azioni",
+    "duplicate": "Duplica",
+    "archive": "Archivia",
+    "unarchive": "Ripristina dall’archivio",
+    "trash": "Sposta nel cestino",
+    "restore": "Ripristina",
+    "deleteForever": "Elimina definitivamente",
+    "confirmForever": "Confermo l’eliminazione definitiva",
+    "inTrash": "Questo snippet è nel cestino.",
+    "isArchived": "Questo snippet è archiviato.",
+    "copySuffix": " (copia)",
+    "notices": {
+      "created": "Snippet creato.",
+      "saved": "Snippet salvato.",
+      "duplicated": "Snippet duplicato.",
+      "archived": "Snippet archiviato.",
+      "unarchived": "Snippet ripristinato dall’archivio.",
+      "trashed": "Snippet spostato nel cestino.",
+      "restored": "Snippet ripristinato.",
+      "deleted": "Snippet eliminato definitivamente."
+    },
+    "errors": {
+      "invalid_title": "Il titolo è obbligatorio (massimo 300 caratteri).",
+      "invalid_fields": "Alcuni campi non sono validi o mancano: controlla quelli segnalati.",
+      "conflict": "Lo snippet è stato modificato altrove. Il tuo testo è ancora qui: copialo, ricarica la pagina e riapplica le modifiche.",
+      "body_too_large": "Il testo è troppo lungo (massimo 200.000 caratteri).",
+      "forbidden": "Non hai i permessi per modificare gli snippet di questo mondo.",
+      "not_found": "Snippet non trovato.",
+      "confirm_required": "Spunta la conferma per eliminare definitivamente.",
+      "generic": "Operazione non riuscita. Riprova."
+    }
   }
 }

@@ -74,3 +74,16 @@ Cambio ruolo, rimozione e uscita usano direttamente le policy RLS di `world_memb
   rimozione, tutto con form nativi (senza JavaScript). La chiave di un campo (che indicizza i valori negli snippet) e il tipo non
   cambiano mai dopo la creazione; rimuovere un campo non cancella i valori già scritti. Ogni modifica si applica allo stato corrente
   della categoria (read-modify-write con controllo su `updated_at`), quindi due pagine aperte insieme non si sovrascrivono.
+
+## Snippet
+
+- **Corpo**: documento JSON ProseMirror in `snippets.body`, sempre sanificato con allowlist (`src/lib/snippets/body.ts`, D-014).
+  Nessun HTML viene salvato o renderizzato.
+- **Campi**: il form mostra i campi delle categorie selezionate (`src/lib/snippets/form.ts`); data in calendario, coordinate e
+  immagine hanno editor dedicati nelle rispettive viste e qui si conservano. `required` pesa solo per gli snippet definitivi. I
+  riferimenti a snippet devono puntare a uno snippet leggibile dello stesso mondo.
+- **Salvataggio**: la RPC `save_snippet` aggiorna campi e categorie in un'unica transazione ed è condizionata a `updated_at`: una
+  modifica fatta altrove nel frattempo dà `conflict`, senza sovrascrivere. Se il salvataggio non riesce il form (client, `useActionState`)
+  ripropone quanto digitato, quindi nulla si perde. Il testo è limitato a 200.000 caratteri; il corpo non cambia se il testo non cambia.
+- **Ciclo di vita**: archiviato (`archived_at`, fuori dall'elenco attivo) → cestino (`deleted_at`, visibile solo a chi può scrivere)
+  → eliminato dopo 30 giorni (`private.purge_expired_snippets`, pg_cron). L'eliminazione definitiva manuale è possibile solo dal cestino.

@@ -4,7 +4,7 @@
 
 ## Stato
 
-- Fase: M1 in corso: #14 chiusa, prossimo #15 (snippet).
+- Fase: M1 in corso: #15 (snippet) in due PR: CRUD e cestino, poi editor rich text con salvataggio automatico.
 
 ## Backlog (in ordine di esecuzione)
 
@@ -13,7 +13,7 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 
 | #   | Issue                                                                           | Tipo  | Dipende da | Stato | Note                                     |
 | --- | ------------------------------------------------------------------------------- | ----- | ---------- | ----- | ---------------------------------------- |
-| 48  | Scaffold: Next.js, tooling, CI, e2e base                                        | chore | -          | in PR |                                          |
+| 48  | Scaffold: Next.js, tooling, CI, e2e base                                        | chore | -          | done  | PR #49                                   |
 | 6   | Installare Docker Desktop e collegare Supabase                                  | chore | -          | done  | Docker, Supabase locale e cloud          |
 | 7   | Deploy automatico su Vercel da main con preview per PR                          | chore | 48         | done  | Vercel collegato, preview su ogni PR     |
 | 8   | Workflow per generare le baseline screenshot su Linux                           | chore | 48         | done  | PR #56                                   |
@@ -23,7 +23,7 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 12  | Autenticazione: email+password con verifica, reset e OAuth                      | feat  | 11         | done  | PR #58                                   |
 | 13  | Mondi: creazione, elenco, impostazioni, membri e ruoli                          | feat  | 11, 12     | done  | PR #61                                   |
 | 14  | Categorie configurabili con campi personalizzati tipizzati                      | feat  | 13         | done  | PR #64 e PR editor campi                 |
-| 15  | Snippet: CRUD, duplica, archivia e cestino 30 giorni                            | feat  | 14         | todo  |                                          |
+| 15  | Snippet: CRUD, duplica, archivia e cestino 30 giorni                            | feat  | 14         | in PR | 1/2 CRUD e cestino; 2/2 editor Tiptap    |
 | 16  | Tag, alias e stato bozza/definitivo                                             | feat  | 14         | todo  |                                          |
 | 17  | Relazioni con etichetta libera e inversa                                        | feat  | 15         | todo  |                                          |
 | 18  | Menzioni con @ e pannello backlink                                              | feat  | 15         | todo  |                                          |
