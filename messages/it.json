@@ -95,7 +95,8 @@
       "confirm_required": "Spunta la conferma per eliminare il mondo.",
       "generic": "Operazione non riuscita. Riprova tra poco."
     },
-    "members": "Membri"
+    "members": "Membri",
+    "categories": "Categorie"
   },
   "Members": {
     "title": "Membri",
@@ -136,6 +137,163 @@
       "commenter": "Commentatore",
       "reader": "Lettore",
       "owner": "Proprietario"
+    }
+  },
+  "Presets": {
+    "character": {
+      "name": "Personaggio",
+      "fields": {
+        "birth": "Nascita",
+        "death": "Morte",
+        "home": "Luogo d’origine",
+        "status": "Stato",
+        "portrait": "Ritratto"
+      },
+      "options": {
+        "alive": "Vivo",
+        "dead": "Morto",
+        "missing": "Disperso",
+        "unknown": "Sconosciuto"
+      }
+    },
+    "place": {
+      "name": "Luogo",
+      "fields": {
+        "kind": "Tipo",
+        "location": "Posizione sulla mappa",
+        "parent": "Contenuto in"
+      },
+      "options": {
+        "region": "Regione",
+        "city": "Città",
+        "building": "Edificio",
+        "dungeon": "Dungeon",
+        "other": "Altro"
+      }
+    },
+    "event": {
+      "name": "Evento",
+      "fields": {
+        "start": "Inizio",
+        "end": "Fine",
+        "place": "Luogo"
+      }
+    },
+    "chapter": {
+      "name": "Capitolo",
+      "fields": {
+        "number": "Numero",
+        "pov": "Punto di vista",
+        "summary": "Riassunto"
+      }
+    },
+    "item": {
+      "name": "Oggetto",
+      "fields": {
+        "kind": "Tipo",
+        "owner": "Proprietario",
+        "picture": "Immagine"
+      },
+      "options": {
+        "weapon": "Arma",
+        "armor": "Armatura",
+        "tool": "Strumento",
+        "relic": "Reliquia",
+        "other": "Altro"
+      }
+    },
+    "faction": {
+      "name": "Fazione",
+      "fields": {
+        "founded": "Fondazione",
+        "leader": "Capo",
+        "base": "Sede"
+      }
+    },
+    "rule": {
+      "name": "Regola",
+      "fields": {
+        "source": "Fonte"
+      }
+    }
+  },
+  "Categories": {
+    "title": "Categorie",
+    "back": "Categorie",
+    "empty": "Nessuna categoria. Creane una o importa i preset per iniziare.",
+    "createTitle": "Crea una categoria",
+    "name": "Nome",
+    "icon": "Icona",
+    "color": "Colore",
+    "create": "Crea categoria",
+    "importTitle": "Importa preset",
+    "importHint": "Punti di partenza: dopo l’importazione sono categorie normali, modificabili o eliminabili.",
+    "importSubmit": "Importa i selezionati",
+    "fieldsTitle": "Campi",
+    "fieldsCount": "{count, plural, =0 {nessun campo} one {# campo} other {# campi}}",
+    "noFields": "Questa categoria non ha ancora campi.",
+    "save": "Salva",
+    "deleteTitle": "Elimina la categoria",
+    "deleteWarning": "Gli snippet restano, ma perdono questa categoria. I valori dei loro campi non vengono cancellati.",
+    "deleteConfirm": "Voglio eliminare «{name}»",
+    "delete": "Elimina la categoria",
+    "readOnly": "Puoi vedere le categorie ma non modificarle.",
+    "required": "obbligatorio",
+    "options": "Opzioni",
+    "notices": {
+      "created": "Categoria creata.",
+      "imported": "Preset importati.",
+      "saved": "Categoria salvata.",
+      "deleted": "Categoria eliminata."
+    },
+    "errors": {
+      "invalid_input": "Controlla nome, icona e colore.",
+      "nothing_selected": "Seleziona almeno un preset.",
+      "confirm_required": "Spunta la conferma per eliminare la categoria.",
+      "generic": "Operazione non riuscita. Riprova tra poco.",
+      "already_imported": "Questi preset sono già presenti in questo mondo."
+    },
+    "icons": {
+      "user": "Persona",
+      "map-pin": "Luogo",
+      "calendar-days": "Calendario",
+      "book-open": "Libro",
+      "gem": "Gemma",
+      "flag": "Bandiera",
+      "scroll-text": "Pergamena",
+      "swords": "Spade",
+      "crown": "Corona",
+      "castle": "Castello",
+      "mountain": "Montagna",
+      "trees": "Alberi",
+      "feather": "Piuma",
+      "sparkles": "Scintille",
+      "landmark": "Monumento",
+      "compass": "Bussola",
+      "skull": "Teschio",
+      "flame": "Fiamma",
+      "key-round": "Chiave",
+      "shield": "Scudo"
+    },
+    "colors": {
+      "teal": "Verde acqua",
+      "brass": "Ottone",
+      "moss": "Muschio",
+      "rust": "Ruggine",
+      "slate": "Ardesia",
+      "plum": "Prugna",
+      "ocean": "Oceano",
+      "rose": "Rosa"
+    },
+    "fieldTypes": {
+      "text": "Testo",
+      "number": "Numero",
+      "date": "Data",
+      "calendar_date": "Data in calendario",
+      "choice": "Scelta",
+      "snippet_ref": "Riferimento a snippet",
+      "coordinates": "Coordinate",
+      "image": "Immagine"
     }
   }
 }

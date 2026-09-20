@@ -23,3 +23,12 @@ export async function createWorld(page: Page, name: string): Promise<string> {
   await expect(page.getByRole('heading', { level: 1, name })).toBeVisible();
   return new URL(page.url()).pathname.split('/')[2] as string;
 }
+
+/** Il proprietario aggiunge un utente registrato al mondo con il ruolo indicato. */
+export async function addMember(owner: Page, worldId: string, email: string, role: string) {
+  await owner.goto(`/worlds/${worldId}/members`);
+  await owner.getByLabel('Email dell’utente').fill(email);
+  await owner.getByLabel('Ruolo', { exact: true }).selectOption(role);
+  await owner.getByRole('button', { name: 'Aggiungi', exact: true }).click();
+  await expect(owner.getByRole('status')).toHaveText('Membro salvato.');
+}
