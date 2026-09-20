@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Feedback } from '@/components/feedback';
+import { RelationsPanel } from '@/components/relations-panel';
 import { RichText } from '@/components/rich-text';
 import { SnippetForm } from '@/components/snippet-form';
 import { fieldsSchema, type FieldDefinition } from '@/lib/fields/fields';
@@ -143,6 +144,19 @@ export default async function SnippetPage({ params, searchParams }: Props) {
             ) : null}
           </>
         )}
+
+        {!trashed ? (
+          <>
+            <Feedback scope="Relations" notice={notice} error={error} />
+            <RelationsPanel
+              supabase={supabase}
+              worldId={world.id}
+              snippetId={snippet.id}
+              snippetTitle={snippet.title}
+              canWrite={canWrite}
+            />
+          </>
+        ) : null}
 
         {editable ? (
           <>

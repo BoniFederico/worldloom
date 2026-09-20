@@ -192,3 +192,15 @@
 - Limiti noti: nessuna eliminazione dei file orfani né miniature (arriveranno con la gestione dello spazio); la visibilità
   pubblica delle immagini (wiki, #42) richiederà di rivedere la lettura, oggi solo per i membri.
 - Deciso da: agente
+
+### D-017: Relazioni: validità nel tempo, inversa riusata, tipi in una PR a parte
+
+- Data: 2026-09-20
+- Contesto: #17. La SPEC vuole etichetta libera e inversa, note, intervallo di validità e tipi di relazione con vincoli.
+- Decisione: la validità è `{calendar, year, month?, day?}` con `calendar = 'default'` finché non esistono i calendari (#26, che
+  li mapperà); l'anno è obbligatorio, il giorno richiede il mese, la fine non precede l'inizio (controllato da app e da CHECK).
+  Senza etichetta inversa si riusa l'ultima associata alla stessa etichetta nel mondo. Un doppione (stessa coppia e stessa
+  etichetta, senza badare alle maiuscole) è rifiutato da un indice unico. In ingresso senza inversa si mostra l'etichetta
+  originale con la frase rovesciata («Aragorn alleato di questo snippet»).
+- I **tipi di relazione con vincoli sulle categorie** arrivano in una seconda PR di #17, che chiuderà l'issue.
+- Deciso da: agente
