@@ -4,7 +4,7 @@
 
 ## Stato
 
-- Fase: M1 in corso: #15 chiusa (snippet completi); prossimo #16 (tag, alias, stato).
+- Fase: M1 in corso: #15 chiusa (snippet completi); #16 chiusa; prossimo #17 (relazioni).
 
 ## Backlog (in ordine di esecuzione)
 
@@ -24,7 +24,7 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 13  | Mondi: creazione, elenco, impostazioni, membri e ruoli                          | feat  | 11, 12     | done  | PR #61                                   |
 | 14  | Categorie configurabili con campi personalizzati tipizzati                      | feat  | 13         | done  | PR #64 e PR editor campi                 |
 | 15  | Snippet: CRUD, duplica, archivia e cestino 30 giorni                            | feat  | 14         | done  | PR #66, #67 e immagini                   |
-| 16  | Tag, alias e stato bozza/definitivo                                             | feat  | 14         | todo  |                                          |
+| 16  | Tag, alias e stato bozza/definitivo                                             | feat  | 14         | done  | tag, alias, filtri; stato già in #15     |
 | 17  | Relazioni con etichetta libera e inversa                                        | feat  | 15         | todo  |                                          |
 | 18  | Menzioni con @ e pannello backlink                                              | feat  | 15         | todo  |                                          |
 | 19  | Ricerca full-text e comando rapido Ctrl/Cmd+K                                   | feat  | 13         | todo  |                                          |

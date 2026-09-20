@@ -383,7 +383,8 @@
       "not_found": "Snippet not found.",
       "confirm_required": "Tick the confirmation to delete permanently.",
       "generic": "Something went wrong. Please try again.",
-      "invalid_body": "The text is not valid. Please try again."
+      "invalid_body": "The text is not valid. Please try again.",
+      "invalid_labels": "Invalid tags or aliases: 30 tags of 40 characters and 20 aliases of 100 at most."
     },
     "editor": {
       "toolbar": "Text formatting",
@@ -430,6 +431,17 @@
         "too_large": "The file is larger than 4 MB.",
         "generic": "Upload failed. Please try again."
       }
-    }
+    },
+    "tagsLabel": "Tags",
+    "tagsHint": "Comma-separated. Upper and lower case are equivalent (30 tags at most).",
+    "knownTags": "Already used in this world: {tags}.",
+    "aliasesLabel": "Aliases",
+    "aliasesHint": "Alternative names, one per line (20 at most). They will power search and mentions.",
+    "filterTag": "Tag",
+    "filterStatus": "Status",
+    "filterAll": "All",
+    "filterApply": "Filter",
+    "filterReset": "Clear filters",
+    "filters": "Filters"
   }
 }

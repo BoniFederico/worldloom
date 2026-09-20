@@ -20,18 +20,21 @@ type Props = {
     doc: DocNode;
     updatedAt: string;
     categoryIds: string[];
+    tags: string[];
+    aliases: string[];
     values: Record<string, unknown>;
   };
   categories: { id: string; name: string; icon: string; color: string }[];
   defs: FieldDefinition[];
   refs: { id: string; title: string }[];
+  knownTags: string[];
 };
 
 /**
  * Form di modifica dello snippet. Se il salvataggio non riesce (validazione, conflitto) l'azione restituisce
  * quanto era stato digitato e il form lo ripropone: l'utente non perde mai il proprio lavoro.
  */
-export function SnippetForm({ worldId, snippet, categories, defs, refs }: Props) {
+export function SnippetForm({ worldId, snippet, categories, defs, refs, knownTags }: Props) {
   const t = useTranslations('Snippets');
   const tc = useTranslations('Categories');
   const [state, action] = useActionState<SaveState, FormData>(saveSnippet, null);
@@ -133,6 +136,35 @@ export function SnippetForm({ worldId, snippet, categories, defs, refs }: Props)
           <option value="final">{t('status.final')}</option>
         </select>
         <p className="field-hint">{t('statusHint')}</p>
+      </div>
+
+      <div className="field">
+        <label htmlFor="tags">{t('tagsLabel')}</label>
+        <input
+          id="tags"
+          name="tags"
+          defaultValue={draft?.tags ?? snippet.tags.join(', ')}
+          autoComplete="off"
+          aria-describedby="tags-hint"
+        />
+        <p id="tags-hint" className="field-hint">
+          {t('tagsHint')}
+          {knownTags.length ? ` ${t('knownTags', { tags: knownTags.join(', ') })}` : ''}
+        </p>
+      </div>
+
+      <div className="field">
+        <label htmlFor="aliases">{t('aliasesLabel')}</label>
+        <textarea
+          id="aliases"
+          name="aliases"
+          rows={2}
+          defaultValue={draft?.aliases ?? snippet.aliases.join('\n')}
+          aria-describedby="aliases-hint"
+        />
+        <p id="aliases-hint" className="field-hint">
+          {t('aliasesHint')}
+        </p>
       </div>
 
       <div className="field">

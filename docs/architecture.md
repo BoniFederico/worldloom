@@ -91,3 +91,6 @@ Cambio ruolo, rimozione e uscita usano direttamente le policy RLS di `world_memb
   corpo si mostra in sola lettura con `RichText`, che sanifica di nuovo e produce elementi React (mai `innerHTML`).
 - **Immagini** (D-016): bucket privato `world-images` con RLS per mondo; rotte `POST /worlds/[id]/images` (verifica dei byte) e
   `GET /worlds/[id]/images/[file]` (solo membri). Nel documento sono nodi `image` con `src` interno a whitelist.
+- **Tag e alias** (`src/lib/snippets/labels.ts`): tag in minuscolo (max 30 di 40 caratteri), alias con grafia originale (max 20 di
+  100), doppioni uniti senza badare alle maiuscole; limiti applicati anche da `save_snippet` e dai CHECK sulla tabella. L'elenco
+  filtra per tag e stato; nel form si mostrano i tag più usati del mondo.

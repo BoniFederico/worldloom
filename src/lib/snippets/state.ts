@@ -4,6 +4,8 @@ export type SnippetDraft = {
   status: string;
   body: string;
   bodyJson: string;
+  tags: string;
+  aliases: string;
   categories: string[];
   fields: Record<string, string>;
 };

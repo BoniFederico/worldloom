@@ -284,6 +284,44 @@ test.describe('snippet', () => {
     await ctx.close();
   });
 
+  test('tag e alias: salvataggio, normalizzazione, suggerimenti e filtri', async ({ browser }) => {
+    const { page, worldId } = await worldWithCategory(browser);
+    await createSnippet(page, worldId, 'Elara');
+    await page.getByLabel('Tag', { exact: true }).fill('Magia,  Draghi, magia');
+    await page.getByLabel('Alias').fill('Il Lupo Grigio\nGandalf');
+    await page.getByRole('button', { name: 'Salva' }).click();
+    await expect(page.getByRole('status')).toHaveText('Snippet salvato.');
+    await expect(page.getByLabel('Tag', { exact: true })).toHaveValue('magia, draghi');
+    await expect(page.getByLabel('Alias')).toHaveValue('Il Lupo Grigio\nGandalf');
+
+    await createSnippet(page, worldId, 'Balrog');
+    await expect(page.getByText(/Già usati nel mondo: .*magia/)).toBeVisible();
+    await page.getByLabel('Tag', { exact: true }).fill('fuoco');
+    await page.getByLabel('Stato').selectOption('draft');
+    await page.getByRole('button', { name: 'Salva' }).click();
+    await expect(page.getByRole('status')).toHaveText('Snippet salvato.');
+
+    await page.goto(`/worlds/${worldId}/snippets`);
+    await expect(page.getByRole('link', { name: 'Elara' })).toBeVisible();
+    await expect(page.getByText('#magia #draghi')).toBeVisible();
+    await page.getByLabel('Tag', { exact: true }).fill('Magia');
+    await page.getByRole('button', { name: 'Filtra' }).click();
+    await expect(page.getByRole('link', { name: 'Elara' })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Balrog' })).toHaveCount(0);
+    await page.getByRole('link', { name: 'Azzera filtri' }).click();
+    await expect(page.getByRole('link', { name: 'Balrog' })).toBeVisible();
+  });
+
+  test('un tag troppo lungo viene rifiutato senza perdere il resto', async ({ browser }) => {
+    const { page, worldId } = await worldWithCategory(browser);
+    await createSnippet(page, worldId, 'Limiti');
+    await page.getByLabel('Tag', { exact: true }).fill('x'.repeat(41));
+    await page.getByLabel('Alias').fill('Nome alternativo');
+    await page.getByRole('button', { name: 'Salva' }).click();
+    await expect(page.getByRole('main').getByRole('alert')).toContainText('Tag o alias non validi');
+    await expect(page.getByLabel('Alias')).toHaveValue('Nome alternativo');
+  });
+
   test('accessibilità di elenco e modifica', async ({ browser }) => {
     const { page, worldId } = await worldWithCategory(browser);
     await createSnippet(page, worldId, 'Accessibile', 'Personaggio');

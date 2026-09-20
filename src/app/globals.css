@@ -943,3 +943,15 @@ select {
 .prose th {
   background: var(--surface-2);
 }
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: end;
+  margin-bottom: var(--space-4);
+}
+
+.filters .field {
+  margin: 0;
+}

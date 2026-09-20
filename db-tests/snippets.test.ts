@@ -97,14 +97,14 @@ describe('save_snippet', () => {
     updated: string,
     cats: string[],
     title = 'Nuovo',
+    tags: string[] = [],
+    aliases: string[] = [],
   ) =>
     actAs(db, uid, () =>
-      db.query(`select save_snippet($1, $2, $3, 'draft', '{}'::jsonb, '{}'::jsonb, $4)`, [
-        id,
-        updated,
-        title,
-        cats,
-      ]),
+      db.query(
+        `select save_snippet($1, $2, $3, 'draft', '{}'::jsonb, '{}'::jsonb, $4, $5::text[], $6::text[])`,
+        [id, updated, title, cats, tags, aliases],
+      ),
     );
 
   async function setup(db: Db) {
@@ -163,6 +163,42 @@ describe('save_snippet', () => {
         [worldId, reader],
       );
       await expect(save(db, reader, id, await updated(), [])).rejects.toThrow('conflict');
+    });
+  });
+
+  it('salva tag e alias', async () => {
+    await withTx(async (db) => {
+      const { owner, id, updated } = await setup(db);
+      await save(db, owner, id, await updated(), [], 'T', ['magia', 'draghi'], ['Il Lupo']);
+      const { rows } = await db.query('select tags, aliases from snippets where id = $1', [id]);
+      expect(rows[0].tags).toEqual(['magia', 'draghi']);
+      expect(rows[0].aliases).toEqual(['Il Lupo']);
+    });
+  });
+
+  it('rifiuta tag o alias vuoti o troppo lunghi, senza cambiare nulla', async () => {
+    await withTx(async (db) => {
+      const { owner, id, updated } = await setup(db);
+      const token = await updated();
+      await expect(save(db, owner, id, token, [], 'X', ['x'.repeat(41)])).rejects.toThrow(
+        'invalid_labels',
+      );
+      await expect(save(db, owner, id, token, [], 'X', ['  '])).rejects.toThrow('invalid_labels');
+      await expect(save(db, owner, id, token, [], 'X', [], ['y'.repeat(101)])).rejects.toThrow(
+        'invalid_labels',
+      );
+      expect((await db.query('select title from snippets where id = $1', [id])).rows[0].title).toBe(
+        'Elara',
+      );
+    });
+  });
+
+  it('limita il numero di tag e di alias', async () => {
+    await withTx(async (db) => {
+      const { owner, id, updated } = await setup(db);
+      const many = (n: number) => Array.from({ length: n }, (_, i) => `t${i}`);
+      await expect(save(db, owner, id, await updated(), [], 'X', many(31))).rejects.toThrow();
+      await expect(save(db, owner, id, await updated(), [], 'X', [], many(21))).rejects.toThrow();
     });
   });
 });
