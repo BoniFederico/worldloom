@@ -443,5 +443,50 @@
     "filterApply": "Filter",
     "filterReset": "Clear filters",
     "filters": "Filters"
+  },
+  "Relations": {
+    "title": "Relations",
+    "empty": "No relations yet. Link this snippet to others with a free-form label.",
+    "unknown": "(snippet unavailable)",
+    "thisSnippet": "this snippet",
+    "edit": "Edit",
+    "editing": "Reads: “{source}” → “{target}”.",
+    "save": "Save",
+    "remove": "Remove the relation",
+    "addTitle": "Add a relation",
+    "add": "Add relation",
+    "target": "Linked snippet",
+    "chooseTarget": "Choose a snippet",
+    "label": "Label",
+    "labelHint": "How it reads from this snippet, for example “father of” or “ally of”. Labels already used in this world are suggested.",
+    "inverse": "Inverse label (optional)",
+    "inverseHint": "How it reads from the other snippet, for example “child of”. If empty, the one already tied to this label in the world is reused.",
+    "notes": "Notes",
+    "validity": "Validity over time",
+    "validityHint": "Optional. The year is required; month and day when needed.",
+    "validFrom": "Valid from",
+    "validTo": "Valid until",
+    "year": "Year",
+    "month": "Month",
+    "day": "Day",
+    "validBoth": "From {from} to {to}",
+    "validFromOnly": "From {from}",
+    "validToOnly": "Until {to}",
+    "notices": {
+      "relation_added": "Relation added.",
+      "relation_saved": "Relation saved.",
+      "relation_removed": "Relation removed."
+    },
+    "errors": {
+      "invalid_target": "Choose the snippet to link.",
+      "invalid_label": "A label is required (120 characters at most, also for the inverse).",
+      "invalid_notes": "The notes are too long (2000 characters at most).",
+      "invalid_validity": "The validity interval is not valid: the year is required, a day needs a month, and the end cannot precede the start.",
+      "duplicate_relation": "A relation with this label already exists between the two snippets.",
+      "same_snippet": "A snippet cannot be linked to itself.",
+      "target_missing": "The snippet to link no longer exists.",
+      "relation_forbidden": "You do not have permission to edit relations in this world.",
+      "relation_failed": "Something went wrong. Please try again."
+    }
   }
 }

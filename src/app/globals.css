@@ -955,3 +955,47 @@ select {
 .filters .field {
   margin: 0;
 }
+
+.relations {
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  list-style: none;
+}
+
+.relations > li {
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.relation-line {
+  margin: 0;
+}
+
+.rel-label {
+  font-weight: 600;
+}
+
+.relation-notes {
+  margin: var(--space-1) 0 0;
+  white-space: pre-wrap;
+  color: var(--text-muted);
+}
+
+.time-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: var(--space-3) 0;
+  padding: 0;
+  border: 0;
+}
+
+.time-fields legend {
+  padding: 0;
+  font-weight: 500;
+}
+
+.time-fields .field {
+  margin: 0;
+  width: 7rem;
+}

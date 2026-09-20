@@ -94,3 +94,10 @@ Cambio ruolo, rimozione e uscita usano direttamente le policy RLS di `world_memb
 - **Tag e alias** (`src/lib/snippets/labels.ts`): tag in minuscolo (max 30 di 40 caratteri), alias con grafia originale (max 20 di
   100), doppioni uniti senza badare alle maiuscole; limiti applicati anche da `save_snippet` e dai CHECK sulla tabella. L'elenco
   filtra per tag e stato; nel form si mostrano i tag più usati del mondo.
+
+## Relazioni
+
+- Arco orientato tra due snippet dello stesso mondo (FK composite), con etichetta, inversa facoltativa, note e validità (D-017).
+  Dal punto di vista di uno snippet si mostra l'etichetta in uscita o l'inversa in ingresso (`src/lib/relations/input.ts`,
+  `relationView`). Pannello nello snippet (`src/components/relations-panel.tsx`); le etichette già usate sono suggerimenti.
+- Una relazione è visibile solo se lo sono entrambi gli estremi (policy `relations_read`).

@@ -443,5 +443,50 @@
     "filterApply": "Filtra",
     "filterReset": "Azzera filtri",
     "filters": "Filtri"
+  },
+  "Relations": {
+    "title": "Relazioni",
+    "empty": "Nessuna relazione. Collega questo snippet ad altri con un’etichetta libera.",
+    "unknown": "(snippet non disponibile)",
+    "thisSnippet": "questo snippet",
+    "edit": "Modifica",
+    "editing": "Si legge: «{source}» → «{target}».",
+    "save": "Salva",
+    "remove": "Rimuovi la relazione",
+    "addTitle": "Aggiungi una relazione",
+    "add": "Aggiungi relazione",
+    "target": "Snippet collegato",
+    "chooseTarget": "Scegli uno snippet",
+    "label": "Etichetta",
+    "labelHint": "Come si legge da questo snippet, ad esempio «padre di» o «alleato di». Si suggeriscono le etichette già usate nel mondo.",
+    "inverse": "Etichetta inversa (facoltativa)",
+    "inverseHint": "Come si legge dall’altro snippet, ad esempio «figlio di». Se manca si riusa quella già associata all’etichetta nel mondo.",
+    "notes": "Note",
+    "validity": "Validità nel tempo",
+    "validityHint": "Facoltativa. Anno obbligatorio; mese e giorno se servono.",
+    "validFrom": "Valida dal",
+    "validTo": "Valida fino al",
+    "year": "Anno",
+    "month": "Mese",
+    "day": "Giorno",
+    "validBoth": "Dal {from} al {to}",
+    "validFromOnly": "Dal {from}",
+    "validToOnly": "Fino al {to}",
+    "notices": {
+      "relation_added": "Relazione aggiunta.",
+      "relation_saved": "Relazione salvata.",
+      "relation_removed": "Relazione rimossa."
+    },
+    "errors": {
+      "invalid_target": "Scegli lo snippet da collegare.",
+      "invalid_label": "L’etichetta è obbligatoria (massimo 120 caratteri, anche per l’inversa).",
+      "invalid_notes": "Le note sono troppo lunghe (massimo 2000 caratteri).",
+      "invalid_validity": "L’intervallo di validità non è valido: serve l’anno, il giorno richiede il mese e la fine non può precedere l’inizio.",
+      "duplicate_relation": "Esiste già una relazione con questa etichetta tra i due snippet.",
+      "same_snippet": "Uno snippet non può essere collegato a sé stesso.",
+      "target_missing": "Lo snippet da collegare non esiste più.",
+      "relation_forbidden": "Non hai i permessi per modificare le relazioni di questo mondo.",
+      "relation_failed": "Operazione non riuscita. Riprova."
+    }
   }
 }
