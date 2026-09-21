@@ -141,7 +141,12 @@ export default async function CharacterPage({ params, searchParams }: Props) {
                   <label htmlFor="character-owner">{t('owner')}</label>
                   <select id="character-owner" name="owner" defaultValue={character.owner_id ?? ''}>
                     <option value="">{t('noOwner')}</option>
-                    {playerIds.map((id) => (
+                    {[
+                      ...new Set([
+                        ...playerIds,
+                        ...(character.owner_id ? [character.owner_id] : []),
+                      ]),
+                    ].map((id) => (
                       <option key={id} value={id}>
                         {who(id)}
                       </option>

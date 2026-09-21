@@ -132,10 +132,10 @@ describe('schede: permessi', () => {
         /row-level security/,
       );
       await expect(addCharacter(db, obs, campaign, 'pc', 'Osservato', obs)).rejects.toThrow(
-        /row-level security|proprietario/,
+        /row-level security|proprietario|permission denied/,
       );
       await expect(addCharacter(db, stranger, campaign, 'pc', 'Intruso', stranger)).rejects.toThrow(
-        /row-level security|proprietario/,
+        /row-level security|proprietario|permission denied/,
       );
     });
   });
@@ -196,6 +196,21 @@ describe('schede: permessi', () => {
         p1,
       ]);
       expect(await names(db, p1, campaign)).toEqual([]);
+    });
+  });
+
+  it('se il proprietario esce dalla campagna il DM può ancora modificare la scheda', async () => {
+    await withTx(async (db) => {
+      const { dm, p1, campaign } = await setup(db);
+      const id = await addCharacter(db, dm, campaign, 'pc', 'Alfa', p1);
+      await db.query('delete from campaign_members where campaign_id = $1 and user_id = $2', [
+        campaign,
+        p1,
+      ]);
+      const r = await actAs(db, dm, () =>
+        db.query(`update characters set name = 'Alfa II' where id = $1`, [id]),
+      );
+      expect(r.rowCount).toBe(1);
     });
   });
 
@@ -324,6 +339,29 @@ describe('schede: revisione e cronologia', () => {
           db.query('delete from character_history where character_id = $1', [id]),
         ),
       ).rejects.toThrow(/permission denied/);
+    });
+  });
+
+  it('valori non numerici arrivati dall’API non si copiano nella cronologia', async () => {
+    await withTx(async (db) => {
+      const { dm, campaign } = await setup(db);
+      const id = await addCharacter(db, dm, campaign, 'npc', 'Oste', null);
+      const big = 'x'.repeat(50000);
+      await actAs(db, dm, () =>
+        db.query(`update characters set sheet = $2 where id = $1`, [
+          id,
+          JSON.stringify({ attributes: { a: big, b: { deep: [1, 2] }, c: 3 } }),
+        ]),
+      );
+      const { rows } = await db.query(
+        "select changes from character_history where character_id = $1 and action = 'update'",
+        [id],
+      );
+      expect(rows[0].changes).toEqual({
+        'attributes.a': true,
+        'attributes.b': true,
+        'attributes.c': [null, 3],
+      });
     });
   });
 
