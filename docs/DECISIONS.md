@@ -527,3 +527,23 @@
   cache di un'ora, non misurato su mondi molto grandi); un cambio di livello aggiorna `updated_at` dello snippet (un modulo di modifica già aperto darà «conflitto»); per un campo
   la rivelazione è registrata come tale anche se lo snippet resta segreto; la chiave di un campo non è validata contro le categorie (solo per chi scrive).
 - Deciso da: agente
+
+### D-033: Schema di statistiche e interprete di formule (libreria pura)
+
+- Data: 2026-09-21
+- Contesto: #33. Base delle schede (#34), della migrazione (#35), del tiratore di dadi (#39) e dell'iniziativa (#40). Nessuna tabella né interfaccia in questa issue: è una
+  libreria in `src/lib/stats/` (formato in `docs/stats-schema.md`), quindi nessuna migrazione.
+- Decisione: lo schema è un documento JSON `schemaVersion: 1` con `attributes`, `derived`, `resources` (`pool`), `lists`, `text`, `layout`; la forma è validata con Zod
+  (`strictObject`: i campi sconosciuti sono errori) e descritta da un JSON Schema draft-07 (`stats.schema.json`), controllato nei test con `ajv` (nuova dipendenza di sviluppo,
+  già presente come dipendenza indiretta) sugli stessi preset e sugli stessi errori strutturali. La semantica (chiavi uniche, formule, riferimenti, cicli, layout) sta in `schema.ts`.
+- Errori «con riga e campo»: un parser JSON proprio (`json-locate.ts`) registra riga e colonna di ogni valore e di ogni chiave; gli errori portano `code` stabile, `path` (`derived[0].formula`),
+  `field`, `line`, `column`, `detail` e, per le formule, `index`. I messaggi per l'utente sono compito dell'interfaccia (catalogo it/en), non del validatore.
+- Interprete: nessun `eval`/`Function`. Lexer + parser a precedenze → albero → valutatore con budget (formula ≤ 500 caratteri, 120 nodi, profondità 32, 2.000 passi, 20 ms). Variabili solo dallo
+  scope (una `Map`; per un oggetto `Object.hasOwn`), funzioni da un elenco chiuso, booleani 1/0, nessun accesso a globali. Un test di robustezza lancia migliaia di stringhe casuali.
+- Visibilità dei nomi: le formule vedono attributi e derivati; le risorse correnti no (evita cicli e dipendenze dallo stato). `<risorsa>_max` è un nome riservato per usi futuri.
+  I nomi delle funzioni non sono chiavi valide.
+- Un errore di valutazione su una scheda concreta non blocca il resto: quella voce vale `null` e l'errore viene riportato.
+- Preset: d20, punteggi a percentuale, pool di dadi, narrativo a tratti (`presets.ts`); ognuno è valido e si calcola senza errori (test).
+- Limiti noti: il dado non fa parte delle formule (arriva con il tiratore, #39); niente tipi booleano/scelta tra gli attributi; l'`index` di un errore di formula è nella formula (non
+  ricalcolato sulla colonna del JSON quando la stringa contiene escape); nessuna anteprima o interfaccia finché non c'è la scheda (#34).
+- Deciso da: agente
