@@ -278,6 +278,26 @@ describe('calcolo della scheda', () => {
     ]);
   });
 
+  it('un derivato che dipende da uno fallito dà dependency_failed', () => {
+    const r = validateStatsValue(
+      doc({
+        derived: [
+          { key: 'bad', label: 'B', formula: '1 / (str - 10)' },
+          { key: 'next', label: 'N', formula: 'bad + 1' },
+        ],
+        resources: [{ key: 'hp', label: 'PF', type: 'pool', maxFormula: 'bad' }],
+      }),
+    );
+    if (!r.ok) throw new Error('non valido');
+    const s = computeSheet(r);
+    expect(s.derived).toEqual({ bad: null, next: null });
+    expect(s.errors.map((e) => `${e.key}:${e.error.code}`)).toEqual([
+      'bad:division_by_zero',
+      'next:dependency_failed',
+      'hp:dependency_failed',
+    ]);
+  });
+
   it('i valori degli attributi si controllano per tipo e intervallo', () => {
     const { schema } = valid();
     expect(checkAttributeValues(schema, { str: 12 })).toEqual([]);

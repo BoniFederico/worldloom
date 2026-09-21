@@ -60,15 +60,21 @@ export function computeSheet(
 
   const errors: SheetError[] = [];
   const derived: Record<string, number | null> = {};
+  const failed = new Set<string>();
   const byKey = new Map(schema.derived.map((d) => [d.key, d]));
   for (const k of derivedOrder) {
     const d = byKey.get(k)!;
     const r = evalFormula(d.formula, scope);
-    if (r.ok) {
+    if (!r.ok && r.error.code === 'unknown_variable' && failed.has(r.error.name ?? '')) {
+      derived[k] = null;
+      failed.add(k);
+      errors.push({ key: k, error: { ...r.error, code: 'dependency_failed' } });
+    } else if (r.ok) {
       derived[k] = r.value;
       scope.set(k, r.value);
     } else {
       derived[k] = null;
+      failed.add(k);
       errors.push({ key: k, error: r.error });
     }
   }
@@ -83,7 +89,11 @@ export function computeSheet(
     if (r.ok) max[res.key] = Math.max(0, r.value);
     else {
       max[res.key] = null;
-      errors.push({ key: res.key, error: r.error });
+      const dep = r.error.code === 'unknown_variable' && failed.has(r.error.name ?? '');
+      errors.push({
+        key: res.key,
+        error: dep ? { ...r.error, code: 'dependency_failed' } : r.error,
+      });
     }
   }
   return { attributes, derived, max, errors };

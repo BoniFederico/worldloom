@@ -123,6 +123,15 @@ describe('formule: limiti', () => {
   });
 });
 
+describe('formule: valori non finiti', () => {
+  const huge = '9'.repeat(400);
+  it('un letterale enorme è un errore, non Infinity', () => {
+    expect(code(huge)).toBe('invalid_number');
+    expect(code(`if(1, ${huge}, 0)`)).toBe('invalid_number');
+    expect(code(`-${huge}`)).toBe('invalid_number');
+  });
+});
+
 describe('formule: robustezza', () => {
   it('testi qualsiasi non lanciano mai: o si valutano o danno un errore', () => {
     const pieces = [

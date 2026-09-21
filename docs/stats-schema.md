@@ -35,7 +35,7 @@ si generano i campi, i valori calcolati e i limiti. Il codice è in `src/lib/sta
 
 Le sezioni assenti valgono «vuote». Campi non previsti sono errori (`unknown_field`), così un refuso non passa in silenzio.
 
-Limiti: al massimo 200 voci per sezione, testo del documento fino a 200.000 caratteri, chiavi `^[a-z][a-z0-9_]{0,31}$`
+Limiti: al massimo 200 voci per sezione, testo del documento fino a 200.000 caratteri (unità UTF-16, non byte; chiavi ripetute nello stesso oggetto: vince l'ultima, come in `JSON.parse`), chiavi `^[a-z][a-z0-9_]{0,31}$`
 (uniche in tutto lo schema), etichette da 1 a 80 caratteri.
 
 ## Formule
@@ -52,7 +52,8 @@ Un'espressione aritmetica. Non è JavaScript: non c'è `eval`, non ci sono ogget
 - I derivati si calcolano nell'ordine delle dipendenze; un ciclo è un errore (`formula_cycle`).
 
 Limiti dell'interprete: formula fino a 500 caratteri, 120 nodi, annidamento 32, 2.000 passi di valutazione e 20 ms. Oltre:
-`too_long`, `too_complex`, `budget_exceeded`.
+`too_long`, `too_complex`, `budget_exceeded`. I limiti sono parametri di chi chiama (`maxSteps`, `maxMillis`): non devono mai arrivare da input utente. Un letterale
+non finito (per esempio 400 cifre) è `invalid_number`; nessun risultato può essere `Infinity` o `NaN`.
 
 ## Errori
 
@@ -68,7 +69,7 @@ Codici: `too_large`, `json_syntax`, `required`, `invalid_type`, `invalid_value`,
 `unexpected_end`, `invalid_number`, `unknown_function`, `wrong_arity`), `unknown_reference`, `formula_cycle`.
 
 Errori di valutazione (in `computeSheet`, per una scheda concreta): `unknown_variable`, `division_by_zero`, `domain`,
-`not_finite`, `budget_exceeded`. Una formula che fallisce dà `null` per quella voce e non ferma le altre.
+`not_finite`, `budget_exceeded`, `dependency_failed` (dipende da un derivato che non si è potuto calcolare). Una formula che fallisce dà `null` per quella voce e non ferma le altre.
 
 ## Calcolo
 

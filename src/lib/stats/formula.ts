@@ -19,7 +19,8 @@ export type FormulaErrorCode =
   | 'division_by_zero'
   | 'domain'
   | 'not_finite'
-  | 'budget_exceeded';
+  | 'budget_exceeded'
+  | 'dependency_failed';
 
 export type FormulaError = {
   code: FormulaErrorCode;
@@ -97,7 +98,9 @@ function tokenize(src: string): Token[] {
       while (j < src.length && /[0-9.]/.test(src[j]!)) j++;
       const text = src.slice(i, j);
       if (!/^(\d+\.?\d*|\.\d+)$/.test(text)) fail('invalid_number', i);
-      tokens.push({ type: 'num', value: Number(text), index: i });
+      const value = Number(text);
+      if (!Number.isFinite(value)) fail('invalid_number', i);
+      tokens.push({ type: 'num', value, index: i });
       i = j;
     } else if (/[A-Za-z_]/.test(c)) {
       let j = i;
@@ -139,10 +142,11 @@ const PRECEDENCE: Record<string, number> = {
 };
 const UNARY_PRECEDENCE = 7;
 
-function parseTokens(tokens: Token[]): { ast: Node; refs: string[] } {
+function parseTokens(tokens: Token[]): { ast: Node; refs: string[]; refAt: number[] } {
   let pos = 0;
   let nodes = 0;
   const refs: string[] = [];
+  const refAt: number[] = [];
   const peek = () => tokens[pos]!;
   const next = () => tokens[pos++]!;
   const count = () => {
@@ -183,7 +187,10 @@ function parseTokens(tokens: Token[]): { ast: Node; refs: string[] } {
     }
     if (t.type === 'id') {
       if (peek().type !== 'lp') {
-        if (!refs.includes(t.value)) refs.push(t.value);
+        if (!refs.includes(t.value)) {
+          refs.push(t.value);
+          refAt.push(t.index);
+        }
         return { t: 'ref', name: t.value, index: t.index };
       }
       const arity = FUNCTIONS.get(t.value);
@@ -211,18 +218,19 @@ function parseTokens(tokens: Token[]): { ast: Node; refs: string[] } {
   const ast = expression(1, 0);
   const rest = peek();
   if (rest.type !== 'eof') unexpected(rest);
-  return { ast, refs };
+  return { ast, refs, refAt };
 }
 
-export type Parsed = { ok: true; ast: Node; refs: string[] } | { ok: false; error: FormulaError };
+export type Parsed =
+  { ok: true; ast: Node; refs: string[]; refAt: number[] } | { ok: false; error: FormulaError };
 
 /** Controlla la sintassi e restituisce l'albero e le variabili usate (nell'ordine in cui compaiono). */
 export function parseFormula(src: string): Parsed {
   try {
     if (src.trim() === '') return fail('empty', 0);
     if (src.length > FORMULA_LIMITS.maxLength) return fail('too_long', FORMULA_LIMITS.maxLength);
-    const { ast, refs } = parseTokens(tokenize(src));
-    return { ok: true, ast, refs };
+    const { ast, refs, refAt } = parseTokens(tokenize(src));
+    return { ok: true, ast, refs, refAt };
   } catch (e) {
     if (e instanceof Fail) return { ok: false, error: e.detail };
     throw e;
@@ -329,7 +337,7 @@ export function evaluate(ast: Node, scope: Scope, limits: Limits = {}): Evaluate
   }
 
   try {
-    return { ok: true, value: run(ast) };
+    return { ok: true, value: finite(run(ast), 0) };
   } catch (e) {
     if (e instanceof Fail) return { ok: false, error: e.detail };
     throw e;

@@ -237,10 +237,10 @@ function semanticErrors(
       });
       return [];
     }
-    for (const ref of parsed.refs) {
+    parsed.refs.forEach((ref, n) => {
       if (!numeric.has(ref))
-        add('unknown_reference', path, { detail: ref, index: src.indexOf(ref) });
-    }
+        add('unknown_reference', path, { detail: ref, index: parsed.refAt[n]! });
+    });
     return parsed.refs.filter((r) => numeric.has(r));
   };
   schema.derived.forEach((d, n) => deps.set(d.key, check(d.formula, `derived[${n}].formula`)));
