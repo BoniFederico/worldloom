@@ -6,6 +6,7 @@ import { BacklinksPanel } from '@/components/backlinks-panel';
 import { RelationsPanel } from '@/components/relations-panel';
 import { RichText } from '@/components/rich-text';
 import { SnippetForm } from '@/components/snippet-form';
+import { loadCalendars } from '@/lib/calendars/load';
 import { fieldsSchema, type FieldDefinition } from '@/lib/fields/fields';
 import { docToText, mentionsOf, sanitizeBody, withMentionLabels } from '@/lib/snippets/body';
 import { loadWorld } from '@/lib/worlds/context';
@@ -70,6 +71,10 @@ export default async function SnippetPage({ params, searchParams }: Props) {
         .order('title')
         .limit(500)
     : { data: [] };
+
+  const calendars = defs.some((d) => d.type === 'calendar_date')
+    ? await loadCalendars(supabase, worldId)
+    : [];
 
   // Tag già usati nel mondo (i più frequenti), da riusare invece di inventarne di simili.
   const { data: tagRows } = await supabase
@@ -143,6 +148,7 @@ export default async function SnippetPage({ params, searchParams }: Props) {
             }))}
             defs={defs}
             refs={refs ?? []}
+            calendars={calendars}
             knownTags={knownTags}
           />
         ) : (

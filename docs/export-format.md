@@ -77,4 +77,6 @@ Il file è prodotto da `GET /worlds/{id}/export` (pulsante «Esporta (JSON)» ne
 - `fields` di uno snippet: al massimo 100.000 caratteri; `contentTemplate` deve essere `null` (non ancora usato).
 - File fino a 4 MB, al massimo 5.000 snippet, 200 categorie, 50.000 relazioni, 500 tipi di relazione.
 - **Non inclusi**: cestino, cronologia versioni, membri e ruoli, immagini (i nodi immagine sono presenti nell'export ma l'importazione li scarta, perché i file restano nel mondo di origine), campagne, viste salvate (arriveranno con i rispettivi task, che estenderanno il formato con una nuova `version`).
+- I calendari personalizzati (#26) non sono ancora nel formato: i campi di tipo `calendar_date` vengono esportati e reimportati com'erano, ma il loro
+  `calendar` è l'id di un calendario del mondo di origine.
 - Export in Markdown con front matter e import da Markdown/Obsidian/CSV: vedi #43.

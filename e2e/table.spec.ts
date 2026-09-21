@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Browser, type Page } from '@playwright/test';
-import { addMember, createWorld, registerAndSignIn } from './session';
+import { addMember, registerAndSignIn } from './session';
 
 async function newUser(browser: Browser, name: string) {
   const page = await (await browser.newContext({ locale: 'it-IT' })).newPage();

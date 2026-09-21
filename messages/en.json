@@ -104,7 +104,8 @@
     "importLink": "Import a world",
     "exportJson": "Export (JSON)",
     "views": "Views",
-    "graph": "Graph"
+    "graph": "Graph",
+    "calendars": "Calendars"
   },
   "Members": {
     "title": "Members",
@@ -456,7 +457,17 @@
     "filterReset": "Clear filters",
     "filters": "Filters",
     "mentionUnavailable": "snippet unavailable",
-    "historyLink": "Version history"
+    "historyLink": "Version history",
+    "calendar": "Calendar",
+    "era": "Era",
+    "year": "Year",
+    "month": "Month",
+    "day": "Day",
+    "dateIs": "Date: {date}",
+    "dateInvalid": "Not a valid date for this calendar (check month, day and era).",
+    "dateRaw": "Saved date: year {year}, month {month}, day {day}",
+    "noCalendars": "No calendar available for this field.",
+    "manageCalendars": "Manage calendars"
   },
   "Relations": {
     "title": "Relations",
@@ -729,5 +740,47 @@
     "to": "To",
     "graphScroll": "Graph drawing (scroll to see everything)",
     "edgesTruncated": "There are more than 2,000 relations between these nodes: 2,000 are shown. Narrow the filters or choose a central node."
+  },
+  "Calendars": {
+    "title": "Calendars",
+    "intro": "Define your world’s calendars: months, weekdays, eras and a periodic long year. Then use them in the “calendar date” fields of your categories: dates compare and sort without depending on the real calendar.",
+    "empty": "No calendars yet. Create one to use dates from your world.",
+    "summary": "{months, plural, one {# month} other {# months}}, {days} days a year, {weekdays, plural, one {# weekday} other {# weekdays}}, {eras, plural, one {# era} other {# eras}}.",
+    "example": "Example: {date} ({weekday}).",
+    "edit": "Edit",
+    "save": "Save",
+    "remove": "Delete calendar",
+    "createTitle": "New calendar",
+    "create": "Create calendar",
+    "name": "Name",
+    "months": "Months",
+    "monthsHint": "One per line: name, days (for example “Dawn, 30”). The order is the order of the year.",
+    "weekdays": "Weekdays (optional)",
+    "weekdaysHint": "Comma-separated, in week order.",
+    "epochWeekday": "Weekday of the first day of year 0 (number, from 1)",
+    "eras": "Eras (optional)",
+    "erasHint": "One per line: name, start year (for example “Second Age, 100”). Years count from 1 inside each era; year 0 and negative years exist.",
+    "leap": "Long year (optional)",
+    "leapHint": "Every so many years one month gets extra days, like 29 February.",
+    "leapEvery": "Every how many years",
+    "leapMonth": "Month number",
+    "leapDays": "Extra days",
+    "readOnly": "Only owners and editors can change calendars.",
+    "notices": {
+      "created": "Calendar created.",
+      "saved": "Calendar saved.",
+      "deleted": "Calendar deleted. Dates already written in snippets stay."
+    },
+    "errors": {
+      "invalid_name": "The name is required (80 characters at most).",
+      "invalid_months": "Invalid months: one line per month, “name, days” (1–400 days, distinct names, 40 months at most).",
+      "invalid_weekdays": "Invalid weekdays: distinct names, 20 at most.",
+      "invalid_eras": "Invalid eras: one line per era, “name, start year”, with distinct names and years.",
+      "invalid_leap": "Invalid long year: it needs every how many years (at least 2), an existing month and the extra days.",
+      "invalid_epoch": "The starting weekday must be between 1 and the number of weekdays.",
+      "duplicate": "A calendar with this name already exists.",
+      "forbidden": "You don’t have permission to change calendars.",
+      "generic": "The operation failed. Try again."
+    }
   }
 }

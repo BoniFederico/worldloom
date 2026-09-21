@@ -28,6 +28,44 @@ export type Database = {
   };
   public: {
     Tables: {
+      calendars: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          definition: Json;
+          id: string;
+          name: string;
+          updated_at: string;
+          world_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          definition: Json;
+          id?: string;
+          name: string;
+          updated_at?: string;
+          world_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          definition?: Json;
+          id?: string;
+          name?: string;
+          updated_at?: string;
+          world_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'calendars_world_id_fkey';
+            columns: ['world_id'];
+            isOneToOne: false;
+            referencedRelation: 'worlds';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       categories: {
         Row: {
           color: string | null;

@@ -104,7 +104,8 @@
     "importLink": "Importa un mondo",
     "exportJson": "Esporta (JSON)",
     "views": "Viste",
-    "graph": "Grafo"
+    "graph": "Grafo",
+    "calendars": "Calendari"
   },
   "Members": {
     "title": "Membri",
@@ -456,7 +457,17 @@
     "filterReset": "Azzera filtri",
     "filters": "Filtri",
     "mentionUnavailable": "snippet non disponibile",
-    "historyLink": "Cronologia versioni"
+    "historyLink": "Cronologia versioni",
+    "calendar": "Calendario",
+    "era": "Era",
+    "year": "Anno",
+    "month": "Mese",
+    "day": "Giorno",
+    "dateIs": "Data: {date}",
+    "dateInvalid": "Data non valida per questo calendario (controlla mese, giorno ed era).",
+    "dateRaw": "Data salvata: anno {year}, mese {month}, giorno {day}",
+    "noCalendars": "Nessun calendario disponibile per questo campo.",
+    "manageCalendars": "Gestisci i calendari"
   },
   "Relations": {
     "title": "Relazioni",
@@ -729,5 +740,47 @@
     "to": "A",
     "graphScroll": "Disegno del grafo (scorri per vedere tutto)",
     "edgesTruncated": "Ci sono più di 2.000 relazioni tra questi nodi: ne sono mostrate 2.000. Restringi i filtri o scegli un nodo centrale."
+  },
+  "Calendars": {
+    "title": "Calendari",
+    "intro": "Definisci i calendari del tuo mondo: mesi, giorni della settimana, ere e un anno lungo periodico. Poi usali nei campi «data in calendario» delle categorie: le date si confrontano e si ordinano senza dipendere dal calendario reale.",
+    "empty": "Nessun calendario. Creane uno per usare date del tuo mondo.",
+    "summary": "{months, plural, one {# mese} other {# mesi}}, {days} giorni all’anno, {weekdays, plural, one {# giorno della settimana} other {# giorni della settimana}}, {eras, plural, one {# era} other {# ere}}.",
+    "example": "Esempio: {date} ({weekday}).",
+    "edit": "Modifica",
+    "save": "Salva",
+    "remove": "Elimina il calendario",
+    "createTitle": "Nuovo calendario",
+    "create": "Crea calendario",
+    "name": "Nome",
+    "months": "Mesi",
+    "monthsHint": "Uno per riga: nome, giorni (ad esempio «Alba, 30»). L’ordine è quello dell’anno.",
+    "weekdays": "Giorni della settimana (facoltativi)",
+    "weekdaysHint": "Separati da virgola, nell’ordine della settimana.",
+    "epochWeekday": "Giorno della settimana del primo giorno dell’anno 0 (numero, da 1)",
+    "eras": "Ere (facoltative)",
+    "erasHint": "Una per riga: nome, anno di inizio (ad esempio «Seconda Era, 100»). Gli anni si contano da 1 dentro ogni era; l’anno 0 e gli anni negativi esistono.",
+    "leap": "Anno lungo (facoltativo)",
+    "leapHint": "Ogni tot anni un mese ha giorni in più, come il 29 febbraio.",
+    "leapEvery": "Ogni quanti anni",
+    "leapMonth": "Numero del mese",
+    "leapDays": "Giorni in più",
+    "readOnly": "Solo proprietari ed editor possono modificare i calendari.",
+    "notices": {
+      "created": "Calendario creato.",
+      "saved": "Calendario salvato.",
+      "deleted": "Calendario eliminato. Le date già scritte negli snippet restano."
+    },
+    "errors": {
+      "invalid_name": "Il nome è obbligatorio (massimo 80 caratteri).",
+      "invalid_months": "Mesi non validi: una riga per mese, «nome, giorni» (1–400 giorni, nomi diversi, al massimo 40 mesi).",
+      "invalid_weekdays": "Giorni della settimana non validi: nomi diversi, al massimo 20.",
+      "invalid_eras": "Ere non valide: una riga per era, «nome, anno di inizio», con nomi e anni diversi.",
+      "invalid_leap": "Anno lungo non valido: servono ogni quanti anni (almeno 2), un mese esistente e i giorni in più.",
+      "invalid_epoch": "Il giorno della settimana iniziale deve essere tra 1 e il numero di giorni della settimana.",
+      "duplicate": "Esiste già un calendario con questo nome.",
+      "forbidden": "Non hai i permessi per modificare i calendari.",
+      "generic": "Operazione non riuscita. Riprova."
+    }
   }
 }
