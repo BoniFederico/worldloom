@@ -4,7 +4,9 @@ import { useTranslations } from 'next-intl';
 import { useActionState, useRef, useState, useSyncExternalStore } from 'react';
 import { saveSnippet } from '@/app/worlds/[worldId]/snippets/actions';
 import { CategoryBadge } from '@/components/category-icon';
+import { CalendarDateField } from '@/components/calendar-date-field';
 import { RichEditor, type EditorSync } from '@/components/rich-editor';
+import type { NamedCalendar } from '@/lib/calendars/load';
 import { sanitizeBody, type DocNode } from '@/lib/snippets/body';
 import type { FieldDefinition } from '@/lib/fields/fields';
 import { EDITABLE_TYPES, fieldInputName } from '@/lib/snippets/form';
@@ -27,6 +29,7 @@ type Props = {
   categories: { id: string; name: string; icon: string; color: string }[];
   defs: FieldDefinition[];
   refs: { id: string; title: string }[];
+  calendars: NamedCalendar[];
   knownTags: string[];
 };
 
@@ -34,7 +37,15 @@ type Props = {
  * Form di modifica dello snippet. Se il salvataggio non riesce (validazione, conflitto) l'azione restituisce
  * quanto era stato digitato e il form lo ripropone: l'utente non perde mai il proprio lavoro.
  */
-export function SnippetForm({ worldId, snippet, categories, defs, refs, knownTags }: Props) {
+export function SnippetForm({
+  worldId,
+  snippet,
+  categories,
+  defs,
+  refs,
+  calendars,
+  knownTags,
+}: Props) {
   const t = useTranslations('Snippets');
   const tc = useTranslations('Categories');
   const [state, action] = useActionState<SaveState, FormData>(saveSnippet, null);
@@ -198,6 +209,19 @@ export function SnippetForm({ worldId, snippet, categories, defs, refs, knownTag
             <p key={def.key} className="field-hint">
               {def.label}: {t('editElsewhere')}
             </p>
+          );
+        }
+        if (def.type === 'calendar_date') {
+          return (
+            <CalendarDateField
+              key={def.key}
+              def={def}
+              calendars={calendars}
+              worldId={worldId}
+              value={snippet.values[def.key]}
+              draft={draft?.fields}
+              invalid={badKeys.has(def.key)}
+            />
           );
         }
         const name = fieldInputName(def.key);

@@ -2,6 +2,7 @@
 
 import { getTranslations } from 'next-intl/server';
 import { redirect } from 'next/navigation';
+import { loadCalendars } from '@/lib/calendars/load';
 import { fieldsSchema, validateSnippetFields, type FieldDefinition } from '@/lib/fields/fields';
 import type { Json } from '@/lib/supabase/database.types';
 import {
@@ -154,10 +155,18 @@ export async function saveSnippet(_prev: SaveState, formData: FormData): Promise
     for (const def of parsed.data) if (!defs.some((d) => d.key === def.key)) defs.push(def);
   }
 
-  const merged = mergeFieldInput(defs, asRecord(row.fields), (name) => {
-    const value = formData.get(name);
-    return value === null ? undefined : String(value);
-  });
+  const calendars = defs.some((d) => d.type === 'calendar_date')
+    ? new Map((await loadCalendars(supabase, world)).map((c) => [c.id, c.calendar]))
+    : undefined;
+  const merged = mergeFieldInput(
+    defs,
+    asRecord(row.fields),
+    (name) => {
+      const value = formData.get(name);
+      return value === null ? undefined : String(value);
+    },
+    calendars,
+  );
   // Un campo obbligatorio di un tipo che questo form non sa modificare non deve bloccare lo stato definitivo.
   const enforceable = defs.map((d) =>
     EDITABLE_TYPES.includes(d.type) ? d : { ...d, required: false },
