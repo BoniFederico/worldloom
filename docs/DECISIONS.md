@@ -547,3 +547,26 @@
 - Limiti noti: il dado non fa parte delle formule (arriva con il tiratore, #39); niente tipi booleano/scelta tra gli attributi; l'`index` di un errore di formula è nella formula (non
   ricalcolato sulla colonna del JSON quando la stringa contiene escape); nessuna anteprima o interfaccia finché non c'è la scheda (#34).
 - Deciso da: agente
+
+### D-034: Schede personaggio PG/PNG
+
+- Data: 2026-09-22
+- Contesto: #34, sopra lo schema di statistiche (D-033) e le campagne (D-031). Migrazione `20260922100000_characters.sql`; da applicare al cloud dopo il merge.
+- Dati: `campaign_stats` (lo schema JSON della campagna, con una revisione; lo scrive solo il DM, lo leggono tutti i membri), `characters` (`kind` pc/npc, nome, proprietario,
+  `sheet` JSON con `attributes`, `resources`, `lists`, `text`, `notes`, `rev`) e `character_history`. Il database non conosce il contenuto dello schema né dei valori (li valida l'app con
+  `src/lib/stats` e `src/lib/characters`): controlla tipo, dimensione (250 kB) e permessi.
+- Permessi (RLS): DM e co-DM leggono e scrivono tutte le schede; un giocatore solo le proprie (PG con `owner_id` uguale a lui, finché è ancora giocatore) e ne crea solo per sé;
+  osservatori ed estranei non ne vedono. Un trigger impedisce al giocatore di cambiare tipo o proprietario, e a chiunque di cambiare campagna e autore; il proprietario deve
+  essere un giocatore della campagna (o DM/co-DM), un PNG non ha proprietario. Limiti: 500 schede per campagna, 10 per giocatore. Anche il proprietario può eliminare la propria scheda (con conferma).
+- Cronologia: un trigger (`security definer`) confronta il prima e il dopo a ogni modifica e scrive chi, quando e che cosa: nome, proprietario, tipo, e per attributi e risorse `[prima, dopo]`;
+  per liste, testi e note solo «modificato» (non si copiano testi lunghi). Le ultime 200 voci per scheda; nessuno la scrive direttamente; la legge chi legge la scheda.
+- Concorrenza: `rev` cresce a ogni modifica; il salvataggio lo rimanda e non trova la riga se qualcun altro ha salvato prima → errore «conflitto», senza sovrascrivere.
+- Generazione: la scheda si genera dallo schema (`layout` per sezioni e ordine, i campi non nominati in «Altro»). I valori calcolati si mostrano a sola lettura e si aggiornano al
+  salvataggio (nessuna anteprima dinamica: senza JavaScript e senza duplicare l'interprete nel browser). Un attributo vuoto prende il predefinito, una risorsa vuota il massimo, una riga di lista
+  con tutte le celle vuote sparisce; le risorse non superano il massimo calcolato con gli attributi inseriti. Chiavi che lo schema non ha più si nascondono e non si riscrivono.
+- Schema: pagina `/campaigns/<id>/stats` con editor JSON (`Verifica` / `Salva`: errori con riga, colonna e campo, testo mantenuto), preset (d20, percentuale, pool di dadi, narrativo),
+  «Ripristina lo schema predefinito» (il d20) e anteprima della scheda con i predefiniti. Sostituire lo schema non migra le schede esistenti: la migrazione guidata è #35.
+- Limiti noti: le schede non sono nell'export del mondo (appartengono alla campagna); il DM non ha un'anteprima dinamica dello schema non salvato; le intestazioni delle colonne delle liste sono le
+  chiavi dello schema (lo schema non ha etichette per le colonne); nessun collegamento tra scheda e snippet del mondo; un giocatore rimosso dalla campagna perde l'accesso alla scheda ma `owner_id`
+  resta (il DM può riassegnarla); la cronologia non permette il ripristino di una versione; nessuna notifica (#37).
+- Deciso da: agente

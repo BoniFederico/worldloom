@@ -1759,3 +1759,76 @@ p.mention-none {
 .fields-list dd {
   margin: 0 0 var(--space-2);
 }
+
+/* Schede personaggio e schema di statistiche (#33, #34) */
+.campaign-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4, 1rem);
+  margin: var(--space-3, 0.75rem) 0;
+}
+.code-area {
+  width: 100%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  tab-size: 2;
+}
+.stats-errors {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+.presets-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3, 0.75rem);
+}
+.presets-list .row-form {
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-3, 0.75rem);
+}
+.sheet-section {
+  display: grid;
+  gap: var(--space-3, 0.75rem);
+}
+.sheet-section .field input[type='number'] {
+  max-width: 12rem;
+}
+.stat {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2, 0.5rem);
+}
+.stat dt,
+.stat dd {
+  margin: 0;
+}
+.stat-value {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.resource {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+}
+.stat-list table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.stat-list th,
+.stat-list td {
+  padding: 0.25rem;
+  text-align: left;
+}
+.stat-list td input {
+  width: 100%;
+}
+.sheet-preview {
+  opacity: 0.95;
+}

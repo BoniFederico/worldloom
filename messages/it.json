@@ -1078,7 +1078,9 @@
       "confirm_required": "Conferma l’operazione con la casella.",
       "invalid_invite": "Questo invito non è valido: può essere scaduto, esaurito, revocato o destinato a un altro account.",
       "already_member": "Fai già parte di questa campagna."
-    }
+    },
+    "characters": "Schede personaggio",
+    "stats": "Statistiche"
   },
   "Visibility": {
     "title": "Visibilità e rivelazioni",
@@ -1114,5 +1116,170 @@
     "fieldUsers": "Destinatari del campo",
     "fieldLevel": "Livello del campo",
     "fieldLegend": "Visibilità di {name}"
+  },
+  "Stats": {
+    "title": "Statistiche della campagna",
+    "back": "Torna alla campagna",
+    "intro": "Lo schema descrive attributi, valori calcolati, risorse, liste e testi delle schede personaggio. Lo scrive il DM in JSON; le formule sono espressioni aritmetiche (nessun codice).",
+    "docs": "Formato e funzioni sono descritti in docs/stats-schema.md.",
+    "schemaLabel": "Schema (JSON)",
+    "check": "Verifica",
+    "save": "Salva lo schema",
+    "presetsTitle": "Schemi di partenza",
+    "presetsHint": "Sostituiscono lo schema attuale. Le schede già scritte restano: i valori con chiavi che il nuovo schema non ha si nascondono e spariscono al prossimo salvataggio della scheda.",
+    "usePreset": "Usa lo schema «{name}»",
+    "resetTitle": "Ripristino",
+    "reset": "Ripristina lo schema predefinito",
+    "resetHint": "Torna al fantasy d20 semplificato.",
+    "presets": {
+      "d20": "Fantasy d20",
+      "percentile": "Punteggi a percentuale",
+      "dice-pool": "Pool di dadi",
+      "narrative": "Narrativo a tratti"
+    },
+    "presetHints": {
+      "d20": "Sei punteggi, modificatori, punti ferita e classe armatura.",
+      "percentile": "Caratteristiche da 1 a 99 con soglie, punti ferita e sanità.",
+      "dice-pool": "Attributi come numero di dadi, salute e forza di volontà.",
+      "narrative": "Approcci a livelli, tratti e aspetti, punti destino e stress."
+    },
+    "previewTitle": "Anteprima della scheda",
+    "previewHint": "Come appare una scheda nuova con lo schema salvato (valori predefiniti).",
+    "noSchema": "Nessuno schema salvato. Scegli uno schema di partenza o scrivine uno.",
+    "readOnly": "Solo il DM modifica lo schema. Qui vedi come è fatta una scheda.",
+    "errorsTitle": "Errori nello schema",
+    "at": "Riga {line}, colonna {column}",
+    "noLine": "Nel documento",
+    "formulaAt": "nella formula, carattere {index}",
+    "states": {
+      "checked": "Lo schema è valido.",
+      "saved": "Schema salvato.",
+      "forbidden": "Solo il DM può modificare lo schema.",
+      "failed": "Non è stato possibile salvare lo schema."
+    },
+    "notices": {
+      "preset_applied": "Schema sostituito.",
+      "reset": "Schema predefinito ripristinato."
+    },
+    "errors": {
+      "unknown_preset": "Schema di partenza sconosciuto.",
+      "forbidden": "Solo il DM può modificare lo schema.",
+      "failed": "Non è stato possibile salvare lo schema."
+    },
+    "codes": {
+      "too_large": "Il documento è troppo grande (massimo 200.000 caratteri).",
+      "json_syntax": "JSON non valido: controlla virgole, parentesi e virgolette.",
+      "required": "Manca il campo obbligatorio «{field}».",
+      "invalid_type": "Il valore di «{field}» ha un tipo sbagliato.",
+      "invalid_value": "Valore non ammesso per «{field}».",
+      "invalid_key": "«{field}» non è una chiave valida: minuscole, cifre e trattino basso, da 1 a 32 caratteri, deve iniziare con una lettera.",
+      "out_of_range": "«{field}» ha una lunghezza fuori dai limiti.",
+      "too_many_fields": "Troppe voci in «{field}» (massimo 200).",
+      "unknown_field": "Campo sconosciuto: «{field}».",
+      "unsupported_version": "Versione non supportata: serve «schemaVersion»: 1.",
+      "duplicate_key": "La chiave «{detail}» è già usata.",
+      "reserved_key": "«{detail}» è il nome di una funzione: scegli un’altra chiave.",
+      "invalid_range": "Minimo, massimo o valore predefinito non coerenti in «{field}».",
+      "max_required": "Serve «max» oppure «maxFormula».",
+      "max_conflict": "Usa solo uno tra «max» e «maxFormula».",
+      "formula": "Formula non valida ({reason}), {where}.",
+      "unknown_reference": "La formula usa «{detail}», che non è un attributo né un derivato.",
+      "formula_cycle": "Le formule dei derivati si richiamano in cerchio (a partire da «{detail}»)."
+    },
+    "formulaCodes": {
+      "empty": "formula vuota",
+      "too_long": "troppo lunga",
+      "too_complex": "troppo complessa",
+      "unexpected_char": "carattere non ammesso",
+      "unexpected_token": "simbolo inatteso",
+      "unexpected_end": "formula incompleta",
+      "invalid_number": "numero non valido",
+      "unknown_function": "funzione sconosciuta",
+      "wrong_arity": "numero di argomenti sbagliato"
+    }
+  },
+  "Characters": {
+    "title": "Schede personaggio",
+    "back": "Torna alla campagna",
+    "listCaption": "Schede della campagna",
+    "empty": "Non ci sono ancora schede.",
+    "noSchema": "Il DM deve prima definire lo schema di statistiche della campagna.",
+    "defineSchema": "Definisci lo schema",
+    "schemaLink": "Schema di statistiche",
+    "newTitle": "Nuova scheda",
+    "name": "Nome",
+    "kind": "Tipo",
+    "kinds": {
+      "pc": "Personaggio giocatore (PG)",
+      "npc": "Personaggio non giocante (PNG)"
+    },
+    "kindsShort": {
+      "pc": "PG",
+      "npc": "PNG"
+    },
+    "owner": "Giocatore",
+    "noOwner": "Nessuno",
+    "create": "Crea la scheda",
+    "playerHint": "Crei un personaggio per te.",
+    "columnName": "Nome",
+    "columnKind": "Tipo",
+    "columnOwner": "Giocatore",
+    "section": {
+      "derived": "Valori calcolati",
+      "other": "Altro",
+      "notes": "Note"
+    },
+    "derivedHint": "Si aggiornano quando salvi la scheda.",
+    "of": "su",
+    "max": "massimo",
+    "maxValue": "massimo {max}",
+    "range": "da {min} a {max}",
+    "min": "minimo {min}",
+    "upTo": "fino a {max}",
+    "rowLabel": "{list}, riga {row}, {column}",
+    "listHint": "Riempi una riga vuota per aggiungere; svuota tutte le celle di una riga per toglierla.",
+    "unavailable": "non calcolabile",
+    "save": "Salva la scheda",
+    "deleteTitle": "Elimina la scheda",
+    "deleteConfirm": "Confermo l’eliminazione della scheda e della sua cronologia",
+    "delete": "Elimina",
+    "historyTitle": "Cronologia delle modifiche",
+    "historyEmpty": "Nessuna modifica registrata.",
+    "unknownUser": "Un utente",
+    "created": "{who} ha creato la scheda «{name}».",
+    "changed": "{who} ha modificato:",
+    "change": {
+      "name": "nome: «{from}» → «{to}»",
+      "number": "{label}: {from} → {to}",
+      "edited": "{label} (modificato)",
+      "notes": "note",
+      "owner": "giocatore",
+      "kind": "tipo",
+      "empty": "—"
+    },
+    "invalidSheet": "Controlla i valori della scheda.",
+    "fieldError": {
+      "not_a_number": "«{name}» non è un numero.",
+      "not_integer": "«{name}» deve essere un numero intero.",
+      "out_of_range": "«{name}» è fuori dai limiti consentiti.",
+      "too_long": "«{name}» è troppo lungo.",
+      "too_many_rows": "«{name}» ha troppe righe (massimo 100)."
+    },
+    "notices": {
+      "created": "Scheda creata.",
+      "saved": "Scheda salvata.",
+      "deleted": "Scheda eliminata."
+    },
+    "errors": {
+      "forbidden": "Non hai il permesso per questa azione.",
+      "invalid_input": "Controlla nome, tipo e note.",
+      "no_schema": "La campagna non ha ancora uno schema di statistiche.",
+      "not_found": "La scheda non esiste.",
+      "conflict": "Qualcun altro ha salvato la scheda prima di te. Ricarica la pagina e riprova.",
+      "failed": "Operazione non riuscita.",
+      "too_many": "Hai raggiunto il numero massimo di schede.",
+      "invalid_owner": "Il proprietario deve essere un giocatore della campagna.",
+      "confirm_required": "Conferma l’eliminazione per procedere."
+    }
   }
 }
