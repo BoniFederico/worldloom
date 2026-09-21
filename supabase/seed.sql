@@ -6,6 +6,16 @@
 --
 -- Il seed è rieseguibile: prima rimuove i mondi e l'utente demo.
 
+-- Guard: il seed crea un utente con password pubblica. Si esegue solo sul database locale di Supabase CLI, riconosciuto dal
+-- segreto JWT di default; su un progetto cloud (`db push --include-seed`, `db reset --linked`) si interrompe.
+do $$
+begin
+  if coalesce(current_setting('app.settings.jwt_secret', true), '') <> 'super-secret-jwt-token-with-at-least-32-characters-long' then
+    raise exception 'seed.sql è solo per il database locale: interrotto';
+  end if;
+end
+$$;
+
 delete from public.worlds where owner_id = '00000000-0000-4000-8000-00000000d3a0';
 delete from auth.identities where user_id = '00000000-0000-4000-8000-00000000d3a0';
 delete from auth.users where id = '00000000-0000-4000-8000-00000000d3a0';
