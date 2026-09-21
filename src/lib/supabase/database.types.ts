@@ -110,6 +110,154 @@ export type Database = {
           },
         ];
       };
+      map_pins: {
+        Row: {
+          created_at: string;
+          id: string;
+          map_id: string;
+          snippet_id: string;
+          updated_at: string;
+          world_id: string;
+          x: number;
+          y: number;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          map_id: string;
+          snippet_id: string;
+          updated_at?: string;
+          world_id: string;
+          x: number;
+          y: number;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          map_id?: string;
+          snippet_id?: string;
+          updated_at?: string;
+          world_id?: string;
+          x?: number;
+          y?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'map_pins_world_id_fkey';
+            columns: ['world_id'];
+            isOneToOne: false;
+            referencedRelation: 'worlds';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'map_pins_world_id_map_id_fkey';
+            columns: ['world_id', 'map_id'];
+            isOneToOne: false;
+            referencedRelation: 'maps';
+            referencedColumns: ['world_id', 'id'];
+          },
+          {
+            foreignKeyName: 'map_pins_world_id_snippet_id_fkey';
+            columns: ['world_id', 'snippet_id'];
+            isOneToOne: false;
+            referencedRelation: 'snippets';
+            referencedColumns: ['world_id', 'id'];
+          },
+        ];
+      };
+      map_routes: {
+        Row: {
+          created_at: string;
+          id: string;
+          map_id: string;
+          name: string;
+          stops: string[];
+          updated_at: string;
+          world_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          map_id: string;
+          name: string;
+          stops: string[];
+          updated_at?: string;
+          world_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          map_id?: string;
+          name?: string;
+          stops?: string[];
+          updated_at?: string;
+          world_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'map_routes_world_id_fkey';
+            columns: ['world_id'];
+            isOneToOne: false;
+            referencedRelation: 'worlds';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'map_routes_world_id_map_id_fkey';
+            columns: ['world_id', 'map_id'];
+            isOneToOne: false;
+            referencedRelation: 'maps';
+            referencedColumns: ['world_id', 'id'];
+          },
+        ];
+      };
+      maps: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          image: string;
+          name: string;
+          snippet_id: string | null;
+          updated_at: string;
+          world_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          image: string;
+          name: string;
+          snippet_id?: string | null;
+          updated_at?: string;
+          world_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          image?: string;
+          name?: string;
+          snippet_id?: string | null;
+          updated_at?: string;
+          world_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'maps_world_id_fkey';
+            columns: ['world_id'];
+            isOneToOne: false;
+            referencedRelation: 'worlds';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'maps_world_id_snippet_id_fkey';
+            columns: ['world_id', 'snippet_id'];
+            isOneToOne: false;
+            referencedRelation: 'snippets';
+            referencedColumns: ['world_id', 'id'];
+          },
+        ];
+      };
       profiles: {
         Row: {
           created_at: string;

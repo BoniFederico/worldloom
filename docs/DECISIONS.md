@@ -403,3 +403,25 @@
 - Limiti: al massimo 500 eventi (avviso); «collegato a» considera al massimo 150 snippet (lui e i primi collegati); un solo campo di inizio e uno di fine per volta; niente trascinamento né zoom con la rotella; le relazioni
   con intervallo di validità (`valid_from/valid_to`) non sono ancora eventi; le etichette non evitano ogni sovrapposizione tra corsie vicine.
 - Deciso da: agente
+
+### D-028: Mappe, pin e percorsi
+
+- Data: 2026-09-21
+- Contesto: #28. Immagini di mappa (anche più livelli), pin sugli snippet-luogo, mappe annidate, percorsi, nessun servizio a pagamento.
+- Decisione: tre tabelle (`maps`, `map_pins`, `map_routes`) con RLS: leggono i membri, scrivono proprietari ed editor. Le immagini usano il bucket
+  `world-images` di D-016; la mappa conserva solo il nome del file (formato controllato dal database). Il caricamento passa da un modulo che
+  fa POST a `/worlds/<id>/maps/upload` (funziona senza JavaScript) e riusa i controlli delle immagini degli snippet, ora in
+  `src/lib/images/upload.ts`: Origin, lunghezza dichiarata, tipo dai byte (niente SVG), nome casuale. I pin usano coordinate **relative** (0–1 sui due
+  assi: valgono a qualunque dimensione) e non il campo `coordinates` degli snippet, perché uno stesso luogo può comparire su più mappe. Una mappa
+  può «raffigurare» uno snippet-luogo (`maps.snippet_id`): un pin su quel luogo, da qualunque altra mappa, apre la sua mappa (mappe annidate
+  regione → città → dungeon); altrimenti apre lo snippet. Un percorso è un elenco ordinato da 2 a 30 pin della stessa mappa (controllato da un trigger);
+  eliminare un pin lo toglie dai percorsi e un percorso che resta con meno di 2 tappe sparisce.
+- Permessi: un pin si legge solo se si legge lo snippet (la policy interroga `snippets` con la RLS di chi legge): un luogo segreto non compare a un
+  lettore né come pin né nella tabella. Gli snippet nel cestino non compaiono.
+- Interfaccia: l'immagine con i pin come link sovrapposti in percentuale e i percorsi in un SVG sopra, senza librerie; tabella alternativa dei pin
+  (posizione, mappa collegata) e elenco dei percorsi con le tappe. Per chi scrive, un clic sulla mappa compila la posizione del nuovo pin
+  (le percentuali si scrivono anche a mano: alternativa da tastiera e senza JavaScript). Filtro per categoria dei pin.
+- Limiti: il filtro per **periodo** della SPEC non c'è (i pin non hanno date); niente spostamento dei pin (si tolgono e si rimettono), rinomina
+  della mappa né zoom/pan dell'immagine (il browser può ingrandire); fino a 8 tappe nel modulo del percorso; niente eliminazione dei file
+  inutilizzati (come D-016); le mappe non sono ancora nell'export JSON né nelle viste salvate; la lettura dell'immagine resta per tutti i membri (D-016).
+- Deciso da: agente
