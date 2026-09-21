@@ -5,10 +5,13 @@ import { Feedback } from '@/components/feedback';
 import { SearchResults } from '@/components/search-results';
 import { GraphView } from '@/components/graph-view';
 import { TimelineView } from '@/components/timeline-view';
+import { TreeView } from '@/components/tree-view';
 import { TableView } from '@/components/table-view';
 import { loadGraph } from '@/lib/graph/load';
 import { graphQuery, parseGraphConfig } from '@/lib/graph/params';
 import { loadTimeline } from '@/lib/timeline/load';
+import { loadTree } from '@/lib/tree/load';
+import { parseTreeConfig, treeQuery } from '@/lib/tree/params';
 import { parseTimelineConfig, timelineQuery } from '@/lib/timeline/params';
 import { hasCriteria, rpcArgs } from '@/lib/search/params';
 import { paramsOfFilters, searchQuery } from '@/lib/views/filters';
@@ -92,11 +95,18 @@ export default async function ViewPage({ params, searchParams }: Props) {
   const timelineParams = parseTimelineConfig(view.config);
   const timelineData = isTimeline ? await loadTimeline(supabase, worldId, timelineParams) : null;
   const timelineBase = `/worlds/${world.id}/timeline`;
+
+  // Albero: la configurazione salvata, letta con i permessi di chi guarda.
+  const isTree = view.kind === 'tree';
+  const treeParams = parseTreeConfig(view.config);
+  const treeData = isTree ? await loadTree(supabase, worldId, treeParams) : null;
   const editTable = `/worlds/${world.id}/table?${[query, configQuery(saved)].filter(Boolean).join('&')}`;
 
   return (
     <main id="main" className="page page-top">
-      <section className={isTable || isGraph || isTimeline ? 'content content-wide' : 'content'}>
+      <section
+        className={isTable || isGraph || isTimeline || isTree ? 'content content-wide' : 'content'}
+      >
         <p className="crumbs">
           <Link href={`/worlds/${world.id}/views`}>{t('title')}</Link>
         </p>
@@ -202,6 +212,26 @@ export default async function ViewPage({ params, searchParams }: Props) {
               <p className="field-hint">
                 {timelineData.calendars.length ? tt('noFields') : tt('noCalendars')}
               </p>
+            ) : (
+              <p role="alert" className="message message-error">
+                {t('searchError')}
+              </p>
+            )}
+          </>
+        ) : isTree ? (
+          <>
+            <p>
+              <Link
+                href={`/worlds/${world.id}/tree${treeQuery(treeParams) ? `?${treeQuery(treeParams)}` : ''}`}
+                className="btn"
+              >
+                {t('editTree')}
+              </Link>
+            </p>
+            {treeData && !treeData.rootMissing && treeData.forest.roots.length ? (
+              <TreeView worldId={world.id} forest={treeData.forest} />
+            ) : treeData ? (
+              <p className="field-hint">{t('treeEmpty')}</p>
             ) : (
               <p role="alert" className="message message-error">
                 {t('searchError')}

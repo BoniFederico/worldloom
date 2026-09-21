@@ -60,6 +60,9 @@ export default async function ViewsPage({ params, searchParams }: Props) {
           </Link>{' '}
           <Link href={`/worlds/${world.id}/timeline`} className="btn">
             {t('newTimeline')}
+          </Link>{' '}
+          <Link href={`/worlds/${world.id}/tree`} className="btn">
+            {t('newTree')}
           </Link>
         </p>
       </section>

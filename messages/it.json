@@ -107,7 +107,8 @@
     "graph": "Grafo",
     "calendars": "Calendari",
     "timeline": "Timeline",
-    "maps": "Mappe"
+    "maps": "Mappe",
+    "tree": "Albero e gerarchia"
   },
   "Members": {
     "title": "Membri",
@@ -680,7 +681,10 @@
     "newGraph": "Nuovo grafo",
     "editGraph": "Modifica il grafo",
     "newTimeline": "Nuova timeline",
-    "editTimeline": "Modifica la timeline"
+    "editTimeline": "Modifica la timeline",
+    "newTree": "Nuovo albero",
+    "editTree": "Modifica l’albero",
+    "treeEmpty": "Nessun albero da mostrare con questa configurazione."
   },
   "Table": {
     "title": "Tabella",
@@ -915,5 +919,28 @@
       "forbidden": "Non hai i permessi per modificare le mappe.",
       "generic": "Operazione non riuscita. Riprova."
     }
+  },
+  "Tree": {
+    "title": "Albero e gerarchia",
+    "intro": "Scegli un’etichetta di relazione e vedi lo stesso mondo come albero: un albero genealogico con «padre di», una gerarchia di comando con «comanda», una sequenza di capitoli con «segue»…",
+    "settings": "Impostazioni",
+    "label": "Etichetta della relazione",
+    "labelHint": "Una relazione «A padre di B» mette A sopra B. Vale anche l’etichetta inversa: se «B figlio di A» ha come inversa «padre di», l’albero è lo stesso.",
+    "root": "Partire da (titolo di uno snippet, facoltativo)",
+    "direction": "Cosa mostrare",
+    "down": "Discendenti (verso il basso)",
+    "up": "Antenati (verso l’alto)",
+    "apply": "Mostra l’albero",
+    "pickHint": "Scegli un’etichetta per costruire l’albero.",
+    "empty": "Nessuna relazione con l’etichetta «{label}» tra snippet leggibili.",
+    "rootMissing": "Nessuno snippet leggibile con il titolo «{title}».",
+    "loadError": "Non riesco a costruire l’albero. Riprova.",
+    "count": "{nodes, plural, one {# snippet} other {# snippet}} nell’albero, {edges, plural, one {# relazione} other {# relazioni}}.",
+    "treeLabel": "Albero della relazione",
+    "cycleWarning": "Alcune relazioni formano un ciclo (uno snippet risulta discendente di sé stesso): il collegamento che chiude il giro è segnato e non viene seguito.",
+    "cycleNote": "ciclo: è già un antenato",
+    "repeatNote": "già mostrato sopra",
+    "truncated": "L’albero è troppo grande: sono mostrati i primi 500 snippet. Scegli una radice per vederne una parte.",
+    "edgesTruncated": "Le relazioni con questa etichetta sono moltissime: ne sono state lette 5.000 per ogni verso."
   }
 }
