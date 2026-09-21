@@ -33,9 +33,7 @@ export async function TreeView({ worldId, forest }: { worldId: string; forest: F
   const t = await getTranslations('Tree');
   return (
     <div>
-      <p className="role" aria-live="polite">
-        {t('count', { nodes: forest.count, edges: forest.edgeCount })}
-      </p>
+      <p className="field-hint">{t('count', { nodes: forest.count, edges: forest.edgeCount })}</p>
       {forest.hasCycle ? <p className="message message-info">{t('cycleWarning')}</p> : null}
       {forest.truncated ? <p className="message message-info">{t('truncated')}</p> : null}
       {forest.roots.length ? (

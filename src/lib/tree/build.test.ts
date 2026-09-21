@@ -75,6 +75,19 @@ describe('buildForest', () => {
     expect(r.count).toBe(3);
   });
 
+  it('il tetto vale anche con moltissime radici scollegate', () => {
+    const big = new Map<string, string>();
+    const edges: Edge[] = [];
+    for (let i = 0; i < 300; i++) {
+      big.set(`p${i}`, `P${String(i).padStart(3, '0')}`);
+      big.set(`c${i}`, `C${String(i).padStart(3, '0')}`);
+      edges.push(e(`p${i}`, `c${i}`));
+    }
+    const r = buildForest(big, edges, { maxNodes: 100 });
+    expect(r.count).toBeLessThanOrEqual(100);
+    expect(r.truncated).toBe(true);
+  });
+
   it('una catena molto lunga non manda in overflow lo stack', () => {
     const big = new Map<string, string>();
     const edges: Edge[] = [];

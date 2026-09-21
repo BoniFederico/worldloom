@@ -441,6 +441,11 @@
   tetto di 500 nodi con avviso.
 - Interfaccia e accessibilità: l'albero è una lista annidata (`ul` in `ul`), quindi la struttura è già il testo e un lettore di schermo annuncia i livelli;
   le linee sono decorazione CSS; ogni nome è un link allo snippet. Nessuna libreria.
-- Limiti: legge fino a 5.000 relazioni per etichetta e per verso e 10.000 titoli (avviso oltre il tetto); una sola etichetta per albero (niente
+- Lettura: il servizio taglia in silenzio a 1000 righe per richiesta (`max_rows`), quindi relazioni e titoli si leggono a pagine (`src/lib/supabase/pages.ts`,
+  con test oltre le 1000 righe); tetto di 5.000 relazioni per etichetta e per verso e 10.000 titoli, con avviso se le relazioni lo raggiungono. Il confronto
+  dell'etichetta ignora le maiuscole e comprime gli spazi multipli scritti nel modulo, ma non normalizza tabulazioni o spazi speciali già salvati; con
+  più snippet omonimi come radice si sceglie quello che ha relazioni con l'etichetta; una relazione simmetrica (etichetta uguale all'inversa, come
+  «fratello di») forma un ciclo per ogni coppia e va vista come tale. L'ordine alfabetico usa sempre le regole dell'italiano.
+- Limiti: una sola etichetta per albero (niente
   alberi misti); niente disegno a nodi e linee orizzontale; la radice si sceglie per titolo esatto, non da un elenco.
 - Deciso da: agente

@@ -114,7 +114,9 @@ export function buildForest(
     if (titles.has(options.root)) roots.push(grow(options.root));
   } else {
     for (const id of ordered([...inTree].filter((id) => !hasParent.has(id)))) {
-      if (!expanded.has(id)) roots.push(grow(id));
+      if (expanded.has(id)) continue;
+      if (count >= maxNodes) break;
+      roots.push(grow(id));
     }
     // Cicli senza una radice vera: si parte dal primo nodo (per titolo) non ancora mostrato.
     for (const id of ordered([...inTree])) {
