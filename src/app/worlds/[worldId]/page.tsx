@@ -1,13 +1,18 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
+import { Feedback } from '@/components/feedback';
 import { createClient } from '@/lib/supabase/server';
 import { uuidSchema } from '@/lib/worlds/schemas';
 
-type Props = { params: Promise<{ worldId: string }> };
+type Props = {
+  params: Promise<{ worldId: string }>;
+  searchParams: Promise<{ notice?: string }>;
+};
 
-export default async function WorldPage({ params }: Props) {
+export default async function WorldPage({ params, searchParams }: Props) {
   const { worldId } = await params;
+  const { notice } = await searchParams;
   if (!uuidSchema.safeParse(worldId).success) notFound();
 
   const supabase = await createClient();
@@ -32,6 +37,7 @@ export default async function WorldPage({ params }: Props) {
           <Link href="/worlds">{t('title')}</Link>
         </p>
         <h1>{world.name}</h1>
+        <Feedback scope="Worlds" notice={notice} />
         <p className="role">{membership ? t(`roles.${membership.role}`) : null}</p>
         <p className="lead">{t('overviewEmpty')}</p>
         <p>
@@ -58,6 +64,11 @@ export default async function WorldPage({ params }: Props) {
           <Link href={`/worlds/${world.id}/categories`} className="btn">
             {t('categories')}
           </Link>
+        </p>
+        <p>
+          <a href={`/worlds/${world.id}/export`} className="btn" download>
+            {t('exportJson')}
+          </a>
         </p>
         {membership?.role === 'owner' ? (
           <p>

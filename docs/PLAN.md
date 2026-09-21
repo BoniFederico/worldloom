@@ -4,7 +4,7 @@
 
 ## Stato
 
-- Fase: M1 in corso: #20 chiusa (cronologia versioni); prossimo #21 (import/export).
+- Fase: M1 in corso: #21 chiusa (export/import JSON; Markdown in #43); prossimo #22 (seed di demo).
 
 ## Backlog (in ordine di esecuzione)
 
@@ -29,7 +29,7 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 18  | Menzioni con @ e pannello backlink                                              | feat  | 15         | done  | menzioni @, alias, backlink              |
 | 19  | Ricerca full-text e comando rapido Ctrl/Cmd+K                                   | feat  | 13         | done  | full-text, filtri, Ctrl/Cmd+K            |
 | 20  | Cronologia versioni con confronto e ripristino                                  | feat  | 13         | done  | trigger, confronto, ripristino (D-020)   |
-| 21  | Import/export del mondo in JSON e Markdown con front matter                     | feat  | 13         | todo  |                                          |
+| 21  | Import/export del mondo in JSON e Markdown con front matter                     | feat  | 13         | done  | JSON v1, round trip, permessi (D-021)    |
 | 22  | Seed di demo: mondo di esempio e dati sintetici per performance                 | feat  | 13         | todo  |                                          |
 | 23  | Modello di vista salvata con link stabile                                       | feat  | 15, 17     | todo  |                                          |
 | 24  | Vista tabella con ordinamento, filtri e raggruppamenti                          | feat  | 15, 17     | todo  |                                          |
