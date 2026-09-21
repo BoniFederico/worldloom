@@ -1,4 +1,3 @@
-import { getTranslations } from 'next-intl/server';
 import type { Sheet } from '@/lib/characters/sheet';
 import { fieldName, SPARE_ROWS } from '@/lib/characters/sheet';
 import { defaultOf, type Sheet as Computed, type ValidSchema } from '@/lib/stats/compute';
@@ -15,20 +14,24 @@ type Item =
  * finiscono in «Altro»). Il modulo che li contiene lo fornisce chi lo usa: con `readOnly` sono campi disabilitati (anteprima).
  * I valori calcolati si mostrano a sola lettura e si aggiornano al salvataggio.
  */
-export async function CharacterSheetFields({
+/** Traduzione con i messaggi del gruppo `Characters` (`getTranslations` sul server, `useTranslations` nel browser). */
+export type Translate = (key: string, values?: Record<string, string | number>) => string;
+
+export function CharacterSheetFields({
   valid,
   sheet,
   computed,
   readOnly = false,
   idPrefix = 'sheet',
+  t,
 }: {
   valid: ValidSchema;
   sheet: Sheet;
   computed: Computed;
   readOnly?: boolean;
   idPrefix?: string;
+  t: Translate;
 }) {
-  const t = await getTranslations('Characters');
   const { schema } = valid;
 
   const items = new Map<string, Item>();

@@ -156,7 +156,7 @@ export default async function CharacterPage({ params, searchParams }: Props) {
               </>
             ) : null}
 
-            <CharacterSheetFields valid={stats.valid} sheet={sheet} computed={computed} />
+            <CharacterSheetFields valid={stats.valid} sheet={sheet} computed={computed} t={t} />
 
             <div className="field">
               <label htmlFor="character-notes">{t('section.notes')}</label>

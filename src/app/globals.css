@@ -1832,3 +1832,11 @@ p.mention-none {
 .sheet-preview {
   opacity: 0.95;
 }
+
+.migration {
+  display: grid;
+  gap: var(--space-3, 0.75rem);
+  padding: var(--space-4, 1rem);
+  border: 1px solid var(--border, currentColor);
+  border-radius: 8px;
+}

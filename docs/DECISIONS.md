@@ -570,3 +570,25 @@
   chiavi dello schema (lo schema non ha etichette per le colonne); nessun collegamento tra scheda e snippet del mondo; un giocatore rimosso dalla campagna perde l'accesso alla scheda ma `owner_id`
   resta (il DM può riassegnarla); la cronologia non permette il ripristino di una versione; nessuna notifica (#37).
 - Deciso da: agente
+
+### D-035: Anteprima live e migrazione guidata dello schema di statistiche
+
+- Data: 2026-09-22
+- Contesto: #35. Cambiare lo schema di una campagna con schede già scritte non deve far perdere valori senza che il DM lo sappia (D-034: i valori con chiavi che lo schema non ha più sparivano al
+  salvataggio della scheda). Migrazione `20260922120000_stats_migration.sql`; da applicare al cloud dopo il merge.
+- Anteprima live: l'editor (`stats-editor.tsx`) valida lo schema **nel browser** con lo stesso codice del server (`validateStatsText`, puro) e ridisegna la scheda con `computeSheet`; gli errori
+  compaiono mentre si scrive, con riga e colonna. `CharacterSheetFields` è ora un componente sincrono che riceve la funzione di traduzione (`getTranslations` sul server, `useTranslations` nel
+  browser). «Verifica» e «Salva» passano comunque dal server, che ricontrolla tutto: il browser non è mai la fonte di verità. Senza JavaScript l'editor resta un modulo che funziona.
+- Migrazione (`src/lib/stats/migrate.ts`, pura e testata): `diffSchemas` elenca chiavi tolte e aggiunte per sezione (attributi, risorse, liste, testi; una chiave che cambia sezione conta come tolta e
+  aggiunta); `planMigration` calcola le nuove schede. Si tengono le chiavi ancora presenti, riportando nei nuovi limiti gli attributi (interi arrotondati, min/max) e le risorse (massimo ricalcolato con gli
+  attributi nuovi), convertendo le celle delle liste nel tipo nuovo della colonna (colonne tolte o non convertibili si perdono e sono contate). Ogni campo tolto con dati si può **spostare** su una chiave
+  **nuova** della stessa sezione o **eliminare**; due origini non possono avere la stessa destinazione, e non si sposta su una chiave che ha già i suoi valori.
+- Flusso: «Salva» con schede toccate non salva niente: mostra la migrazione (quante schede, quali campi con quanti valori, dove spostarli, con la destinazione proposta se una chiave nuova ha la stessa
+  etichetta, valori riportati nei limiti); «Applica la migrazione» salva. I preset (`Usa lo schema…`, «Ripristina») fanno lo stesso: se toccano schede esistenti aprono l'editor con il preset già scritto
+  (`?draft=<preset>`). Senza schede toccate lo schema si salva subito. Il piano si ricalcola sempre sul server; dal client arrivano solo le scelte.
+- Applicazione atomica: `apply_stats_migration(campagna, schema, revisione_attesa, schede)` (security definer, solo DM; serializza sulla riga della campagna) salva lo schema e riscrive le schede con la
+  revisione letta; se lo schema o una scheda sono cambiati nel frattempo dà «conflict» e non scrive niente. La cronologia registra la riscrittura come modifica del DM (D-034).
+- Limiti noti: la cronologia mostra il nome tecnico (la chiave) dei campi che non esistono più; la migrazione riguarda fino a 500 schede (il tetto per campagna) in una sola chiamata; le schede che il DM non
+  può leggere non esistono (il DM legge tutte); non c'è annullamento dopo l'applicazione (si può solo cambiare di nuovo lo schema); nessuna migrazione dei valori di un campo che cambia tipo di sezione oltre a
+  spostarlo a mano; le schede non nell'export del mondo restano fuori.
+- Deciso da: agente

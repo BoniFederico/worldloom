@@ -1155,16 +1155,21 @@
       "checked": "Lo schema è valido.",
       "saved": "Schema salvato.",
       "forbidden": "Solo il DM può modificare lo schema.",
-      "failed": "Non è stato possibile salvare lo schema."
+      "failed": "Non è stato possibile salvare lo schema.",
+      "migrated": "Schema salvato e {count, plural, one {# scheda aggiornata} other {# schede aggiornate}}.",
+      "conflict": "Lo schema o una scheda sono cambiati nel frattempo. Ricarica la pagina e riprova.",
+      "invalid_move": "Spostamento dei valori non valido. Ricarica la pagina e riprova."
     },
     "notices": {
       "preset_applied": "Schema sostituito.",
-      "reset": "Schema predefinito ripristinato."
+      "reset": "Schema predefinito ripristinato.",
+      "review": "Questo schema tocca le schede esistenti. Controllalo e salva per scegliere che cosa fare dei valori."
     },
     "errors": {
       "unknown_preset": "Schema di partenza sconosciuto.",
       "forbidden": "Solo il DM può modificare lo schema.",
-      "failed": "Non è stato possibile salvare lo schema."
+      "failed": "Non è stato possibile salvare lo schema.",
+      "conflict": "Lo schema o una scheda sono cambiati nel frattempo. Riprova."
     },
     "codes": {
       "too_large": "Il documento è troppo grande (massimo 200.000 caratteri).",
@@ -1196,7 +1201,18 @@
       "invalid_number": "numero non valido",
       "unknown_function": "funzione sconosciuta",
       "wrong_arity": "numero di argomenti sbagliato"
-    }
+    },
+    "migrationTitle": "Migrazione delle schede esistenti",
+    "migrationIntro": "Il nuovo schema tocca le schede già scritte: {count, plural, one {# scheda verrà riscritta} other {# schede verranno riscritte}}. Scegli che cosa fare dei valori dei campi che non esistono più; poi applica. Per ripensarci, cambia lo schema o ricarica la pagina: finché non applichi non cambia nulla.",
+    "migrationClamped": "{count, plural, one {# valore verrà} other {# valori verranno}} riportato nei nuovi limiti o convertito nel nuovo tipo.",
+    "migrationField": "Campo «{label}»: {count, plural, one {# scheda ha} other {# schede hanno}} un valore",
+    "migrationDrop": "Elimina i valori",
+    "migrationMove": "Sposta i valori su «{label}»",
+    "migrate": "Applica la migrazione",
+    "migrationCancel": "Finché non applichi, schema e schede restano come sono.",
+    "livePreviewTitle": "Anteprima live",
+    "livePreviewHint": "La scheda si ridisegna mentre scrivi, con i valori predefiniti e senza salvare nulla.",
+    "livePreviewInvalid": "Correggi gli errori dello schema per vedere l’anteprima."
   },
   "Characters": {
     "title": "Schede personaggio",
