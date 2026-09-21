@@ -1078,7 +1078,9 @@
       "confirm_required": "Confirm the operation with the checkbox.",
       "invalid_invite": "This invite is not valid: it may be expired, used up, revoked or meant for another account.",
       "already_member": "You are already in this campaign."
-    }
+    },
+    "characters": "Character sheets",
+    "stats": "Stats"
   },
   "Visibility": {
     "title": "Visibility and reveals",
@@ -1114,5 +1116,170 @@
     "fieldUsers": "Field recipients",
     "fieldLevel": "Field level",
     "fieldLegend": "Visibility of {name}"
+  },
+  "Stats": {
+    "title": "Campaign stats",
+    "back": "Back to the campaign",
+    "intro": "The schema describes the attributes, derived values, resources, lists and texts of character sheets. The DM writes it as JSON; formulas are arithmetic expressions (no code).",
+    "docs": "The format and functions are described in docs/stats-schema.md.",
+    "schemaLabel": "Schema (JSON)",
+    "check": "Check",
+    "save": "Save schema",
+    "presetsTitle": "Starter schemas",
+    "presetsHint": "They replace the current schema. Existing sheets stay: values whose keys the new schema lacks are hidden and disappear the next time the sheet is saved.",
+    "usePreset": "Use the “{name}” schema",
+    "resetTitle": "Reset",
+    "reset": "Restore the default schema",
+    "resetHint": "Goes back to the simplified d20 fantasy schema.",
+    "presets": {
+      "d20": "D20 fantasy",
+      "percentile": "Percentile scores",
+      "dice-pool": "Dice pool",
+      "narrative": "Narrative traits"
+    },
+    "presetHints": {
+      "d20": "Six scores, modifiers, hit points and armor class.",
+      "percentile": "Characteristics from 1 to 99 with thresholds, hit points and sanity.",
+      "dice-pool": "Attributes as a number of dice, health and willpower.",
+      "narrative": "Approaches by level, traits and aspects, fate points and stress."
+    },
+    "previewTitle": "Sheet preview",
+    "previewHint": "What a new sheet looks like with the saved schema (default values).",
+    "noSchema": "No schema saved. Pick a starter schema or write one.",
+    "readOnly": "Only the DM edits the schema. Here you can see what a sheet looks like.",
+    "errorsTitle": "Errors in the schema",
+    "at": "Line {line}, column {column}",
+    "noLine": "In the document",
+    "formulaAt": "in the formula, character {index}",
+    "states": {
+      "checked": "The schema is valid.",
+      "saved": "Schema saved.",
+      "forbidden": "Only the DM can edit the schema.",
+      "failed": "The schema could not be saved."
+    },
+    "notices": {
+      "preset_applied": "Schema replaced.",
+      "reset": "Default schema restored."
+    },
+    "errors": {
+      "unknown_preset": "Unknown starter schema.",
+      "forbidden": "Only the DM can edit the schema.",
+      "failed": "The schema could not be saved."
+    },
+    "codes": {
+      "too_large": "The document is too large (200,000 characters at most).",
+      "json_syntax": "Invalid JSON: check commas, brackets and quotes.",
+      "required": "The required field “{field}” is missing.",
+      "invalid_type": "The value of “{field}” has the wrong type.",
+      "invalid_value": "Value not allowed for “{field}”.",
+      "invalid_key": "“{field}” is not a valid key: lowercase letters, digits and underscores, 1 to 32 characters, starting with a letter.",
+      "out_of_range": "“{field}” has a length outside the limits.",
+      "too_many_fields": "Too many entries in “{field}” (200 at most).",
+      "unknown_field": "Unknown field: “{field}”.",
+      "unsupported_version": "Unsupported version: “schemaVersion” must be 1.",
+      "duplicate_key": "The key “{detail}” is already used.",
+      "reserved_key": "“{detail}” is a function name: pick another key.",
+      "invalid_range": "Minimum, maximum or default are inconsistent in “{field}”.",
+      "max_required": "Either “max” or “maxFormula” is required.",
+      "max_conflict": "Use only one of “max” and “maxFormula”.",
+      "formula": "Invalid formula ({reason}), {where}.",
+      "unknown_reference": "The formula uses “{detail}”, which is neither an attribute nor a derived value.",
+      "formula_cycle": "Derived formulas refer to each other in a loop (starting from “{detail}”)."
+    },
+    "formulaCodes": {
+      "empty": "empty formula",
+      "too_long": "too long",
+      "too_complex": "too complex",
+      "unexpected_char": "character not allowed",
+      "unexpected_token": "unexpected symbol",
+      "unexpected_end": "incomplete formula",
+      "invalid_number": "invalid number",
+      "unknown_function": "unknown function",
+      "wrong_arity": "wrong number of arguments"
+    }
+  },
+  "Characters": {
+    "title": "Character sheets",
+    "back": "Back to the campaign",
+    "listCaption": "Campaign sheets",
+    "empty": "There are no sheets yet.",
+    "noSchema": "The DM must first define the campaign’s stats schema.",
+    "defineSchema": "Define the schema",
+    "schemaLink": "Stats schema",
+    "newTitle": "New sheet",
+    "name": "Name",
+    "kind": "Type",
+    "kinds": {
+      "pc": "Player character (PC)",
+      "npc": "Non-player character (NPC)"
+    },
+    "kindsShort": {
+      "pc": "PC",
+      "npc": "NPC"
+    },
+    "owner": "Player",
+    "noOwner": "Nobody",
+    "create": "Create the sheet",
+    "playerHint": "You are creating a character for yourself.",
+    "columnName": "Name",
+    "columnKind": "Type",
+    "columnOwner": "Player",
+    "section": {
+      "derived": "Calculated values",
+      "other": "Other",
+      "notes": "Notes"
+    },
+    "derivedHint": "They update when you save the sheet.",
+    "of": "of",
+    "max": "maximum",
+    "maxValue": "maximum {max}",
+    "range": "from {min} to {max}",
+    "min": "minimum {min}",
+    "upTo": "up to {max}",
+    "rowLabel": "{list}, row {row}, {column}",
+    "listHint": "Fill an empty row to add; clear every cell of a row to remove it.",
+    "unavailable": "cannot be calculated",
+    "save": "Save the sheet",
+    "deleteTitle": "Delete the sheet",
+    "deleteConfirm": "I confirm deleting the sheet and its history",
+    "delete": "Delete",
+    "historyTitle": "Change history",
+    "historyEmpty": "No changes recorded.",
+    "unknownUser": "Someone",
+    "created": "{who} created the sheet “{name}”.",
+    "changed": "{who} changed:",
+    "change": {
+      "name": "name: “{from}” → “{to}”",
+      "number": "{label}: {from} → {to}",
+      "edited": "{label} (edited)",
+      "notes": "notes",
+      "owner": "player",
+      "kind": "type",
+      "empty": "—"
+    },
+    "invalidSheet": "Check the values of the sheet.",
+    "fieldError": {
+      "not_a_number": "“{name}” is not a number.",
+      "not_integer": "“{name}” must be a whole number.",
+      "out_of_range": "“{name}” is outside the allowed limits.",
+      "too_long": "“{name}” is too long.",
+      "too_many_rows": "“{name}” has too many rows (100 at most)."
+    },
+    "notices": {
+      "created": "Sheet created.",
+      "saved": "Sheet saved.",
+      "deleted": "Sheet deleted."
+    },
+    "errors": {
+      "forbidden": "You do not have permission for this action.",
+      "invalid_input": "Check the name, type and notes.",
+      "no_schema": "The campaign has no stats schema yet.",
+      "not_found": "The sheet does not exist.",
+      "conflict": "Someone else saved the sheet before you. Reload the page and try again.",
+      "failed": "The operation failed.",
+      "too_many": "You have reached the maximum number of sheets.",
+      "invalid_owner": "The owner must be a player of the campaign.",
+      "confirm_required": "Confirm the deletion to proceed."
+    }
   }
 }

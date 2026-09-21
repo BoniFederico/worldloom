@@ -98,6 +98,10 @@ export default async function CampaignPage({ params, searchParams }: Props) {
         </p>
         {campaign.description ? <p className="lead">{campaign.description}</p> : null}
         <Feedback scope="Campaigns" notice={notice} error={error} />
+        <p className="campaign-links">
+          <Link href={`/campaigns/${campaign.id}/characters`}>{t('characters')}</Link>
+          <Link href={`/campaigns/${campaign.id}/stats`}>{t('stats')}</Link>
+        </p>
 
         <h2>{t('membersTitle')}</h2>
         <table className="members">

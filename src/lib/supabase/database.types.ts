@@ -145,6 +145,38 @@ export type Database = {
           },
         ];
       };
+      campaign_stats: {
+        Row: {
+          campaign_id: string;
+          rev: number;
+          schema: Json;
+          updated_at: string;
+          updated_by: string | null;
+        };
+        Insert: {
+          campaign_id: string;
+          rev?: number;
+          schema: Json;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Update: {
+          campaign_id?: string;
+          rev?: number;
+          schema?: Json;
+          updated_at?: string;
+          updated_by?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'campaign_stats_campaign_id_fkey';
+            columns: ['campaign_id'];
+            isOneToOne: true;
+            referencedRelation: 'campaigns';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       campaigns: {
         Row: {
           created_at: string;
@@ -223,6 +255,101 @@ export type Database = {
             columns: ['world_id'];
             isOneToOne: false;
             referencedRelation: 'worlds';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      character_history: {
+        Row: {
+          action: string;
+          campaign_id: string;
+          changed_by: string | null;
+          changes: Json;
+          character_id: string;
+          created_at: string;
+          id: string;
+        };
+        Insert: {
+          action: string;
+          campaign_id: string;
+          changed_by?: string | null;
+          changes?: Json;
+          character_id: string;
+          created_at?: string;
+          id?: string;
+        };
+        Update: {
+          action?: string;
+          campaign_id?: string;
+          changed_by?: string | null;
+          changes?: Json;
+          character_id?: string;
+          created_at?: string;
+          id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'character_history_campaign_id_fkey';
+            columns: ['campaign_id'];
+            isOneToOne: false;
+            referencedRelation: 'campaigns';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'character_history_character_id_fkey';
+            columns: ['character_id'];
+            isOneToOne: false;
+            referencedRelation: 'characters';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      characters: {
+        Row: {
+          campaign_id: string;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          kind: Database['public']['Enums']['character_kind'];
+          name: string;
+          notes: string;
+          owner_id: string | null;
+          rev: number;
+          sheet: Json;
+          updated_at: string;
+        };
+        Insert: {
+          campaign_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          kind: Database['public']['Enums']['character_kind'];
+          name: string;
+          notes?: string;
+          owner_id?: string | null;
+          rev?: number;
+          sheet?: Json;
+          updated_at?: string;
+        };
+        Update: {
+          campaign_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          kind?: Database['public']['Enums']['character_kind'];
+          name?: string;
+          notes?: string;
+          owner_id?: string | null;
+          rev?: number;
+          sheet?: Json;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'characters_campaign_id_fkey';
+            columns: ['campaign_id'];
+            isOneToOne: false;
+            referencedRelation: 'campaigns';
             referencedColumns: ['id'];
           },
         ];
@@ -1041,6 +1168,7 @@ export type Database = {
     };
     Enums: {
       campaign_role: 'dm' | 'co_dm' | 'player' | 'observer';
+      character_kind: 'pc' | 'npc';
       snippet_status: 'draft' | 'final';
       visibility: 'secret' | 'shared' | 'members' | 'public';
       world_role: 'owner' | 'editor' | 'commenter' | 'reader';
@@ -1169,6 +1297,7 @@ export const Constants = {
   public: {
     Enums: {
       campaign_role: ['dm', 'co_dm', 'player', 'observer'],
+      character_kind: ['pc', 'npc'],
       snippet_status: ['draft', 'final'],
       visibility: ['secret', 'shared', 'members', 'public'],
       world_role: ['owner', 'editor', 'commenter', 'reader'],
