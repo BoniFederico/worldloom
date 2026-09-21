@@ -4,7 +4,7 @@
 
 ## Stato
 
-- Fase: M1 completata (#15–#22); M2 in corso: #23–#27 chiuse (viste salvate, tabella, grafo, calendari, timeline); prossimo #28 (mappa).
+- Fase: M1 completata (#15–#22); M2 in corso: #23–#28 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe); prossimo #29 (albero genealogico).
 
 ## Backlog (in ordine di esecuzione)
 
@@ -36,7 +36,7 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 25  | Vista grafo delle relazioni                                                     | feat  | 15, 17     | done  | graph_data, SVG server, tabella alt. (D-025)    |
 | 26  | Calendari personalizzati e scale temporali                                      | feat  | 15, 17     | done  | calendars, conversione, campo data (D-026)      |
 | 27  | Vista timeline                                                                  | feat  | 26         | done  | SVG server, zoom, corsie, tabella alt. (D-027)  |
-| 28  | Vista mappa con pin e mappe annidate                                            | feat  | 15, 17     | todo  |                                                 |
+| 28  | Vista mappa con pin e mappe annidate                                            | feat  | 15, 17     | done  | maps, pin, percorsi, annidate (D-028)           |
 | 29  | Albero genealogico e gerarchia da etichetta di relazione                        | feat  | 15, 17     | todo  |                                                 |
 | 30  | Bacheca kanban per campo di stato                                               | feat  | 15, 17     | todo  |                                                 |
 | 31  | Campagne e inviti con ruoli                                                     | feat  | 13         | todo  |                                                 |

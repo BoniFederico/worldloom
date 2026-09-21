@@ -1478,3 +1478,154 @@ p.mention-none {
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+.map-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-4) 0;
+  padding: 0;
+  list-style: none;
+}
+
+.map-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.map-card a {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  color: var(--text);
+  text-decoration: none;
+}
+
+.map-card-image {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+}
+
+.map-card-name {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  text-decoration: underline;
+}
+
+.map-frame {
+  position: relative;
+  margin: var(--space-3) 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  overflow: hidden;
+}
+
+.map-frame-pick {
+  cursor: crosshair;
+}
+
+.map-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.map-routes {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.map-route {
+  fill: none;
+  stroke-width: 3;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  stroke-dasharray: 8 5;
+}
+
+.map-pins {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  pointer-events: none;
+}
+
+.map-pins li {
+  position: absolute;
+  transform: translate(-50%, -100%);
+}
+
+.map-pin {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+  color: var(--text);
+  text-decoration: none;
+}
+
+.map-marker {
+  display: block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid var(--surface);
+  border-radius: var(--radius-full) var(--radius-full) var(--radius-full) 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 0 0 1px var(--text);
+}
+
+.map-marker-nested {
+  border-radius: var(--radius-sm);
+  transform: rotate(45deg);
+}
+
+.map-pin-label {
+  margin-top: 2px;
+  padding: 0 var(--space-1);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  white-space: nowrap;
+  background: color-mix(in srgb, var(--surface) 85%, transparent);
+  border-radius: var(--radius-sm);
+}
+
+.map-pin:hover .map-marker,
+.map-pin:focus-visible .map-marker {
+  box-shadow: 0 0 0 3px var(--text);
+}
+
+.map-pin:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.map-spot {
+  position: absolute;
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 3px solid var(--text);
+  border-radius: var(--radius-full);
+  background: transparent;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.routes-list {
+  padding-left: var(--space-6);
+}
+
+.routes-list form {
+  display: inline-block;
+  margin-left: var(--space-2);
+}
