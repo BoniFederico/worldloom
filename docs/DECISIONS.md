@@ -279,6 +279,9 @@
   filtra), senza id né date di esportazione, con riferimenti ordinali e chiavi jsonb in ordine alfabetico (Postgres le riordina: scoperto
   dal test e2e del round trip). L'import è un `POST` multipart a `/api/worlds/import` (controllo Origin, tetto di 4 MB con lunghezza
   dichiarata) che crea un mondo nuovo, valida con zod, sanifica i corpi con `validateBody` e in caso di errore elimina il mondo creato.
+- Dalla review: tipi di relazione inseriti dopo le relazioni (mondi validi restano reimportabili); immagini scartate in importazione;
+  `fields` ≤ 100.000 caratteri; `contentTemplate` solo nullo; pulizia in `try/catch` con log. Nessun limite di importazioni per utente
+  (rischio di costo/DB accettato per ora; da rivedere in #46 insieme al rate limiting).
 - Limiti: non atomico lato database (compensazione con eliminazione del mondo); cestino, cronologia, membri, immagini escluse.
   L'export Markdown e l'import da Markdown/Obsidian/CSV restano in #43.
 - Deciso da: agente

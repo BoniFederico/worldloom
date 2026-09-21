@@ -15,6 +15,7 @@ export const MAX_EXPORT_SNIPPETS = 5000;
 const MAX_CATEGORIES = 200;
 const MAX_RELATIONS = 50_000;
 const MAX_TYPES = 500;
+const MAX_FIELDS_LENGTH = 100_000;
 
 // Righe come le legge il database (nomi delle colonne).
 export type RawWorld = {
@@ -86,7 +87,7 @@ const exportSchema = z.object({
         icon: z.string().max(60).nullable(),
         color: z.string().max(40).nullable(),
         fieldsSchema: fieldsSchema,
-        contentTemplate: z.unknown(),
+        contentTemplate: z.null(),
       }),
     )
     .max(MAX_CATEGORIES),
@@ -101,7 +102,9 @@ const exportSchema = z.object({
         tags: z.array(z.string().min(1).max(MAX_TAG_LENGTH)).max(MAX_TAGS),
         aliases: z.array(z.string().min(1).max(MAX_ALIAS_LENGTH)).max(MAX_ALIASES),
         categories: z.array(ref('c')).max(MAX_CATEGORIES),
-        fields: z.record(z.string(), z.unknown()),
+        fields: z
+          .record(z.string(), z.unknown())
+          .refine((v) => JSON.stringify(v).length <= MAX_FIELDS_LENGTH, 'campi troppo grandi'),
         body: z.unknown(),
         createdAt: date,
       }),
@@ -151,6 +154,31 @@ function sortKeys(value: unknown): unknown {
     );
   }
   return value;
+}
+
+/** Toglie i nodi immagine: i file restano nel mondo di origine e nel nuovo mondo sarebbero riferimenti rotti. */
+function dropImages(node: unknown): unknown {
+  if (Array.isArray(node)) {
+    return node
+      .filter(
+        (child) =>
+          !(
+            typeof child === 'object' &&
+            child !== null &&
+            (child as { type?: unknown }).type === 'image'
+          ),
+      )
+      .map(dropImages);
+  }
+  if (typeof node === 'object' && node !== null) {
+    return Object.fromEntries(
+      Object.entries(node).map(([key, value]) => [
+        key,
+        key === 'content' ? dropImages(value) : value,
+      ]),
+    );
+  }
+  return node;
 }
 
 /** Riscrive gli id delle menzioni con `map`; le menzioni senza destinazione vengono tolte. */
@@ -221,7 +249,8 @@ export function buildExport(raw: RawWorld): WorldExport {
       icon: c.icon,
       color: c.color,
       fieldsSchema: sortKeys(c.fields_schema) as WorldExport['categories'][number]['fieldsSchema'],
-      contentTemplate: sortKeys(c.content_template ?? null),
+      // Il modello di contenuto non è ancora usato dall'app: si esporta sempre nullo (v1) e l'import lo esige nullo.
+      contentTemplate: null,
     })),
     snippets: snippets.map((s) => ({
       ref: snippetRef.get(s.id) as string,
@@ -320,7 +349,7 @@ export function planImport(data: WorldExport, newId: () => string): ImportPlan {
 
   const snippets: Extract<ImportPlan, { ok: true }>['snippets'] = [];
   for (const s of data.snippets) {
-    const remapped = mapMentions(s.body, (ref) => snippetId.get(ref) ?? null);
+    const remapped = mapMentions(dropImages(s.body), (ref) => snippetId.get(ref) ?? null);
     const body: DocNode | null = validateBody(remapped);
     if (!body) return { ok: false, error: `${s.ref}: testo non valido` };
     snippets.push({
@@ -346,7 +375,7 @@ export function planImport(data: WorldExport, newId: () => string): ImportPlan {
       icon: c.icon,
       color: c.color,
       fields_schema: c.fieldsSchema,
-      content_template: c.contentTemplate ?? null,
+      content_template: null,
     })),
     snippets,
     snippetCategories: data.snippets.flatMap((s) =>

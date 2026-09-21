@@ -59,10 +59,6 @@ export async function importWorld(
       (rows) => () =>
         supabase.from('snippet_categories').insert(rows.map((r) => ({ ...r, world_id: worldId }))),
     ),
-    ...chunks(plan.relationTypes).map(
-      (rows) => () =>
-        supabase.from('relation_types').insert(rows.map((r) => ({ ...r, world_id: worldId }))),
-    ),
     ...chunks(plan.relations).map(
       (rows) => () =>
         supabase.from('relations').insert(
@@ -75,14 +71,24 @@ export async function importWorld(
           })),
         ),
     ),
+    // I tipi dopo le relazioni: il trigger dei vincoli scatta solo sulle relazioni, e un mondo valido può contenere
+    // relazioni nate prima del tipo o della categoria (altrimenti non sarebbe reimportabile).
+    ...chunks(plan.relationTypes).map(
+      (rows) => () =>
+        supabase.from('relation_types').insert(rows.map((r) => ({ ...r, world_id: worldId }))),
+    ),
   ];
 
-  for (const step of steps) {
-    const { error: stepError } = await step();
-    if (stepError) {
-      await supabase.from('worlds').delete().eq('id', worldId);
-      return null;
+  try {
+    for (const step of steps) {
+      const { error: stepError } = await step();
+      if (stepError) throw stepError;
     }
+    return worldId;
+  } catch {
+    // Niente importazioni a metà: se anche l'eliminazione fallisce il mondo resta, ma lo si segnala nei log.
+    const { error: cleanup } = await supabase.from('worlds').delete().eq('id', worldId);
+    if (cleanup) console.error('import: pulizia del mondo parziale non riuscita', worldId);
+    return null;
   }
-  return worldId;
 }

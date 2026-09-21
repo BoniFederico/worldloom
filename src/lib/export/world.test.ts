@@ -326,3 +326,53 @@ describe('ordine delle chiavi', () => {
     expect(a).toBe(b);
   });
 });
+
+describe('robustezza dell’importazione', () => {
+  const fresh = () => {
+    let n = 0;
+    return () => `00000000-0000-4000-8000-${String(++n).padStart(12, '0')}`;
+  };
+  const base = buildExport(raw);
+  const withSnippet = (patch: Record<string, unknown>) => ({
+    ...base,
+    snippets: [{ ...base.snippets[0], ...patch }],
+    relations: [],
+  });
+
+  it('toglie le immagini dal testo: puntano ai file del mondo di origine', () => {
+    const body = {
+      type: 'doc',
+      content: [
+        { type: 'paragraph', content: [{ type: 'text', text: 'ciao' }] },
+        {
+          type: 'image',
+          attrs: {
+            src: '/worlds/11111111-1111-4111-8111-111111111111/images/22222222-2222-4222-8222-222222222222.png',
+          },
+        },
+      ],
+    };
+    const parsed = parseExport(withSnippet({ body }));
+    if (!parsed.ok) throw new Error(parsed.error);
+    const plan = planImport(parsed.data, fresh());
+    if (!plan.ok) throw new Error(plan.error);
+    expect(JSON.stringify(plan.snippets[0]?.body)).not.toContain('image');
+    expect(JSON.stringify(plan.snippets[0]?.body)).toContain('ciao');
+  });
+
+  it('rifiuta campi personalizzati troppo grandi', () => {
+    const huge = { nota: 'x'.repeat(200_000) };
+    expect(parseExport(withSnippet({ fields: huge })).ok).toBe(false);
+  });
+
+  it('accetta solo un modello di contenuto nullo', () => {
+    const withTemplate = {
+      ...base,
+      categories: [{ ...base.categories[0], contentTemplate: { type: 'doc' } }],
+      snippets: [],
+      relations: [],
+      relationTypes: [],
+    };
+    expect(parseExport(withTemplate).ok).toBe(false);
+  });
+});
