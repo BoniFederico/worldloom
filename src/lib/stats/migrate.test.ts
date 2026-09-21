@@ -273,3 +273,23 @@ describe('describeMigration', () => {
     ]);
   });
 });
+
+describe('convertCell tramite planMigration', () => {
+  it('un numero scritto con spazi in un testo diventa numero', () => {
+    const from = build({
+      lists: [{ key: 'inv', label: 'I', item: { name: 'text', qty: 'text' } }],
+    });
+    const to = build({
+      lists: [{ key: 'inv', label: 'I', item: { name: 'text', qty: 'integer' } }],
+    });
+    const plan = planMigration(
+      from,
+      to,
+      [sheet('a', { lists: { inv: [{ name: 'X', qty: ' 5 ' }] } })],
+      {},
+    );
+    expect(plan.ok && plan.sheets[0]?.sheet).toMatchObject({
+      lists: { inv: [{ name: 'X', qty: 5 }] },
+    });
+  });
+});

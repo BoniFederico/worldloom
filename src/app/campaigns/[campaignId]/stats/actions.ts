@@ -3,7 +3,7 @@
 import { redirect } from 'next/navigation';
 import { loadCampaign } from '@/lib/campaigns/load';
 import { loadStats } from '@/lib/characters/load';
-import { applyStats, loadSheetRows, needsGuidance } from '@/lib/characters/migration';
+import { applyStats, loadSheetRows, loadStatsRev, needsGuidance } from '@/lib/characters/migration';
 import type { ValidSchema } from '@/lib/stats/compute';
 import { describeMigration, planMigration, type MigrationInfo } from '@/lib/stats/migrate';
 import { STATS_PRESETS } from '@/lib/stats/presets';
@@ -45,25 +45,32 @@ async function saveSchema(
   campaignId: string,
   next: ValidSchema,
   moves: Record<string, string | null> | null,
+  seenClamped = 0,
 ): Promise<
   | { kind: 'done'; updated: number }
   | { kind: 'guidance'; info: MigrationInfo }
   | { kind: 'error'; status: 'invalid_move' | 'conflict' | 'forbidden' | 'failed' }
 > {
-  const [old, rows] = await Promise.all([
+  const [old, rev, rows] = await Promise.all([
     loadStats(supabase, campaignId),
+    loadStatsRev(supabase, campaignId),
     loadSheetRows(supabase, campaignId),
   ]);
   let sheets: { id: string; rev: number; sheet: unknown }[] = [];
   if (old) {
     const plan = planMigration(old.valid, next, rows, moves ?? {});
     if (!plan.ok) return { kind: 'error', status: plan.error };
-    if (moves === null && needsGuidance(plan)) {
+    // Con le scelte già fatte si riapre la guida se, nel frattempo, il cambio tocca qualcosa che il DM non ha visto:
+    // un campo tolto senza scelta o più valori da riportare nei limiti.
+    const unseen =
+      moves !== null &&
+      (plan.removed.some((r) => !Object.hasOwn(moves, r.ref)) || plan.clamped > seenClamped);
+    if ((moves === null && needsGuidance(plan)) || unseen) {
       return { kind: 'guidance', info: describeMigration(old.valid.schema, next.schema, plan) };
     }
     sheets = plan.sheets;
   }
-  const result = await applyStats(supabase, campaignId, next, old?.rev ?? 0, sheets);
+  const result = await applyStats(supabase, campaignId, next, rev, sheets);
   return result === 'ok'
     ? { kind: 'done', updated: sheets.length }
     : { kind: 'error', status: result };
@@ -94,7 +101,13 @@ export async function submitStats(_prev: StatsState, formData: FormData): Promis
 
   const next: ValidSchema = { schema: result.schema, derivedOrder: result.derivedOrder };
   const migrate = field(formData, 'intent') === 'migrate';
-  const outcome = await saveSchema(supabase, id.data, next, migrate ? movesFrom(formData) : null);
+  const outcome = await saveSchema(
+    supabase,
+    id.data,
+    next,
+    migrate ? movesFrom(formData) : null,
+    Number(field(formData, 'clamped')) || 0,
+  );
   if (outcome.kind === 'guidance')
     return { status: 'migration', text, errors: [], migration: outcome.info };
   if (outcome.kind === 'error') return { status: outcome.status, text, errors: [] };

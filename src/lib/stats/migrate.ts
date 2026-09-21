@@ -70,7 +70,11 @@ function convertCell(
 ): string | number | null {
   if (type === 'text') return String(value).slice(0, CELL_MAX);
   const n =
-    typeof value === 'number' ? value : /^-?\d+(\.\d+)?$/.test(value.trim()) ? Number(value) : NaN;
+    typeof value === 'number'
+      ? value
+      : /^-?\d+(\.\d+)?$/.test(value.trim())
+        ? Number(value.trim())
+        : NaN;
   if (!Number.isFinite(n)) return null;
   return type === 'integer' ? Math.round(n) : n;
 }
@@ -106,11 +110,6 @@ export function planMigration(
     }
     used.add(refOf(section, to));
     target.set(from, to);
-  }
-  for (const from of Object.keys(moves)) {
-    if (!diff.removed.includes(from) && moves[from] !== null && moves[from] !== '') {
-      return { ok: false, error: 'invalid_move' };
-    }
   }
 
   const removedCount = new Map<string, number>();

@@ -107,6 +107,7 @@ export function StatsEditor({
         {migration ? (
           <section className="migration" aria-labelledby="migration-title">
             <h3 id="migration-title">{t('migrationTitle')}</h3>
+            <input type="hidden" name="clamped" value={migration.clamped} />
             <p>{t('migrationIntro', { count: migration.sheetsChanged })}</p>
             {migration.clamped ? (
               <p className="field-hint">{t('migrationClamped', { count: migration.clamped })}</p>
