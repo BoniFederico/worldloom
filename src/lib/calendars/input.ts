@@ -1,6 +1,7 @@
 import {
   calendarSchema,
   eraOf,
+  findEra,
   isValidDate,
   resolveYear,
   type Calendar,
@@ -69,8 +70,10 @@ export function parseCalendarForm(get: (name: string) => string | undefined): Ca
   if (every === undefined || month === undefined || days === undefined) {
     return { ok: false, error: 'invalid_leap' };
   }
-  if (every !== null && (month === null || days === null))
+  // Anno lungo tutto o niente: campi compilati a metà sono un errore, non vengono ignorati.
+  if ((every === null) !== (month === null) || (every === null) !== (days === null)) {
     return { ok: false, error: 'invalid_leap' };
+  }
 
   const epoch = optionalInt(get('epochWeekday'));
   if (
@@ -143,9 +146,7 @@ export function calendarDateFromInput(
   if (absolute === null) return { ok: false };
   const date = { year: absolute, month: monthNumber, day: dayNumber };
   if (!isValidDate(c, date)) return { ok: false };
-  const eraName = era
-    ? c.eras.find((e) => e.name.toLowerCase() === era.toLowerCase())?.name
-    : undefined;
+  const eraName = era ? findEra(c, era)?.name : undefined;
   return {
     ok: true,
     value: { calendar: calendarId, ...date, ...(eraName ? { era: eraName } : {}) },
@@ -176,18 +177,4 @@ export function calendarDateToInput(c: Calendar, value: unknown) {
     month: String(v.month),
     day: String(v.day),
   };
-}
-
-/** Il valore salvato è una data che esiste nel calendario? */
-export function checkCalendarValue(c: Calendar, value: unknown): boolean {
-  const v = record(value);
-  if (
-    !v ||
-    typeof v.year !== 'number' ||
-    typeof v.month !== 'number' ||
-    typeof v.day !== 'number'
-  ) {
-    return false;
-  }
-  return isValidDate(c, { year: v.year, month: v.month, day: v.day });
 }

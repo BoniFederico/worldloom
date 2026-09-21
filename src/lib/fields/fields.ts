@@ -57,9 +57,9 @@ const uuid = z.uuid();
 
 const calendarDate = z.object({
   calendar: z.string().min(1).max(64),
-  year: z.number().int(),
-  month: z.number().int().min(1),
-  day: z.number().int().min(1),
+  year: z.number().int().min(-1_000_000_000).max(1_000_000_000),
+  month: z.number().int().min(1).max(40),
+  day: z.number().int().min(1).max(500),
   era: z.string().max(64).optional(),
 });
 

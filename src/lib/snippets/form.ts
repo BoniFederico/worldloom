@@ -52,9 +52,15 @@ export function mergeFieldInput(
       if (!calendar) {
         const empty =
           !parts.year.trim() && !parts.month.trim() && !parts.day.trim() && !parts.era.trim();
-        input[def.key] = empty ? '' : { invalid: true };
+        // Calendario eliminato (o di un altro mondo) e campi vuoti: la data esistente non si tocca.
+        if (!empty) input[def.key] = { invalid: true };
         continue;
       }
+      const old = existing[def.key] as { calendar?: unknown } | null | undefined;
+      const oldCalendar = typeof old?.calendar === 'string' ? old.calendar : null;
+      const blank =
+        !parts.year.trim() && !parts.month.trim() && !parts.day.trim() && !parts.era.trim();
+      if (blank && oldCalendar && oldCalendar !== id && !calendars.has(oldCalendar)) continue;
       const result = calendarDateFromInput(calendar, id, parts);
       input[def.key] = result.ok ? result.value : { invalid: true };
       continue;

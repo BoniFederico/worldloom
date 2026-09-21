@@ -121,6 +121,13 @@ describe('conversione da e verso il numero di giorno', () => {
   });
 });
 
+describe('numeri non validi', () => {
+  it('fromDayNumber rifiuta NaN e infiniti invece di non terminare', () => {
+    expect(() => fromDayNumber(fantasy, NaN)).toThrow(RangeError);
+    expect(() => fromDayNumber(fantasy, Infinity)).toThrow(RangeError);
+  });
+});
+
 describe('validazione', () => {
   it('accetta solo mesi e giorni esistenti', () => {
     expect(isValidDate(fantasy, { year: 5, month: 3, day: 20 })).toBe(true);
@@ -155,6 +162,8 @@ describe('ere', () => {
     expect(resolveYear(fantasy, 'Seconda Era', 12)).toBe(111);
     expect(resolveYear(fantasy, '', 12)).toBe(12);
     expect(resolveYear(fantasy, 'Terza Era', 1)).toBeNull();
+    expect(resolveYear(fantasy, 'Seconda Era', 0)).toBeNull();
+    expect(resolveYear(fantasy, 'Seconda Era', -2)).toBeNull();
   });
 });
 

@@ -168,8 +168,12 @@ export async function saveSnippet(_prev: SaveState, formData: FormData): Promise
     calendars,
   );
   // Un campo obbligatorio di un tipo che questo form non sa modificare non deve bloccare lo stato definitivo.
+  // Lo stesso vale per una data in calendario quando il mondo non ha ancora calendari.
+  const noCalendars = calendars !== undefined && calendars.size === 0;
   const enforceable = defs.map((d) =>
-    EDITABLE_TYPES.includes(d.type) ? d : { ...d, required: false },
+    EDITABLE_TYPES.includes(d.type) && !(d.type === 'calendar_date' && noCalendars)
+      ? d
+      : { ...d, required: false },
   );
   const checked = validateSnippetFields(enforceable, merged, {
     enforceRequired: status === 'final',

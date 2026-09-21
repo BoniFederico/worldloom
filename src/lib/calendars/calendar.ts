@@ -20,7 +20,7 @@ export type Calendar = {
 export type CalendarDate = { year: number; month: number; day: number };
 
 const name = (max: number) => z.string().trim().min(1).max(max);
-const lower = (value: string) => value.toLocaleLowerCase('it');
+const lower = (value: string) => value.toLowerCase();
 
 export const calendarSchema = z
   .object({
@@ -106,6 +106,7 @@ export function toDayNumber(c: Calendar, d: CalendarDate): number {
 }
 
 export function fromDayNumber(c: Calendar, n: number): CalendarDate {
+  if (!Number.isSafeInteger(n)) throw new RangeError('numero di giorno non valido');
   const average = baseYear(c) + (c.leap ? c.leap.days / c.leap.every : 0);
   let year = Math.floor(n / average);
   // La stima è vicina: si corregge al massimo di un paio di anni.
@@ -135,11 +136,14 @@ export function eraOf(c: Calendar, year: number): { name: string; yearInEra: num
   return found ? { name: found.name, yearInEra: year - found.start + 1 } : null;
 }
 
-/** Anno assoluto da (era, anno nell'era); senza era l'anno è già assoluto. `null` se l'era non esiste. */
+export const findEra = (c: Calendar, era: string) =>
+  c.eras.find((e) => lower(e.name) === lower(era.trim()));
+
+/** Anno assoluto da (era, anno nell'era, da 1); senza era l'anno è già assoluto. `null` se l'era non esiste o l'anno è < 1. */
 export function resolveYear(c: Calendar, era: string, yearInEra: number): number | null {
   if (!era) return yearInEra;
-  const found = c.eras.find((e) => lower(e.name) === lower(era));
-  return found ? found.start + yearInEra - 1 : null;
+  const found = findEra(c, era);
+  return found && yearInEra >= 1 ? found.start + yearInEra - 1 : null;
 }
 
 export function formatDate(c: Calendar, d: CalendarDate): string {

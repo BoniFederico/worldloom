@@ -367,14 +367,15 @@
   membri, scrivono proprietari ed editor). Modello (`src/lib/calendars/calendar.ts`): mesi (nome, giorni), giorni della settimana facoltativi, ere
   (nome, anno di inizio) e un solo anno «lungo» periodico (ogni N anni un mese ha giorni in più; multipli di N, anno 0 compreso). Le date sono
   terne {anno, mese, giorno} con anno **assoluto** intero (esiste l'anno 0, i negativi sono «prima»); il numero di giorno dall'origine
-  (anno 0, mese 1, giorno 1) è la base per ordinare e confrontare, in forma chiusa (niente cicli sugli anni). Le ere sono etichette: l'anno
+  (anno 0, mese 1, giorno 1) è la base per ordinare e confrontare, in forma chiusa per gli anni lunghi (con una correzione di uno o due anni sulla stima). Le ere sono etichette: l'anno
   nell'era si conta da 1 (`anno assoluto = inizio + anno − 1`). Il valore del campo `calendar_date` è
   `{calendar: <id>, year, month, day, era?}`; l'era è solo per la lettura.
 - Editor: nella pagina dello snippet il campo ha calendario (se ce n'è più d'uno), era, anno, mese (scelta tra quelli del calendario) e giorno;
   i campi vuoti cancellano la data; un giorno inesistente o un calendario di un altro mondo diventa `{invalid: true}` e il salvataggio
   segnala l'errore mantenendo quanto digitato. La gestione dei calendari è a testo (una riga per mese o era: «nome, numero») perché funziona
   senza JavaScript ed è esportabile a mano.
-- Se un calendario viene eliminato le date restano nello snippet (si mostrano in forma numerica) e non blocca i salvataggi.
+- Se un calendario viene eliminato le date restano nello snippet (si mostrano in forma numerica) e non blocca i salvataggi: i campi vuoti non le cancellano. Un campo obbligatorio di questo tipo non blocca lo stato definitivo finché il mondo non ha calendari.
+- Modificare un calendario non riscrive le date già salvate: se un mese o un giorno non esiste più, il salvataggio dello snippet segnala l'errore e la data va rivista. L'anno nell'era deve essere ≥ 1.
 - Limiti: un solo anno lungo per calendario (niente regole tipo «ogni 100 anni no»); niente mesi intercalari o settimane a lunghezza variabile;
   l'export/import JSON non porta ancora i calendari (i valori data importati restano nello snippet ma puntano a un calendario che non
   esiste nel nuovo mondo); la tabella (#24) non ordina ancora per questo tipo di campo (lo farà la timeline con il numero di giorno).

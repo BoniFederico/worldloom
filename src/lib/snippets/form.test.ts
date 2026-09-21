@@ -118,6 +118,24 @@ describe('mergeFieldInput', () => {
       expect(unknown.fondazione).toEqual({ invalid: true });
     });
 
+    it('se il calendario del valore non esiste più i campi vuoti non cancellano la data', () => {
+      const existing = { fondazione: { calendar: 'eliminato', year: 3, month: 1, day: 1 } };
+      const empty = date({
+        'f:fondazione:era': '',
+        'f:fondazione:year': '',
+        'f:fondazione:month': '',
+        'f:fondazione:day': '',
+      });
+      expect(mergeFieldInput(defs, existing, empty, calendars).fondazione).toEqual(
+        existing.fondazione,
+      );
+      // Con un valore digitato la data si sostituisce.
+      expect(mergeFieldInput(defs, existing, date(), calendars).fondazione).toMatchObject({
+        calendar: 'cal-1',
+        year: 111,
+      });
+    });
+
     it('se il form non contiene il campo il valore esistente resta', () => {
       const existing = { fondazione: { calendar: 'cal-1', year: 3, month: 1, day: 1 } };
       expect(mergeFieldInput(defs, existing, form({}), calendars).fondazione).toEqual(

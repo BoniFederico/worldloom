@@ -4,7 +4,6 @@ import {
   calendarDateFromInput,
   calendarDateToInput,
   calendarToForm,
-  checkCalendarValue,
   parseCalendarForm,
 } from './input';
 
@@ -88,6 +87,7 @@ describe('parseCalendarForm', () => {
     expect(err({ eras: 'X, 1\nX, 2' })).toBe('invalid_eras');
     expect(err({ leapMonth: '9' })).toBe('invalid_leap');
     expect(err({ leapEvery: '1' })).toBe('invalid_leap');
+    expect(err({ leapEvery: '' })).toBe('invalid_leap'); // mese e giorni senza «ogni quanti anni»
     expect(err({ epochWeekday: '9' })).toBe('invalid_epoch');
     expect(err({ months: 'A, 1\n'.repeat(41) })).toBe('invalid_months');
   });
@@ -144,6 +144,8 @@ describe('date nei campi', () => {
     expect(bad({ year: '4', month: '2', day: '21' })).toBe(true);
     expect(bad({ year: 'x', month: '1', day: '1' })).toBe(false);
     expect(bad({ era: 'Terza Era', year: '1', month: '1', day: '1' })).toBe(false);
+    expect(bad({ era: 'Seconda Era', year: '0', month: '1', day: '1' })).toBe(false);
+    expect(bad({ era: 'Seconda Era', year: '-3', month: '1', day: '1' })).toBe(false);
   });
 
   it('rilegge il valore come campi del form, con l’era se esiste', () => {
@@ -154,14 +156,5 @@ describe('date nei campi', () => {
       { calendar: 'cal-1', era: '', year: '50', month: '1', day: '1' },
     );
     expect(calendarDateToInput(fantasy, 'boh')).toBeNull();
-  });
-});
-
-describe('checkCalendarValue', () => {
-  it('controlla il valore salvato contro il calendario', () => {
-    expect(checkCalendarValue(fantasy, { calendar: 'c', year: 4, month: 2, day: 21 })).toBe(true);
-    expect(checkCalendarValue(fantasy, { calendar: 'c', year: 5, month: 2, day: 21 })).toBe(false);
-    expect(checkCalendarValue(fantasy, { calendar: 'c', year: 5, month: 3, day: 1 })).toBe(false);
-    expect(checkCalendarValue(fantasy, 'x')).toBe(false);
   });
 });
