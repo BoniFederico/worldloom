@@ -2,8 +2,11 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { fieldsSchema } from '@/lib/fields/fields';
 import { topLabels } from '@/lib/relations/input';
-import { hasCriteria, parseSearchParams, rpcArgs, splitExcerpt } from '@/lib/search/params';
+import { hasCriteria, parseSearchParams, rpcArgs } from '@/lib/search/params';
+import { Feedback } from '@/components/feedback';
+import { SearchResults } from '@/components/search-results';
 import { loadWorld } from '@/lib/worlds/context';
+import { saveView } from '../views/actions';
 
 type Props = {
   params: Promise<{ worldId: string }>;
@@ -16,8 +19,10 @@ const SEARCHABLE_FIELD_TYPES = new Set(['text', 'number', 'date', 'choice']);
 
 export default async function SearchPage({ params, searchParams }: Props) {
   const { worldId } = await params;
-  const p = parseSearchParams(await searchParams);
-  const { supabase, world } = await loadWorld(worldId);
+  const raw = await searchParams;
+  const p = parseSearchParams(raw);
+  const queryError = raw.error;
+  const { supabase, world, canWrite } = await loadWorld(worldId);
   const t = await getTranslations('Search');
 
   const [{ data: categories }, { data: labels }] = await Promise.all([
@@ -62,6 +67,7 @@ export default async function SearchPage({ params, searchParams }: Props) {
           <Link href={`/worlds/${world.id}`}>{world.name}</Link>
         </p>
         <h1>{t('title')}</h1>
+        <Feedback scope="Search" error={typeof queryError === 'string' ? queryError : undefined} />
 
         <form method="get" className="form" role="search" aria-label={t('title')}>
           <div className="field">
@@ -170,37 +176,40 @@ export default async function SearchPage({ params, searchParams }: Props) {
         ) : null}
 
         {searched ? (
-          <section aria-labelledby="results" aria-live="polite">
-            <h2 id="results">{t('results')}</h2>
-            <p className="role">{t('count', { count: results?.length ?? 0 })}</p>
-            {results?.length ? (
-              <ul className="search-results">
-                {results.map((r) => (
-                  <li key={r.id}>
-                    <Link href={`/worlds/${world.id}/snippets/${r.id}`}>{r.title}</Link>
-                    <span className="role">
-                      {' '}
-                      {r.status === 'final' ? t('final') : t('draft')}
-                      {r.tags.length ? ` · ${r.tags.map((x) => `#${x}`).join(' ')}` : ''}
-                    </span>
-                    {r.excerpt ? (
-                      <p className="search-excerpt">
-                        {splitExcerpt(r.excerpt).map((part, i) =>
-                          part.mark ? (
-                            <mark key={i}>{part.text}</mark>
-                          ) : (
-                            <span key={i}>{part.text}</span>
-                          ),
-                        )}
-                      </p>
-                    ) : null}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p className="empty">{t('none')}</p>
-            )}
-          </section>
+          <>
+            <SearchResults worldId={world.id} results={results ?? []} />
+            {canWrite ? (
+              <details className="field-edit">
+                <summary>{t('saveView')}</summary>
+                <form action={saveView} className="form">
+                  <input type="hidden" name="world" value={world.id} />
+                  {p.q ? <input type="hidden" name="q" value={p.q} /> : null}
+                  {p.category ? <input type="hidden" name="category" value={p.category} /> : null}
+                  {p.tags.length ? (
+                    <input type="hidden" name="tags" value={p.tags.join(',')} />
+                  ) : null}
+                  {p.status ? <input type="hidden" name="status" value={p.status} /> : null}
+                  {p.fieldKey ? <input type="hidden" name="field" value={p.fieldKey} /> : null}
+                  {p.fieldKey && p.fieldValue ? (
+                    <input type="hidden" name="value" value={p.fieldValue} />
+                  ) : null}
+                  {p.relation ? <input type="hidden" name="relation" value={p.relation} /> : null}
+                  {p.archived ? <input type="hidden" name="archived" value="1" /> : null}
+                  <div className="field">
+                    <label htmlFor="view-name">{t('viewName')}</label>
+                    <input id="view-name" name="name" maxLength={80} required autoComplete="off" />
+                  </div>
+                  <label className="check">
+                    <input type="checkbox" name="shared" defaultChecked />
+                    {t('shareWithMembers')}
+                  </label>
+                  <button type="submit" className="btn">
+                    {t('saveViewSubmit')}
+                  </button>
+                </form>
+              </details>
+            ) : null}
+          </>
         ) : (
           <p className="field-hint">{t('intro')}</p>
         )}

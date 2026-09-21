@@ -102,7 +102,8 @@
     "relationTypes": "Relation types",
     "search": "Search",
     "importLink": "Import a world",
-    "exportJson": "Export (JSON)"
+    "exportJson": "Export (JSON)",
+    "views": "Views"
   },
   "Members": {
     "title": "Members",
@@ -560,7 +561,16 @@
     "results": "Results",
     "count": "{count, plural, =0 {No results} one {# result} other {# results}}",
     "none": "No snippet matches the search.",
-    "error": "The search failed. Please try again."
+    "error": "The search failed. Please try again.",
+    "saveView": "Save as view",
+    "viewName": "View name",
+    "shareWithMembers": "Share with the world’s members",
+    "saveViewSubmit": "Save view",
+    "errors": {
+      "invalid_view_name": "The view name is required (80 characters at most).",
+      "view_failed": "The view could not be saved. Try again.",
+      "forbidden": "You do not have permission to save views."
+    }
   },
   "Palette": {
     "open": "Search",
@@ -613,6 +623,43 @@
       "invalid_file": "The file is not valid: check that it is a Worldloom export.",
       "too_large": "The file is larger than 4 MB.",
       "generic": "Import failed. Try again shortly."
+    }
+  },
+  "Views": {
+    "title": "Views",
+    "empty": "No saved views. Search with some filters and save it as a view.",
+    "newFromSearch": "New view from search",
+    "shared": "shared",
+    "private": "private",
+    "mine": "yours",
+    "kind": {
+      "list": "List",
+      "table": "Table",
+      "graph": "Graph",
+      "timeline": "Timeline",
+      "map": "Map",
+      "tree": "Tree",
+      "kanban": "Board"
+    },
+    "editFilters": "Edit filters",
+    "noFilters": "This view has no filters: edit it to choose what to show.",
+    "searchError": "The results could not be computed. Try again.",
+    "kindSoon": "This kind of view will be available soon.",
+    "manage": "Manage the view",
+    "name": "Name",
+    "shareWithMembers": "Share with the world’s members",
+    "save": "Save",
+    "delete": "Delete the view",
+    "confirmDelete": "I confirm deleting this view",
+    "notices": {
+      "created": "View saved.",
+      "updated": "View updated.",
+      "deleted": "View deleted."
+    },
+    "errors": {
+      "invalid_name": "The name is required (80 characters at most).",
+      "forbidden": "You do not have permission to change this view.",
+      "confirm_required": "Tick the confirmation to delete the view."
     }
   }
 }

@@ -221,6 +221,53 @@ export type Database = {
           },
         ];
       };
+      saved_views: {
+        Row: {
+          config: Json;
+          created_at: string;
+          created_by: string;
+          filters: Json;
+          id: string;
+          kind: string;
+          name: string;
+          shared: boolean;
+          updated_at: string;
+          world_id: string;
+        };
+        Insert: {
+          config?: Json;
+          created_at?: string;
+          created_by: string;
+          filters?: Json;
+          id?: string;
+          kind: string;
+          name: string;
+          shared?: boolean;
+          updated_at?: string;
+          world_id: string;
+        };
+        Update: {
+          config?: Json;
+          created_at?: string;
+          created_by?: string;
+          filters?: Json;
+          id?: string;
+          kind?: string;
+          name?: string;
+          shared?: boolean;
+          updated_at?: string;
+          world_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'saved_views_world_id_fkey';
+            columns: ['world_id'];
+            isOneToOne: false;
+            referencedRelation: 'worlds';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       snippet_categories: {
         Row: {
           category_id: string;

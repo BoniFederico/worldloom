@@ -102,7 +102,8 @@
     "relationTypes": "Tipi di relazione",
     "search": "Ricerca",
     "importLink": "Importa un mondo",
-    "exportJson": "Esporta (JSON)"
+    "exportJson": "Esporta (JSON)",
+    "views": "Viste"
   },
   "Members": {
     "title": "Membri",
@@ -560,7 +561,16 @@
     "results": "Risultati",
     "count": "{count, plural, =0 {Nessun risultato} one {# risultato} other {# risultati}}",
     "none": "Nessuno snippet corrisponde alla ricerca.",
-    "error": "La ricerca non è riuscita. Riprova."
+    "error": "La ricerca non è riuscita. Riprova.",
+    "saveView": "Salva come vista",
+    "viewName": "Nome della vista",
+    "shareWithMembers": "Condividi con i membri del mondo",
+    "saveViewSubmit": "Salva la vista",
+    "errors": {
+      "invalid_view_name": "Il nome della vista è obbligatorio (massimo 80 caratteri).",
+      "view_failed": "Non è stato possibile salvare la vista. Riprova.",
+      "forbidden": "Non hai i permessi per salvare viste."
+    }
   },
   "Palette": {
     "open": "Cerca",
@@ -613,6 +623,43 @@
       "invalid_file": "Il file non è valido: controlla che sia un export di Worldloom.",
       "too_large": "Il file supera i 4 MB.",
       "generic": "Importazione non riuscita. Riprova tra poco."
+    }
+  },
+  "Views": {
+    "title": "Viste",
+    "empty": "Nessuna vista salvata. Cerca qualcosa con dei filtri e salvala come vista.",
+    "newFromSearch": "Nuova vista dalla ricerca",
+    "shared": "condivisa",
+    "private": "privata",
+    "mine": "tua",
+    "kind": {
+      "list": "Elenco",
+      "table": "Tabella",
+      "graph": "Grafo",
+      "timeline": "Timeline",
+      "map": "Mappa",
+      "tree": "Albero",
+      "kanban": "Bacheca"
+    },
+    "editFilters": "Modifica i filtri",
+    "noFilters": "Questa vista non ha filtri: modificala per scegliere cosa mostrare.",
+    "searchError": "Non è stato possibile calcolare i risultati. Riprova.",
+    "kindSoon": "Questo tipo di vista sarà disponibile presto.",
+    "manage": "Gestisci la vista",
+    "name": "Nome",
+    "shareWithMembers": "Condividi con i membri del mondo",
+    "save": "Salva",
+    "delete": "Elimina la vista",
+    "confirmDelete": "Confermo l’eliminazione di questa vista",
+    "notices": {
+      "created": "Vista salvata.",
+      "updated": "Vista aggiornata.",
+      "deleted": "Vista eliminata."
+    },
+    "errors": {
+      "invalid_name": "Il nome è obbligatorio (massimo 80 caratteri).",
+      "forbidden": "Non hai i permessi per modificare questa vista.",
+      "confirm_required": "Spunta la conferma per eliminare la vista."
     }
   }
 }
