@@ -660,6 +660,36 @@
       "invalid_name": "The name is required (80 characters at most).",
       "forbidden": "You do not have permission to change this view.",
       "confirm_required": "Tick the confirmation to delete the view."
-    }
+    },
+    "newTable": "New table",
+    "editTable": "Edit the table"
+  },
+  "Table": {
+    "title": "Table",
+    "settings": "Columns, sorting, grouping and filters",
+    "columns": "Columns",
+    "col": {
+      "title": "Title",
+      "status": "Status",
+      "tags": "Tags",
+      "categories": "Categories",
+      "updated": "Modified"
+    },
+    "sortField": "Sort by",
+    "direction": "Direction",
+    "asc": "Ascending",
+    "desc": "Descending",
+    "groupBy": "Group by",
+    "noGroup": "No grouping",
+    "noValue": "No value",
+    "apply": "Apply",
+    "caption": "The world’s snippets as a table",
+    "scrollRegion": "Table (scroll to see all columns)",
+    "sortBy": "Sort by {column}",
+    "count": "{count, plural, =0 {No snippets} one {# snippet} other {# snippets}}",
+    "truncated": "Showing the first {count} rows: narrow the filters to see the rest.",
+    "empty": "No snippet matches the filters.",
+    "loadError": "The table could not be loaded. Try again.",
+    "filtersOnly": "Table filters are category, tag, status, field and archive; full-text search is on the search page."
   }
 }

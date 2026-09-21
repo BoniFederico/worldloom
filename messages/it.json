@@ -660,6 +660,36 @@
       "invalid_name": "Il nome è obbligatorio (massimo 80 caratteri).",
       "forbidden": "Non hai i permessi per modificare questa vista.",
       "confirm_required": "Spunta la conferma per eliminare la vista."
-    }
+    },
+    "newTable": "Nuova tabella",
+    "editTable": "Modifica la tabella"
+  },
+  "Table": {
+    "title": "Tabella",
+    "settings": "Colonne, ordinamento, raggruppamento e filtri",
+    "columns": "Colonne",
+    "col": {
+      "title": "Titolo",
+      "status": "Stato",
+      "tags": "Tag",
+      "categories": "Categorie",
+      "updated": "Modificato"
+    },
+    "sortField": "Ordina per",
+    "direction": "Direzione",
+    "asc": "Crescente",
+    "desc": "Decrescente",
+    "groupBy": "Raggruppa per",
+    "noGroup": "Nessun raggruppamento",
+    "noValue": "Senza valore",
+    "apply": "Applica",
+    "caption": "Snippet del mondo in forma di tabella",
+    "scrollRegion": "Tabella (scorri per vedere tutte le colonne)",
+    "sortBy": "Ordina per {column}",
+    "count": "{count, plural, =0 {Nessuno snippet} one {# snippet} other {# snippet}}",
+    "truncated": "Mostrate le prime {count} righe: restringi i filtri per vedere il resto.",
+    "empty": "Nessuno snippet corrisponde ai filtri.",
+    "loadError": "Non è stato possibile caricare la tabella. Riprova.",
+    "filtersOnly": "I filtri della tabella sono categoria, tag, stato, campo e archivio; la ricerca nel testo è nella pagina di ricerca."
   }
 }

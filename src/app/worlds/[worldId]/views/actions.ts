@@ -4,11 +4,15 @@ import { redirect } from 'next/navigation';
 import { parseSearchParams } from '@/lib/search/params';
 import type { Json } from '@/lib/supabase/database.types';
 import { filtersOf, viewNameSchema } from '@/lib/views/filters';
+import { configFromQuery } from '@/lib/views/table';
 import { loadWorld } from '@/lib/worlds/context';
 import { uuidSchema } from '@/lib/worlds/schemas';
 
 const field = (formData: FormData, name: string) => String(formData.get(name) ?? '');
 const viewsPath = (world: string) => `/worlds/${world}/views`;
+
+const rawOf = (formData: FormData) =>
+  Object.fromEntries([...formData.entries()].map(([k, v]) => [k, String(v)]));
 
 function worldOf(formData: FormData): string {
   const world = uuidSchema.safeParse(field(formData, 'world'));
@@ -25,10 +29,9 @@ function viewOf(formData: FormData, world: string): string {
 /** Salva i criteri della ricerca come vista (elenco). Solo chi può scrivere; la RLS lo garantisce anche a livello dati. */
 export async function saveView(formData: FormData) {
   const world = worldOf(formData);
-  const params = parseSearchParams(
-    Object.fromEntries([...formData.entries()].map(([k, v]) => [k, String(v)])),
-  );
-  const back = `/worlds/${world}/search`;
+  const params = parseSearchParams(rawOf(formData));
+  const kind = field(formData, 'kind') === 'table' ? 'table' : 'list';
+  const back = `/worlds/${world}/${kind === 'table' ? 'table' : 'search'}`;
   const name = viewNameSchema.safeParse(field(formData, 'name'));
   if (!name.success) redirect(`${back}?error=invalid_view_name`);
 
@@ -42,8 +45,9 @@ export async function saveView(formData: FormData) {
     .insert({
       world_id: world,
       name: name.data,
-      kind: 'list',
+      kind,
       filters: filtersOf(params) as Json,
+      config: (kind === 'table' ? configFromQuery(rawOf(formData)) : {}) as unknown as Json,
       shared: formData.get('shared') === 'on',
       created_by: auth.user.id,
     })

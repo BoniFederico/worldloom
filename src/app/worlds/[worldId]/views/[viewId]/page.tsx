@@ -1,17 +1,25 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { Feedback } from '@/components/feedback';
 import { SearchResults } from '@/components/search-results';
+import { TableView } from '@/components/table-view';
 import { hasCriteria, rpcArgs } from '@/lib/search/params';
 import { paramsOfFilters, searchQuery } from '@/lib/views/filters';
+import { configFromQuery, configQuery, parseTableConfig } from '@/lib/views/table';
+import { TABLE_LIMIT, loadTableContext, loadTableRows } from '@/lib/views/table-data';
 import { loadWorld } from '@/lib/worlds/context';
 import { uuidSchema } from '@/lib/worlds/schemas';
 import { deleteView, updateView } from '../actions';
 
 type Props = {
   params: Promise<{ worldId: string; viewId: string }>;
-  searchParams: Promise<{ error?: string; notice?: string }>;
+  searchParams: Promise<{
+    error?: string;
+    notice?: string;
+    sort?: string | string[];
+    dir?: string | string[];
+  }>;
 };
 
 const LIMIT = 50;
@@ -19,13 +27,14 @@ const LIMIT = 50;
 export default async function ViewPage({ params, searchParams }: Props) {
   const { worldId, viewId } = await params;
   if (!uuidSchema.safeParse(viewId).success) notFound();
-  const { error, notice } = await searchParams;
+  const raw = await searchParams;
+  const { error, notice } = raw;
   const { supabase, world, role } = await loadWorld(worldId);
   const [t, { data: view }, { data: auth }] = await Promise.all([
     getTranslations('Views'),
     supabase
       .from('saved_views')
-      .select('id, name, kind, filters, shared, created_by')
+      .select('id, name, kind, filters, config, shared, created_by')
       .eq('id', viewId)
       .eq('world_id', worldId)
       .maybeSingle(),
@@ -44,9 +53,26 @@ export default async function ViewPage({ params, searchParams }: Props) {
       : { data: [], error: null };
   const query = searchQuery(p);
 
+  // Tabella: la configurazione salvata; ordinare da un'intestazione la cambia solo per questa visita (non modifica la vista).
+  const isTable = view.kind === 'table';
+  const saved = parseTableConfig(view.config);
+  const override = configFromQuery({ cols: saved.columns.join(','), sort: raw.sort, dir: raw.dir });
+  // Un `sort` non valido non sostituisce l'ordinamento salvato.
+  const validSort = typeof raw.sort === 'string' && override.sort.by === raw.sort;
+  const tableConfig = validSort ? { ...saved, sort: override.sort } : saved;
+  const [locale, tableData, tableRows] = isTable
+    ? await Promise.all([
+        getLocale(),
+        loadTableContext(supabase, worldId),
+        loadTableRows(supabase, worldId, p),
+      ])
+    : [null, null, null];
+  const viewPath = `/worlds/${world.id}/views/${view.id}`;
+  const editTable = `/worlds/${world.id}/table?${[query, configQuery(saved)].filter(Boolean).join('&')}`;
+
   return (
     <main id="main" className="page page-top">
-      <section className="content">
+      <section className={isTable ? 'content content-wide' : 'content'}>
         <p className="crumbs">
           <Link href={`/worlds/${world.id}/views`}>{t('title')}</Link>
         </p>
@@ -71,6 +97,31 @@ export default async function ViewPage({ params, searchParams }: Props) {
               <SearchResults worldId={world.id} results={results ?? []} />
             ) : (
               <p className="field-hint">{t('noFilters')}</p>
+            )}
+          </>
+        ) : isTable && tableData && locale ? (
+          <>
+            <p>
+              <Link href={editTable} className="btn">
+                {t('editTable')}
+              </Link>
+            </p>
+            {tableRows ? (
+              <TableView
+                worldId={world.id}
+                rows={tableRows.rows}
+                ctx={tableData.ctx}
+                config={tableConfig}
+                truncatedAt={tableRows.truncated ? TABLE_LIMIT : null}
+                sortHref={(column, dir) =>
+                  `${viewPath}?sort=${encodeURIComponent(column)}&dir=${dir}`
+                }
+                locale={locale}
+              />
+            ) : (
+              <p role="alert" className="message message-error">
+                {t('searchError')}
+              </p>
             )}
           </>
         ) : (
