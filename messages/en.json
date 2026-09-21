@@ -1112,6 +1112,7 @@
     "reveal": "Reveal",
     "unknownUser": "User",
     "fieldUsers": "Field recipients",
-    "fieldLevel": "Field level"
+    "fieldLevel": "Field level",
+    "fieldLegend": "Visibility of {name}"
   }
 }

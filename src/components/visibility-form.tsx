@@ -81,7 +81,7 @@ export async function VisibilityForm({
           <p className="field-hint">{t('fieldsHint')}</p>
           {fields.map((f) => (
             <fieldset className="fieldset" key={f.key}>
-              <legend>{f.label}</legend>
+              <legend>{t('fieldLegend', { name: f.label })}</legend>
               <label className="sr-only" htmlFor={`${idPrefix}-field-${f.key}`}>
                 {t('fieldLevel')}
               </label>

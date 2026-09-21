@@ -90,7 +90,9 @@ const snippetUsers = (page: Page) =>
   panel(page).getByRole('group', { name: 'Giocatori scelti', exact: true });
 /** Livello di un campo: la select dentro il gruppo che ha il nome del campo. */
 const fieldLevel = (page: Page, name: string) =>
-  panel(page).getByRole('group', { name, exact: true }).getByLabel('Livello del campo');
+  panel(page)
+    .getByRole('group', { name: `Visibilità di ${name}`, exact: true })
+    .getByLabel('Livello del campo');
 const titlesInList = async (page: Page, worldId: string) => {
   await page.goto(`/worlds/${worldId}/snippets`);
   return page.locator('main a[href*="/snippets/"]').allInnerTexts();
