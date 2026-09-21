@@ -298,3 +298,21 @@
   `db push --include-seed` o `db reset --linked` su un progetto cloud non creano l'utente demo (test incluso); la ricerca è misurata come
   mediana di 5 esecuzioni (< 300 ms). Non lanciare `test:db` ed e2e insieme in locale: il seed dei test blocca le righe demo durante la transazione.
 - Deciso da: agente
+
+### D-023: Viste salvate (modello, condivisione, link stabile)
+
+- Data: 2026-09-21
+- Contesto: #23. Una vista è «filtri + tipo + configurazione» (SPEC); i tipi grafici arrivano nelle issue #24–#30.
+- Decisione: tabella `saved_views` (`kind` fra list/table/graph/timeline/map/tree/kanban, `filters` e `config` jsonb ≤ 10.000 caratteri,
+  `shared`). Il link stabile è `/worlds/<mondo>/views/<id>`. Una vista salva **cosa** mostrare, mai i dati: i risultati si calcolano a ogni
+  apertura con la sessione di chi guarda, quindi condividere una vista non può rivelare contenuti che il destinatario non può leggere
+  (regola SPEC su viste ed export). `shared` = visibile a tutti i membri del mondo, altrimenti solo a chi l'ha creata; la crea chi può
+  scrivere (owner/editor); la modificano ed eliminano il creatore e il proprietario; `world_id`, `created_by` e `kind` sono immutabili.
+  `anon` non ha alcun permesso sulla tabella. Oggi è renderizzato il tipo `list` (i filtri della ricerca full-text di D-019, salvati con
+  `filtersOf`/`paramsOfFilters`: i filtri letti dal database passano dallo stesso parsing e limiti della query string); gli altri tipi
+  mostrano «disponibile presto» finché non arriva il loro renderer, che leggerà `config` con un proprio schema zod.
+- Dalla review: la condivisione (`shared`) la cambia solo il creatore; il proprietario può rinominare o eliminare la vista di un altro ma non
+  renderla privata (non la vedrebbe più e la RLS rifiuterebbe l'aggiornamento): il form non mostra la casella e l'azione aggiorna solo il nome.
+- Limiti noti: nessuna vista personale per chi non scrive (lettori e commentatori); il proprietario non vede le viste private altrui
+  (può però eliminarle); il nome di una vista condivisa è visibile a tutti i membri anche se i suoi risultati non lo sono.
+- Deciso da: agente
