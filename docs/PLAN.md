@@ -4,7 +4,7 @@
 
 ## Stato
 
-- Fase: M1 completata (#15–#22); M2 in corso: #23, #24 chiuse (viste salvate, tabella); prossimo #25 (grafo).
+- Fase: M1 completata (#15–#22); M2 in corso: #23–#25 chiuse (viste salvate, tabella, grafo); prossimo #26 (calendari).
 
 ## Backlog (in ordine di esecuzione)
 
@@ -33,7 +33,7 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 22  | Seed di demo: mondo di esempio e dati sintetici per performance                 | feat  | 13         | done  | seed.sql, login demo, prova di carico (D-022)   |
 | 23  | Modello di vista salvata con link stabile                                       | feat  | 15, 17     | done  | saved_views, link stabile, condivisione (D-023) |
 | 24  | Vista tabella con ordinamento, filtri e raggruppamenti                          | feat  | 15, 17     | done  | tabella, ordinamento, gruppi, filtri (D-024)    |
-| 25  | Vista grafo delle relazioni                                                     | feat  | 15, 17     | todo  |                                                 |
+| 25  | Vista grafo delle relazioni                                                     | feat  | 15, 17     | done  | graph_data, SVG server, tabella alt. (D-025)    |
 | 26  | Calendari personalizzati e scale temporali                                      | feat  | 15, 17     | todo  |                                                 |
 | 27  | Vista timeline                                                                  | feat  | 26         | todo  |                                                 |
 | 28  | Vista mappa con pin e mappe annidate                                            | feat  | 15, 17     | todo  |                                                 |

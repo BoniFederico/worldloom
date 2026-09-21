@@ -336,3 +336,25 @@
   raggruppamento lavorano solo su quelle.
 - Limiti: niente paginazione oltre le 500 righe; nessuna modifica in-cell; ordinamento per data «calendario personalizzato» (#26) da rifinire.
 - Deciso da: agente
+
+### D-025: Vista grafo (SVG sul server, dati da una funzione SQL)
+
+- Data: 2026-09-21
+- Contesto: #25. Filtri per categoria ed etichetta, profondità dal nodo, fluidità con 5.000 nodi e 20.000 relazioni, alternativa tabellare accessibile.
+- Decisione: `public.graph_data(mondo, centro, profondità, etichetta, categoria, menzioni, max nodi)` (security invoker: la RLS decide cosa si
+  vede, quindi uno snippet segreto non compare a un lettore né con le sue relazioni) restituisce nodi e archi già ridotti. Senza centro sceglie
+  gli snippet con più relazioni; con un centro, i nodi entro 0–4 passi (relazioni in entrambe le direzioni, ricerca ricorsiva). Tetto di 300
+  nodi (500 in SQL) con avviso di troncamento: il disegno resta leggibile e la risposta veloce (verificato sui dati di prova: test DB < 1,5 s).
+  Il disegno è un `<svg>` prodotto sul server con un layout a forze deterministico (Fruchterman–Reingold con repulsione a raggio finito, area
+  proporzionale a √nodi, nessun elemento casuale): nessuna libreria di grafi nel browser (SPEC: viste curate, coerenti col design system).
+  Ogni nodo è un link che ricentra il grafo (Tab + Invio, senza JavaScript); l'alternativa accessibile è una tabella di tutte le relazioni con
+  link agli snippet (più gli snippet senza relazioni visibili). Etichetta e categoria filtrano come nella ricerca (l'etichetta anche
+  nella forma inversa, senza badare alle maiuscole); le relazioni da menzione si possono nascondere.
+- Viste salvate: tipo `graph` con `config` `{center, depth, label, category, mentions}` passato da `parseGraphConfig` (stessi limiti della query
+  string); ricentrare da una vista salvata apre il grafo libero senza modificarla.
+- Dalla review: gli archi sono al massimo 2.000 (`edges_truncated`, con avviso); gli snippet nel cestino non sono nodi e non fanno da ponte
+  nella ricerca dal centro né contano nel grado; ordinamento degli archi totale (deterministico).
+- Limiti: niente zoom/pan interattivo né trascinamento dei nodi (il browser può ingrandire l'SVG; sopra i 300 nodi bisogna restringere o
+  scegliere un centro); il layout si ricalcola a ogni richiesta (O(iterazioni × nodi²), < 100 ms a 300 nodi); il filtro per categoria toglie
+  anche i nodi intermedi di altre categorie (il vicinato è calcolato prima del filtro).
+- Deciso da: agente

@@ -103,7 +103,8 @@
     "search": "Search",
     "importLink": "Import a world",
     "exportJson": "Export (JSON)",
-    "views": "Views"
+    "views": "Views",
+    "graph": "Graph"
   },
   "Members": {
     "title": "Members",
@@ -662,7 +663,9 @@
       "confirm_required": "Tick the confirmation to delete the view."
     },
     "newTable": "New table",
-    "editTable": "Edit the table"
+    "editTable": "Edit the table",
+    "newGraph": "New graph",
+    "editGraph": "Edit the graph"
   },
   "Table": {
     "title": "Table",
@@ -691,5 +694,40 @@
     "empty": "No snippet matches the filters.",
     "loadError": "The table could not be loaded. Try again.",
     "filtersOnly": "Table filters are category, tag, status, field and archive; full-text search is on the search page."
+  },
+  "Graph": {
+    "title": "Relationship graph",
+    "settings": "Depth and filters",
+    "depth": "Depth from the chosen node",
+    "depthOption": "{count, plural, =0 {Just the node} one {1 step} other {# steps}}",
+    "depthHint": "Applies when a central node is chosen (click a node).",
+    "mentions": "Mention relations",
+    "mentionsShow": "Show",
+    "mentionsHide": "Hide",
+    "apply": "Apply",
+    "centeredOn": "Graph centred on “{title}”.",
+    "centered": "Graph centred on the chosen node.",
+    "openSnippet": "Open the snippet",
+    "removeCenter": "Show the whole world",
+    "pickHint": "Shows the most connected snippets. Click (or Tab to and press Enter on) a node to centre the graph on it.",
+    "count": "{nodes, plural, =0 {No nodes} one {# node} other {# nodes}} · {edges, plural, =0 {no relations} one {# relation} other {# relations}}",
+    "truncated": "Showing the {count} most connected nodes: choose a central node or narrow the filters to see the rest.",
+    "empty": "No relations to show with these filters.",
+    "loadError": "The graph could not be loaded. Try again.",
+    "svgTitle": "Relationship graph",
+    "svgDesc": "Each circle is a snippet, each line a relation. The table below the drawing holds the same data.",
+    "nodeLabel": "{title}, {degree, plural, one {# relation} other {# relations}}. Centre the graph on this snippet.",
+    "mention": "mentions",
+    "legend": "Categories",
+    "noRelations": "no visible relations",
+    "tableTitle": "Relations as a table",
+    "tableHint": "A text alternative to the drawing: every relation with links to the snippets.",
+    "tableScroll": "Relations table (scroll to see everything)",
+    "tableCaption": "Relations between the snippets shown in the graph",
+    "from": "From",
+    "relation": "Relation",
+    "to": "To",
+    "graphScroll": "Graph drawing (scroll to see everything)",
+    "edgesTruncated": "There are more than 2,000 relations between these nodes: 2,000 are shown. Narrow the filters or choose a central node."
   }
 }

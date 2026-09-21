@@ -89,4 +89,38 @@ describe('seed di demo', () => {
       expect(found).toBeGreaterThan(0);
     });
   }, 180_000);
+
+  it('il grafo sulla prova di carico (5.000 nodi, 20.000 archi) si calcola in meno di 2,5 s (mediana)', async () => {
+    await withTx(async (db) => {
+      await db.query(seed);
+      await db.query('analyze snippets');
+      await db.query('analyze relations');
+      const center = (
+        await db.query(`select id from snippets where world_id = $1 order by title limit 1`, [
+          STRESS_WORLD,
+        ])
+      ).rows[0].id as string;
+      const time = async (args: unknown[]) => {
+        const start = performance.now();
+        const { rows } = await actAs(db, DEMO, () =>
+          db.query('select public.graph_data($1, $2, $3, $4, $5, $6, $7) as g', args),
+        );
+        return { ms: performance.now() - start, graph: rows[0].g };
+      };
+      await time([STRESS_WORLD, null, 2, null, null, true, 300]); // riscaldamento
+      // Mediana di 3 esecuzioni: meno sensibile ai picchi di un runner condiviso.
+      const runs = [];
+      for (let i = 0; i < 3; i++)
+        runs.push(await time([STRESS_WORLD, null, 2, null, null, true, 300]));
+      runs.sort((a, b) => a.ms - b.ms);
+      const overview = runs[1]!;
+      expect(overview.graph.nodes).toHaveLength(300);
+      expect(overview.graph.truncated).toBe(true);
+      expect(overview.graph.edges.length).toBeLessThanOrEqual(2000);
+      expect(overview.ms).toBeLessThan(2500);
+      const near = await time([STRESS_WORLD, center, 2, null, null, true, 300]);
+      expect(near.graph.nodes.length).toBeGreaterThan(1);
+      expect(near.ms).toBeLessThan(2500);
+    });
+  }, 180_000);
 });
