@@ -103,7 +103,8 @@
     "search": "Ricerca",
     "importLink": "Importa un mondo",
     "exportJson": "Esporta (JSON)",
-    "views": "Viste"
+    "views": "Viste",
+    "graph": "Grafo"
   },
   "Members": {
     "title": "Membri",
@@ -662,7 +663,9 @@
       "confirm_required": "Spunta la conferma per eliminare la vista."
     },
     "newTable": "Nuova tabella",
-    "editTable": "Modifica la tabella"
+    "editTable": "Modifica la tabella",
+    "newGraph": "Nuovo grafo",
+    "editGraph": "Modifica il grafo"
   },
   "Table": {
     "title": "Tabella",
@@ -691,5 +694,39 @@
     "empty": "Nessuno snippet corrisponde ai filtri.",
     "loadError": "Non è stato possibile caricare la tabella. Riprova.",
     "filtersOnly": "I filtri della tabella sono categoria, tag, stato, campo e archivio; la ricerca nel testo è nella pagina di ricerca."
+  },
+  "Graph": {
+    "title": "Grafo delle relazioni",
+    "settings": "Profondità e filtri",
+    "depth": "Profondità dal nodo scelto",
+    "depthOption": "{count, plural, =0 {Solo il nodo} one {1 passo} other {# passi}}",
+    "depthHint": "Vale quando è scelto un nodo centrale (clicca un nodo).",
+    "mentions": "Relazioni da menzione",
+    "mentionsShow": "Mostra",
+    "mentionsHide": "Nascondi",
+    "apply": "Applica",
+    "centeredOn": "Grafo centrato su «{title}».",
+    "centered": "Grafo centrato sul nodo scelto.",
+    "openSnippet": "Apri lo snippet",
+    "removeCenter": "Mostra tutto il mondo",
+    "pickHint": "Mostra gli snippet con più relazioni. Clicca (o seleziona con Tab e Invio) un nodo per centrare il grafo su di esso.",
+    "count": "{nodes, plural, =0 {Nessun nodo} one {# nodo} other {# nodi}} · {edges, plural, =0 {nessuna relazione} one {# relazione} other {# relazioni}}",
+    "truncated": "Mostrati i {count} nodi più collegati: scegli un nodo centrale o restringi i filtri per vedere il resto.",
+    "empty": "Nessuna relazione da mostrare con questi filtri.",
+    "loadError": "Non è stato possibile caricare il grafo. Riprova.",
+    "svgTitle": "Grafo delle relazioni",
+    "svgDesc": "Ogni cerchio è uno snippet, ogni linea una relazione. La tabella sotto il disegno contiene gli stessi dati.",
+    "nodeLabel": "{title}, {degree, plural, one {# relazione} other {# relazioni}}. Centra il grafo su questo snippet.",
+    "mention": "menziona",
+    "legend": "Categorie",
+    "noRelations": "nessuna relazione visibile",
+    "tableTitle": "Relazioni in forma di tabella",
+    "tableHint": "Alternativa testuale al disegno: elenca ogni relazione con i link agli snippet.",
+    "tableScroll": "Tabella delle relazioni (scorri per vedere tutto)",
+    "tableCaption": "Relazioni tra gli snippet mostrati nel grafo",
+    "from": "Da",
+    "relation": "Relazione",
+    "to": "A",
+    "graphScroll": "Disegno del grafo (scorri per vedere tutto)"
   }
 }

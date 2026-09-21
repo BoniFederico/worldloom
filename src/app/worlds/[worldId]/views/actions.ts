@@ -4,6 +4,7 @@ import { redirect } from 'next/navigation';
 import { parseSearchParams } from '@/lib/search/params';
 import type { Json } from '@/lib/supabase/database.types';
 import { filtersOf, viewNameSchema } from '@/lib/views/filters';
+import { parseGraphParams } from '@/lib/graph/params';
 import { configFromQuery } from '@/lib/views/table';
 import { loadWorld } from '@/lib/worlds/context';
 import { uuidSchema } from '@/lib/worlds/schemas';
@@ -30,8 +31,9 @@ function viewOf(formData: FormData, world: string): string {
 export async function saveView(formData: FormData) {
   const world = worldOf(formData);
   const params = parseSearchParams(rawOf(formData));
-  const kind = field(formData, 'kind') === 'table' ? 'table' : 'list';
-  const back = `/worlds/${world}/${kind === 'table' ? 'table' : 'search'}`;
+  const requested = field(formData, 'kind');
+  const kind = requested === 'table' || requested === 'graph' ? requested : 'list';
+  const back = `/worlds/${world}/${kind === 'table' ? 'table' : kind === 'graph' ? 'graph' : 'search'}`;
   const name = viewNameSchema.safeParse(field(formData, 'name'));
   if (!name.success) redirect(`${back}?error=invalid_view_name`);
 
@@ -46,8 +48,12 @@ export async function saveView(formData: FormData) {
       world_id: world,
       name: name.data,
       kind,
-      filters: filtersOf(params) as Json,
-      config: (kind === 'table' ? configFromQuery(rawOf(formData)) : {}) as unknown as Json,
+      filters: (kind === 'graph' ? {} : filtersOf(params)) as Json,
+      config: (kind === 'table'
+        ? configFromQuery(rawOf(formData))
+        : kind === 'graph'
+          ? parseGraphParams(rawOf(formData))
+          : {}) as unknown as Json,
       shared: formData.get('shared') === 'on',
       created_by: auth.user.id,
     })

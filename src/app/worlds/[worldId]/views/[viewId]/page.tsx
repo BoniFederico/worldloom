@@ -3,7 +3,10 @@ import { notFound } from 'next/navigation';
 import { getLocale, getTranslations } from 'next-intl/server';
 import { Feedback } from '@/components/feedback';
 import { SearchResults } from '@/components/search-results';
+import { GraphView } from '@/components/graph-view';
 import { TableView } from '@/components/table-view';
+import { loadGraph } from '@/lib/graph/load';
+import { graphQuery, parseGraphConfig } from '@/lib/graph/params';
 import { hasCriteria, rpcArgs } from '@/lib/search/params';
 import { paramsOfFilters, searchQuery } from '@/lib/views/filters';
 import { configFromQuery, configQuery, parseTableConfig } from '@/lib/views/table';
@@ -68,11 +71,22 @@ export default async function ViewPage({ params, searchParams }: Props) {
       ])
     : [null, null, null];
   const viewPath = `/worlds/${world.id}/views/${view.id}`;
+
+  // Grafo: la configurazione salvata; ricentrare da un nodo apre il grafo libero, senza modificare la vista.
+  const isGraph = view.kind === 'graph';
+  const graphParams = parseGraphConfig(view.config);
+  const [graph, graphCategories] = isGraph
+    ? await Promise.all([
+        loadGraph(supabase, worldId, graphParams),
+        supabase.from('categories').select('id, name, color').eq('world_id', worldId).order('name'),
+      ])
+    : [null, null];
+  const graphBase = `/worlds/${world.id}/graph`;
   const editTable = `/worlds/${world.id}/table?${[query, configQuery(saved)].filter(Boolean).join('&')}`;
 
   return (
     <main id="main" className="page page-top">
-      <section className={isTable ? 'content content-wide' : 'content'}>
+      <section className={isTable || isGraph ? 'content content-wide' : 'content'}>
         <p className="crumbs">
           <Link href={`/worlds/${world.id}/views`}>{t('title')}</Link>
         </p>
@@ -117,6 +131,30 @@ export default async function ViewPage({ params, searchParams }: Props) {
                   `${viewPath}?sort=${encodeURIComponent(column)}&dir=${dir}`
                 }
                 locale={locale}
+              />
+            ) : (
+              <p role="alert" className="message message-error">
+                {t('searchError')}
+              </p>
+            )}
+          </>
+        ) : isGraph ? (
+          <>
+            <p>
+              <Link
+                href={`${graphBase}${graphQuery(graphParams) ? `?${graphQuery(graphParams)}` : ''}`}
+                className="btn"
+              >
+                {t('editGraph')}
+              </Link>
+            </p>
+            {graph ? (
+              <GraphView
+                worldId={world.id}
+                graph={graph}
+                center={graphParams.center}
+                categories={graphCategories?.data ?? []}
+                nodeHref={(id) => `${graphBase}?${graphQuery({ ...graphParams, center: id })}`}
               />
             ) : (
               <p role="alert" className="message message-error">

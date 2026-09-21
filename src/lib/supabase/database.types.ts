@@ -500,6 +500,18 @@ export type Database = {
         };
         Returns: string;
       };
+      graph_data: {
+        Args: {
+          p_category: string;
+          p_center: string;
+          p_depth: number;
+          p_label: string;
+          p_max_nodes: number;
+          p_mentions: boolean;
+          p_world: string;
+        };
+        Returns: Json;
+      };
       restore_snippet_version: {
         Args: { p_snippet: string; p_updated: string; p_version: number };
         Returns: undefined;
