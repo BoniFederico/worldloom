@@ -125,12 +125,23 @@ export function cellText(row: TableRow, column: string, ctx: TableContext): stri
 
 const collator = new Intl.Collator('it', { sensitivity: 'base', numeric: true });
 
-/** Chiave di ordinamento: numeri come numeri, date ISO come testo, il resto come testo; `null` se vuoto. */
+/** Data del calendario come numero cronologico (anno, mese, giorno), altrimenti `null`. */
+function dateKey(value: unknown): number | null {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) return null;
+  const v = value as Record<string, unknown>;
+  if (typeof v.year !== 'number' || typeof v.month !== 'number' || typeof v.day !== 'number')
+    return null;
+  return v.year * 10000 + v.month * 100 + v.day;
+}
+
+/** Chiave di ordinamento: numeri come numeri, date del calendario in ordine cronologico, il resto come testo, il resto come testo; `null` se vuoto. */
 function sortKey(row: TableRow, column: string, ctx: TableContext): number | string | null {
   if (column.startsWith('field:')) {
     const raw = row.fields[fieldKey(column)];
     if (raw === null || raw === undefined || raw === '') return null;
     if (typeof raw === 'number') return raw;
+    const date = dateKey(raw);
+    if (date !== null) return date;
     const text = valueText(raw);
     return text === '' ? null : text;
   }
@@ -161,14 +172,25 @@ export function sortRows(
   });
 }
 
-export type RowGroup = { key: string; label: string; rows: TableRow[] };
+export type RowGroup = {
+  key: string;
+  label: string;
+  rows: TableRow[];
+  /** Chiave con cui ordinare i gruppi (numero, data o testo). */
+  order: number | string | null;
+};
 
 /** Raggruppa (dopo l'ordinamento): i gruppi sono in ordine alfabetico, quello senza valore va in fondo. */
 export function groupRows(rows: TableRow[], group: string | null, ctx: TableContext): RowGroup[] {
-  if (!group) return [{ key: '', label: '', rows }];
+  if (!group) return [{ key: '', label: '', rows, order: null }];
   const groups = new Map<string, RowGroup>();
-  const add = (key: string, label: string, row: TableRow) => {
-    const g = groups.get(key) ?? { key, label, rows: [] };
+  const add = (
+    key: string,
+    label: string,
+    row: TableRow,
+    order: number | string | null = label || null,
+  ) => {
+    const g = groups.get(key) ?? { key, label, rows: [], order };
     g.rows.push(row);
     groups.set(key, g);
   };
@@ -181,12 +203,15 @@ export function groupRows(rows: TableRow[], group: string | null, ctx: TableCont
       for (const id of names) add(id, ctx.categories.get(id) as string, row);
     } else {
       const text = valueText(row.fields[fieldKey(group)]);
-      add(text, text, row);
+      add(text, text, row, sortKey(row, group, ctx));
     }
   }
   return [...groups.values()].sort((a, b) => {
     if (a.label === '' && b.label !== '') return 1;
     if (b.label === '' && a.label !== '') return -1;
+    if (typeof a.order === 'number' && typeof b.order === 'number' && a.order !== b.order) {
+      return a.order - b.order;
+    }
     return collator.compare(a.label, b.label);
   });
 }

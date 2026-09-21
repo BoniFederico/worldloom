@@ -106,7 +106,7 @@ export async function TableView({
               </tr>
             </thead>
             {groups.map((g) => (
-              <tbody key={g.key || 'all'}>
+              <tbody key={g.key === '' ? '__none' : `v:${g.key}`}>
                 {config.group ? (
                   <tr className="data-group">
                     <th scope="colgroup" colSpan={config.columns.length}>

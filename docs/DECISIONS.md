@@ -331,5 +331,8 @@
   categoria uno snippet compare in ogni sua categoria.
 - Accessibilità: `<table>` reale con didascalia, `scope`, `aria-sort`, intestazioni ordinabili come link (Tab + Invio, senza JavaScript), regione
   scorrevole focalizzabile. Sulla vista salvata l'ordinamento dalle intestazioni vale solo per la visita (non modifica la vista).
+- Dalla review: le date del calendario si ordinano (e si raggruppano) in ordine cronologico, non per giorno; un `sort` non valido su una vista
+  salvata non ne sostituisce l'ordinamento. Oltre le 500 righe la tabella contiene le 500 più recenti (per `updated_at`) e ordinamento e
+  raggruppamento lavorano solo su quelle.
 - Limiti: niente paginazione oltre le 500 righe; nessuna modifica in-cell; ordinamento per data «calendario personalizzato» (#26) da rifinire.
 - Deciso da: agente

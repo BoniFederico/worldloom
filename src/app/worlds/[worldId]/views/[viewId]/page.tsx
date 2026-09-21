@@ -57,7 +57,9 @@ export default async function ViewPage({ params, searchParams }: Props) {
   const isTable = view.kind === 'table';
   const saved = parseTableConfig(view.config);
   const override = configFromQuery({ cols: saved.columns.join(','), sort: raw.sort, dir: raw.dir });
-  const tableConfig = raw.sort ? { ...saved, sort: override.sort } : saved;
+  // Un `sort` non valido non sostituisce l'ordinamento salvato.
+  const validSort = typeof raw.sort === 'string' && override.sort.by === raw.sort;
+  const tableConfig = validSort ? { ...saved, sort: override.sort } : saved;
   const [locale, tableData, tableRows] = isTable
     ? await Promise.all([
         getLocale(),

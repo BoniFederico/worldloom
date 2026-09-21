@@ -189,3 +189,41 @@ describe('groupRows', () => {
     expect(g.map((x) => x.label)).toEqual(['Alleato', '']);
   });
 });
+
+describe('date del calendario', () => {
+  const dated = [
+    row({ id: 'x', title: 'X', fields: { data: { calendar: 'c', year: 2026, month: 3, day: 9 } } }),
+    row({
+      id: 'y',
+      title: 'Y',
+      fields: { data: { calendar: 'c', year: 2026, month: 1, day: 20 } },
+    }),
+    row({ id: 'z', title: 'Z', fields: { data: { calendar: 'c', year: 2020, month: 1, day: 2 } } }),
+    row({
+      id: 'w',
+      title: 'W',
+      fields: { data: { calendar: 'c', year: 2025, month: 12, day: 1 } },
+    }),
+  ];
+  const ids = (rs: TableRow[]) => rs.map((r) => r.id);
+
+  it('si ordinano in ordine cronologico, non per giorno', () => {
+    expect(ids(sortRows(dated, { by: 'field:data', dir: 'asc' }, ctx))).toEqual([
+      'z',
+      'w',
+      'y',
+      'x',
+    ]);
+    expect(ids(sortRows(dated, { by: 'field:data', dir: 'desc' }, ctx))).toEqual([
+      'x',
+      'y',
+      'w',
+      'z',
+    ]);
+  });
+
+  it('anche i gruppi per campo data sono in ordine cronologico', () => {
+    const g = groupRows(dated, 'field:data', ctx);
+    expect(g.map((x) => x.rows[0]?.id)).toEqual(['z', 'w', 'y', 'x']);
+  });
+});
