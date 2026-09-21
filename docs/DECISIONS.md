@@ -285,3 +285,16 @@
 - Limiti: non atomico lato database (compensazione con eliminazione del mondo); cestino, cronologia, membri, immagini escluse.
   L'export Markdown e l'import da Markdown/Obsidian/CSV restano in #43.
 - Deciso da: agente
+
+### D-022: Seed di demo e dati sintetici in SQL
+
+- Data: 2026-09-21
+- Contesto: #22. Serve un mondo di esempio, un login demo e dati per le prove di prestazione (5.000 snippet, 20.000 relazioni).
+- Decisione: tutto in `supabase/seed.sql` (SQL puro, ids deterministici, `generate_series`), quindi `supabase db reset` popola tutto in circa
+  30 s. Utente demo `demo@worldloom.test` / `Demo-Worldloom-1` (solo sviluppo locale: password pubblica, il seed non gira mai su cloud, dove si usa
+  `db push`). Il seed è rieseguibile e verificato da un test DB che lo esegue in una transazione annullata (dati, proprietà, coerenza delle menzioni,
+  ricerca < 200 ms sui 5.000 snippet) e da un e2e di login demo. La campagna di esempio arriverà con le campagne (#31).
+- Dalla review: il seed si interrompe (`raise exception`) se il segreto JWT del database non è quello di default di Supabase CLI, quindi anche
+  `db push --include-seed` o `db reset --linked` su un progetto cloud non creano l'utente demo (test incluso); la ricerca è misurata come
+  mediana di 5 esecuzioni (< 300 ms). Non lanciare `test:db` ed e2e insieme in locale: il seed dei test blocca le righe demo durante la transazione.
+- Deciso da: agente

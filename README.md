@@ -39,3 +39,13 @@ Copia `.env.example` in `.env.local` e inserisci URL e chiave pubblica di Supaba
 Con Docker Desktop attivo: `npm run db:start` avvia Postgres, Auth, Storage e API in locale (API su http://127.0.0.1:54321,
 DB su porta 54322). `npm run db:reset` riapplica migrazioni e seed, `npm run db:stop` ferma tutto. Le chiavi locali le stampa
 `npx supabase status`; copiale in `.env.local` (mai nel repo). Studio, Mailpit e i servizi di log sono esclusi per risparmiare RAM.
+
+### Dati di demo (seed)
+
+`npm run db:reset` (e il primo `db:start` su un database nuovo) carica `supabase/seed.sql`, solo in locale: mai in produzione, dove
+le migrazioni si applicano con `supabase db push` senza seed. Crea l'utente **demo@worldloom.test** / **Demo-Worldloom-1** con due mondi:
+
+- **Aurelia (demo)**: mondo di esempio con categorie, campi, menzioni, relazioni e tipi di relazione.
+- **Prova di carico**: 5.000 snippet e 20.000 relazioni sintetici per misurare ricerca, viste e prestazioni.
+
+Il seed è rieseguibile (rimuove prima ciò che aveva creato) ed è verificato da `db-tests/seed.test.ts` ed `e2e/demo.spec.ts`.
