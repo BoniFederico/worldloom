@@ -467,3 +467,26 @@
 - Limiti: al massimo 500 snippet (avviso); la vista salvata è di sola lettura (per spostare si apre la bacheca); il trascinamento non funziona al tocco
   (si usa il modulo); l'ordine nelle colonne è alfabetico, non si ordina a mano; le card non mostrano altri campi.
 - Deciso da: agente
+
+### D-031: Campagne, ruoli e inviti
+
+- Data: 2026-09-21
+- Contesto: #31. Una campagna con DM, co-DM, giocatori e osservatori, legata a un mondo oppure autonoma, con inviti via link o email.
+- Decisione: tabelle `campaigns`, `campaign_members`, `campaign_invites` (migrazione `20260921140000_campaigns.sql`), RLS come per i mondi, con la scrittura dei
+  membri solo tramite funzioni `security definer` (che bloccano la riga della campagna, come D-012). Chi crea è il DM (uno solo per campagna, indice univoco,
+  non cambia e non esce: elimina la campagna). Il DM assegna co-DM, giocatore, osservatore; il co-DM gestisce (ruolo, rimozione, inviti) solo giocatori e
+  osservatori, e solo fra loro: nessuna escalation, nessun invito per DM. Il mondo collegato è facoltativo, deve essere uno di cui si fa parte e lo cambia solo il DM
+  (trigger); se il mondo sparisce la campagna diventa autonoma. Chi condivide una campagna vede i nomi profilo degli altri membri.
+- Inviti: un link `/invite/<token>` con token di 256 bit generato dal database (il client non lo sceglie né tocca i contatori: privilegi di colonna), validità
+  da 1 a 90 giorni e da 1 a 100 usi; con un'email l'invito vale una volta sola e solo per quell'account (confronto senza maiuscole). Il token è una credenziale al portatore:
+  lo leggono solo DM e co-DM (il co-DM non vede gli inviti per co-DM). Chi apre il link (serve l'accesso) vede nome e ruolo solo se l'invito vale per lui; ogni motivo di
+  non validità (inesistente, scaduto, revocato, esaurito, per un altro account) dà lo stesso messaggio, e l'adesione è un'azione esplicita (POST), mai l'apertura del link.
+  Chi è già membro non consuma un uso. Il gruppo D-012 (aggiunta per email senza consenso dei mondi) resta com'è: le campagne usano solo inviti con accettazione.
+- Email: l'app non invia email (nessun servizio a pagamento da configurare): «invito via email» significa un invito legato a quell'indirizzo, che il DM consegna copiando il link.
+- Rafforzamenti dalla review: l'invito personale vale una volta sola anche dall'API (vincolo), si riscatta solo con un'email confermata, e l'eliminazione di un mondo
+  collegato (azione di chiave esterna, che il trigger lascia passare) rende autonoma la campagna di un altro DM.
+- Limiti noti: un membro rimosso può rientrare con un link a più usi ancora valido (il DM lo revoca); gli inviti creati da un co-DM retrocesso restano validi finché non
+  li si revoca; il token compare anche nell'indirizzo di login (`next`) di chi non ha ancora l'accesso, con validità e revoca a limitarne il rischio; nessun rate limiting
+  applicativo su anteprima e adesione (256 bit casuali rendono inutile indovinare il token; il limite di piattaforma arriva con #46); nessun trasferimento del ruolo di DM; i membri di una campagna non ottengono ancora accesso ai contenuti del mondo collegato (arriva con #32, visibilità e rivelazione);
+  niente notifiche degli inviti (#37); l'elenco delle campagne non è paginato.
+- Deciso da: agente

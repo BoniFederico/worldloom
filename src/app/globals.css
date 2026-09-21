@@ -1729,3 +1729,9 @@ p.mention-none {
 .kanban-empty {
   margin: 0;
 }
+
+.invite-link {
+  width: 100%;
+  min-width: 12rem;
+  font-size: var(--text-sm);
+}
