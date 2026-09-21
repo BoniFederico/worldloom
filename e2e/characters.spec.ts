@@ -45,6 +45,16 @@ async function createSheet(page: Page, campaign: string, name: string, kind?: 'p
 
 const attr = (page: Page, label: string) => page.getByLabel(label, { exact: true });
 
+/** Apre l'editor dello schema e aspetta che React sia attivo (il campo è controllato: un testo scritto prima verrebbe sovrascritto). */
+async function openStats(page: Page, campaign: string, query = '') {
+  await page.goto(`/campaigns/${campaign}/stats${query}`);
+  await page.waitForFunction(() => {
+    const el = document.querySelector('#stats-schema');
+    return !!el && Object.keys(el).some((k) => k.startsWith('__reactProps'));
+  });
+  return page.getByLabel('Schema (JSON)');
+}
+
 test.describe('schema di statistiche', () => {
   test('errori con riga e campo, salvataggio, preset e ripristino', async ({ browser }) => {
     const dm = await newUser(browser, 'Direttrice');
@@ -55,9 +65,7 @@ test.describe('schema di statistiche', () => {
     ).toBeVisible();
     await expect(dm.getByLabel('Nome', { exact: true })).toHaveCount(0);
 
-    await dm.goto(`/campaigns/${id}/stats`);
-    await expect(dm.getByText('Nessuno schema salvato.')).toBeVisible();
-    const editor = dm.getByLabel('Schema (JSON)');
+    const editor = await openStats(dm, id);
 
     // JSON non valido: riga e colonna.
     await editor.fill('{\n  "schemaVersion": 1,\n  "name": "X",\n}');
@@ -104,11 +112,11 @@ test.describe('schema di statistiche', () => {
     await dm.getByRole('button', { name: 'Salva lo schema' }).click();
     await expect(dm.getByRole('status')).toHaveText('Schema salvato.');
     await dm.reload();
-    await expect(dm.getByRole('heading', { name: 'Anteprima della scheda' })).toBeVisible();
+    await expect(dm.getByRole('heading', { name: 'Anteprima live' })).toBeVisible();
     await expect(attr(dm, 'Forza')).toBeDisabled();
     await expect(dm.getByRole('term').filter({ hasText: 'Modificatore' })).toBeVisible();
 
-    // Preset e ripristino del predefinito.
+    // Preset e ripristino del predefinito (senza schede non c'è nulla da migrare).
     await dm.getByRole('button', { name: 'Usa lo schema «Pool di dadi»' }).click();
     await expect(dm.getByRole('status')).toHaveText('Schema sostituito.');
     await expect(attr(dm, 'Corpo')).toBeVisible();

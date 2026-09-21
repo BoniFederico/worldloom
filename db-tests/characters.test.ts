@@ -382,3 +382,103 @@ describe('schede: revisione e cronologia', () => {
     });
   });
 });
+
+describe('apply_stats_migration', () => {
+  const schema = (n: number) => JSON.stringify({ schemaVersion: 1, name: `S${n}` });
+  const call = (db: Db, uid: string, campaign: string, expected: number, sheets: unknown[]) =>
+    actAs(db, uid, () =>
+      db.query('select apply_stats_migration($1, $2, $3, $4) as n', [
+        campaign,
+        schema(expected + 1),
+        expected,
+        JSON.stringify(sheets),
+      ]),
+    );
+  const ok = (r: { rows: { n: number }[] }) => r.rows[0]!.n;
+
+  it('salva lo schema e riscrive le schede in un colpo, con cronologia', async () => {
+    await withTx(async (db) => {
+      const { dm, p1, campaign } = await setup(db);
+      await call(db, dm, campaign, 0, []);
+      const a = await addCharacter(db, dm, campaign, 'npc', 'Oste', null);
+      const b = await addCharacter(db, dm, campaign, 'pc', 'Alfa', p1);
+      const n = await call(db, dm, campaign, 1, [
+        { id: a, rev: 1, sheet: { attributes: { x: 3 } } },
+        { id: b, rev: 1, sheet: { attributes: { x: 4 } } },
+      ]);
+      expect(ok(n)).toBe(2);
+      const st = await db.query('select rev, schema from campaign_stats where campaign_id = $1', [
+        campaign,
+      ]);
+      expect(st.rows[0]).toMatchObject({ rev: 2, schema: { name: 'S2' } });
+      const sheets = await db.query(
+        'select sheet, rev from characters where id = any($1) order by name',
+        [[a, b]],
+      );
+      expect(sheets.rows).toEqual([
+        { sheet: { attributes: { x: 4 } }, rev: 2 },
+        { sheet: { attributes: { x: 3 } }, rev: 2 },
+      ]);
+      const h = await db.query(
+        "select changed_by, changes from character_history where character_id = $1 and action = 'update'",
+        [a],
+      );
+      expect(h.rows[0]).toMatchObject({ changed_by: dm, changes: { 'attributes.x': [null, 3] } });
+    });
+  });
+
+  it('solo il DM: co-DM, giocatori, osservatori ed estranei sono rifiutati', async () => {
+    await withTx(async (db) => {
+      const { dm, co, p1, obs, stranger, campaign } = await setup(db);
+      await call(db, dm, campaign, 0, []);
+      for (const uid of [co, p1, obs, stranger]) {
+        await expect(call(db, uid, campaign, 1, [])).rejects.toThrow(/forbidden/);
+      }
+    });
+  });
+
+  it('una revisione superata dello schema o di una scheda annulla tutto', async () => {
+    await withTx(async (db) => {
+      const { dm, campaign } = await setup(db);
+      await call(db, dm, campaign, 0, []);
+      const a = await addCharacter(db, dm, campaign, 'npc', 'Oste', null);
+      const b = await addCharacter(db, dm, campaign, 'npc', 'Fabbro', null);
+      await expect(call(db, dm, campaign, 0, [])).rejects.toThrow(/conflict/);
+      // La seconda scheda ha una revisione sbagliata: nemmeno la prima e lo schema cambiano.
+      await expect(
+        call(db, dm, campaign, 1, [
+          { id: a, rev: 1, sheet: { attributes: { x: 1 } } },
+          { id: b, rev: 9, sheet: { attributes: { x: 1 } } },
+        ]),
+      ).rejects.toThrow(/conflict/);
+      const st = await db.query('select rev from campaign_stats where campaign_id = $1', [
+        campaign,
+      ]);
+      expect(st.rows[0].rev).toBe(1);
+      const sheet = await db.query('select sheet from characters where id = $1', [a]);
+      expect(sheet.rows[0].sheet).toEqual({});
+    });
+  });
+
+  it('non tocca schede di un’altra campagna e rifiuta dati malformati', async () => {
+    await withTx(async (db) => {
+      const { dm, campaign } = await setup(db);
+      const other = await setup(db);
+      await call(db, dm, campaign, 0, []);
+      const foreign = await addCharacter(db, other.dm, other.campaign, 'npc', 'Altrove', null);
+      await expect(
+        call(db, dm, campaign, 1, [{ id: foreign, rev: 1, sheet: { attributes: {} } }]),
+      ).rejects.toThrow(/conflict/);
+      await expect(
+        actAs(db, dm, () =>
+          db.query(`select apply_stats_migration($1, '[1]', 1, '[]')`, [campaign]),
+        ),
+      ).rejects.toThrow(/invalid_schema/);
+      await expect(
+        actAs(db, dm, () =>
+          db.query(`select apply_stats_migration($1, '{}', 1, '{}')`, [campaign]),
+        ),
+      ).rejects.toThrow(/invalid_sheets/);
+    });
+  });
+});

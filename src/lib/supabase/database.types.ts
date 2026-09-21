@@ -1061,6 +1061,15 @@ export type Database = {
         };
         Returns: string;
       };
+      apply_stats_migration: {
+        Args: {
+          p_campaign: string;
+          p_expected_rev: number;
+          p_schema: Json;
+          p_sheets: Json;
+        };
+        Returns: number;
+      };
       autosave_snippet_body: {
         Args: {
           p_body: Json;

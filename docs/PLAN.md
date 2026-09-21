@@ -4,7 +4,7 @@
 
 ## Stato
 
-- Fase: M1 completata (#15–#22); M2 in corso: #23–#30 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe, albero, kanban); M3: #31, #32 chiuse (campagne e inviti, visibilità e rivelazione); #33, #34 chiuse (libreria statistiche, schede personaggio); prossimo #35 (migrazione dello schema).
+- Fase: M1 completata (#15–#22); M2 in corso: #23–#30 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe, albero, kanban); M3: #31, #32 chiuse (campagne e inviti, visibilità e rivelazione); #33–#35 chiuse (libreria statistiche, schede personaggio, migrazione dello schema); prossimo #36 (sessioni).
 
 ## Backlog (in ordine di esecuzione)
 
@@ -43,7 +43,7 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 32  | Visibilità per elemento e rivelazione                                           | feat  | 31         | done  | quattro livelli, registro, campi riservati (D-032) |
 | 33  | Sistema di statistiche: schema JSON, validazione e interprete di formule sicuro | feat  | 13         | done  | schema JSON, formule sandboxed, preset (D-033)     |
 | 34  | Schede personaggio PG/PNG                                                       | feat  | 33         | done  | schede, RLS per giocatore, cronologia (D-034)      |
-| 35  | Migrazione guidata dello schema di statistiche                                  | feat  | 33         | todo  |                                                    |
+| 35  | Migrazione guidata dello schema di statistiche                                  | feat  | 33         | done  | anteprima live, migrazione guidata (D-035)         |
 | 36  | Sessioni, diario e bacheca messaggi                                             | feat  | 13         | todo  |                                                    |
 | 37  | Notifiche in-app                                                                | feat  | 13         | todo  |                                                    |
 | 38  | Collaborazione in tempo reale su snippet                                        | feat  | M1         | todo  |                                                    |

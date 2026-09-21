@@ -1155,16 +1155,21 @@
       "checked": "The schema is valid.",
       "saved": "Schema saved.",
       "forbidden": "Only the DM can edit the schema.",
-      "failed": "The schema could not be saved."
+      "failed": "The schema could not be saved.",
+      "migrated": "Schema saved and {count, plural, one {# sheet updated} other {# sheets updated}}.",
+      "conflict": "The schema or a sheet changed in the meantime. Reload the page and try again.",
+      "invalid_move": "Invalid move of the values. Reload the page and try again."
     },
     "notices": {
       "preset_applied": "Schema replaced.",
-      "reset": "Default schema restored."
+      "reset": "Default schema restored.",
+      "review": "This schema affects existing sheets. Review it and save to choose what to do with the values."
     },
     "errors": {
       "unknown_preset": "Unknown starter schema.",
       "forbidden": "Only the DM can edit the schema.",
-      "failed": "The schema could not be saved."
+      "failed": "The schema could not be saved.",
+      "conflict": "The schema or a sheet changed in the meantime. Try again."
     },
     "codes": {
       "too_large": "The document is too large (200,000 characters at most).",
@@ -1196,7 +1201,18 @@
       "invalid_number": "invalid number",
       "unknown_function": "unknown function",
       "wrong_arity": "wrong number of arguments"
-    }
+    },
+    "migrationTitle": "Migrating existing sheets",
+    "migrationIntro": "The new schema affects sheets that were already written: {count, plural, one {# sheet will be rewritten} other {# sheets will be rewritten}}. Choose what to do with the values of fields that no longer exist, then apply. To reconsider, change the schema or reload the page: nothing changes until you apply.",
+    "migrationClamped": "{count, plural, one {# value will be} other {# values will be}} brought within the new limits or converted to the new type.",
+    "migrationField": "Field “{label}”: {count, plural, one {# sheet has} other {# sheets have}} a value",
+    "migrationDrop": "Delete the values",
+    "migrationMove": "Move the values to “{label}”",
+    "migrate": "Apply the migration",
+    "migrationCancel": "Until you apply, the schema and the sheets stay as they are.",
+    "livePreviewTitle": "Live preview",
+    "livePreviewHint": "The sheet is redrawn as you type, with default values and without saving anything.",
+    "livePreviewInvalid": "Fix the schema errors to see the preview."
   },
   "Characters": {
     "title": "Character sheets",

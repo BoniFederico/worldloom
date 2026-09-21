@@ -12,19 +12,26 @@ import { applyPreset } from './actions';
 
 type Props = {
   params: Promise<{ campaignId: string }>;
-  searchParams: Promise<{ error?: string; notice?: string }>;
+  searchParams: Promise<{ error?: string; notice?: string; draft?: string }>;
 };
 
 export default async function StatsPage({ params, searchParams }: Props) {
   const { campaignId } = await params;
   const { supabase, campaign, role } = await loadCampaign(campaignId);
-  const [t, { error, notice }, stats] = await Promise.all([
+  const [t, tc, { error, notice, draft }, stats] = await Promise.all([
     getTranslations('Stats'),
+    getTranslations('Characters'),
     searchParams,
     loadStats(supabase, campaignId),
   ]);
   const isDm = role === 'dm';
-  const initialText = JSON.stringify(stats?.valid.schema ?? STATS_PRESETS[0]!.schema, null, 2);
+  // `?draft=<preset>` (da «Usa lo schema…» quando il cambio tocca schede esistenti) apre l'editor con quel preset già scritto.
+  const drafted = STATS_PRESETS.find((p) => p.id === draft)?.schema;
+  const initialText = JSON.stringify(
+    drafted ?? stats?.valid.schema ?? STATS_PRESETS[0]!.schema,
+    null,
+    2,
+  );
 
   return (
     <main id="main" className="page page-top">
@@ -76,22 +83,27 @@ export default async function StatsPage({ params, searchParams }: Props) {
           <p className="field-hint">{t('readOnly')}</p>
         )}
 
-        <h2>{t('previewTitle')}</h2>
-        {stats ? (
+        {isDm ? null : (
           <>
-            <p className="field-hint">{t('previewHint')}</p>
-            <div className="sheet-preview">
-              <CharacterSheetFields
-                valid={stats.valid}
-                sheet={readSheet({}, stats.valid)}
-                computed={computeSheet(stats.valid, {})}
-                readOnly
-                idPrefix="preview"
-              />
-            </div>
+            <h2>{t('previewTitle')}</h2>
+            {stats ? (
+              <>
+                <p className="field-hint">{t('previewHint')}</p>
+                <div className="sheet-preview">
+                  <CharacterSheetFields
+                    valid={stats.valid}
+                    sheet={readSheet({}, stats.valid)}
+                    computed={computeSheet(stats.valid, {})}
+                    readOnly
+                    idPrefix="preview"
+                    t={tc}
+                  />
+                </div>
+              </>
+            ) : (
+              <p className="empty">{t('noSchema')}</p>
+            )}
           </>
-        ) : (
-          <p className="empty">{t('noSchema')}</p>
         )}
       </section>
     </main>

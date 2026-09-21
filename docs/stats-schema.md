@@ -84,7 +84,17 @@ e `narrative` (approcci a tratti con punti destino e stress). Ciascuno è valido
 
 ## Nell'app
 
-Lo schema si scrive in `/campaigns/<id>/stats` (solo il DM: editor JSON con errori con riga e colonna, preset, ripristino del predefinito). Le schede
-personaggio (`/campaigns/<id>/characters`) si generano da esso; vedi D-034 in `docs/DECISIONS.md`. Nelle liste le intestazioni delle colonne sono le chiavi di `item`.
+Lo schema si scrive in `/campaigns/<id>/stats` (solo il DM: editor JSON con errori con riga e colonna **mentre si scrive**, anteprima live della scheda, preset, ripristino del predefinito).
+Le schede personaggio (`/campaigns/<id>/characters`) si generano da esso; vedi D-034 in `docs/DECISIONS.md`. Nelle liste le intestazioni delle colonne sono le chiavi di `item`.
 
-Non ancora presente (issue successive): migrazione dello schema con schede esistenti (#35), tiratore di dadi (#39).
+### Migrazione delle schede esistenti
+
+Se il nuovo schema toglie campi che le schede già usano, o restringe intervalli e tipi, salvare mostra la **migrazione guidata** (D-035) invece di applicare:
+
+- per ogni campo tolto con valori si sceglie di **eliminare** i valori o di **spostarli** su una chiave nuova della stessa sezione (attributo → attributo, risorsa → risorsa, lista → lista, testo → testo);
+- gli attributi si riportano nei nuovi limiti (interi arrotondati), le risorse al nuovo massimo, le celle delle liste al tipo nuovo della colonna;
+- «Applica la migrazione» salva schema e schede in un'unica operazione; se nel frattempo qualcuno ha salvato (schema o scheda), non si scrive niente e si riprova.
+
+Le funzioni pure sono in `src/lib/stats/migrate.ts` (`diffSchemas`, `planMigration`, `describeMigration`).
+
+Non ancora presente: tiratore di dadi (#39).
