@@ -316,3 +316,20 @@
 - Limiti noti: nessuna vista personale per chi non scrive (lettori e commentatori); il proprietario non vede le viste private altrui
   (può però eliminarle); il nome di una vista condivisa è visibile a tutti i membri anche se i suoi risultati non lo sono.
 - Deciso da: agente
+
+### D-024: Vista tabella
+
+- Data: 2026-09-21
+- Contesto: #24. Colonne dai campi, ordinamento, filtri, raggruppamenti, viste salvate, accessibile da tastiera.
+- Decisione: pagina `/worlds/<id>/table` (form GET, funziona senza JavaScript) e tipo di vista `table` in `saved_views` (D-023): `filters` come nella
+  ricerca e `config` = `{columns, sort:{by,dir}, group}` validato da `parseTableConfig` (colonne fisse `title|status|tags|categories|updated` o
+  `field:<chiave>`, al massimo 12, il titolo c'è sempre; ogni input ostile ricade sui valori predefiniti). I dati si leggono direttamente da
+  `snippets` con la sessione dell'utente (RLS), fino a 500 righe (con avviso se ce ne sono altre); `search_snippets` non serve perché limita a 100.
+  Filtri supportati: categoria, tag, stato, valore di un campo (uguaglianza senza badare alle maiuscole, `ilike` con caratteri speciali
+  neutralizzati) e archivio; la ricerca nel testo e il filtro per relazione restano nella pagina di ricerca. Ordinamento e raggruppamento sono
+  funzioni pure (`sortRows`, `groupRows`): i numeri si ordinano come numeri, i vuoti vanno sempre in fondo, a parità vale il titolo; per
+  categoria uno snippet compare in ogni sua categoria.
+- Accessibilità: `<table>` reale con didascalia, `scope`, `aria-sort`, intestazioni ordinabili come link (Tab + Invio, senza JavaScript), regione
+  scorrevole focalizzabile. Sulla vista salvata l'ordinamento dalle intestazioni vale solo per la visita (non modifica la vista).
+- Limiti: niente paginazione oltre le 500 righe; nessuna modifica in-cell; ordinamento per data «calendario personalizzato» (#26) da rifinire.
+- Deciso da: agente
