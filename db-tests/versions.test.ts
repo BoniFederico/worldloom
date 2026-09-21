@@ -30,8 +30,11 @@ const versions = (db: Db, id: string) =>
     [id],
   );
 
-const backdate = (db: Db) =>
-  db.query(`update snippet_versions set created_at = now() - interval '11 minutes'`);
+const backdate = (db: Db, id: string) =>
+  db.query(
+    `update snippet_versions set created_at = now() - interval '11 minutes' where snippet_id = $1`,
+    [id],
+  );
 
 describe('cronologia versioni', () => {
   it('la creazione registra la versione 1', async () => {
@@ -56,7 +59,7 @@ describe('cronologia versioni', () => {
   it('una modifica dopo la finestra di 10 minuti crea una nuova versione', async () => {
     await withTx(async (db) => {
       const { owner, id } = await setup(db);
-      await backdate(db);
+      await backdate(db, id);
       await actAs(db, owner, () =>
         db.query(`update snippets set title = 'Elara B' where id = $1`, [id]),
       );
@@ -91,7 +94,7 @@ describe('cronologia versioni', () => {
   it('archivio e cestino non creano versioni', async () => {
     await withTx(async (db) => {
       const { owner, id } = await setup(db);
-      await backdate(db);
+      await backdate(db, id);
       await actAs(db, owner, () =>
         db.query(`update snippets set archived_at = now(), deleted_at = now() where id = $1`, [id]),
       );
@@ -103,7 +106,7 @@ describe('cronologia versioni', () => {
     await withTx(async (db) => {
       const { owner, id } = await setup(db);
       for (let i = 0; i < 105; i++) {
-        await backdate(db);
+        await backdate(db, id);
         await actAs(db, owner, () =>
           db.query(`update snippets set title = $2 where id = $1`, [id, `Titolo ${i}`]),
         );
@@ -151,7 +154,7 @@ describe('cronologia versioni', () => {
   it('il ripristino riporta il contenuto e registra una nuova versione senza fonderla', async () => {
     await withTx(async (db) => {
       const { owner, id } = await setup(db);
-      await backdate(db);
+      await backdate(db, id);
       await actAs(db, owner, () =>
         db.query(`update snippets set title = 'Elara B', tags = '{eroe}' where id = $1`, [id]),
       );
@@ -205,7 +208,7 @@ describe('cronologia versioni', () => {
         );
       };
       await save(a);
-      await backdate(db);
+      await backdate(db, id);
       await save(b);
       const targets = () =>
         db
