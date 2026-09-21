@@ -32,12 +32,16 @@ declare
   v_result jsonb;
 begin
   with recursive
+  trashed as (
+    select id from public.snippets where world_id = p_world and deleted_at is not null
+  ),
   base as (
     select r.source_id, r.target_id, r.label, r.inverse_label, r.from_mention
       from public.relations r
-      join public.snippets a on a.id = r.source_id and a.deleted_at is null
-      join public.snippets b on b.id = r.target_id and b.deleted_at is null
      where r.world_id = p_world
+       -- Gli snippet nel cestino sono pochi: un anti-join con quell'insieme costa molto meno di due join per relazione.
+       and r.source_id not in (select id from trashed)
+       and r.target_id not in (select id from trashed)
        and (coalesce(p_mentions, true) or not r.from_mention)
        and (v_label is null
             or private.norm_label(r.label) = v_label
