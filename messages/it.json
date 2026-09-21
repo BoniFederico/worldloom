@@ -105,7 +105,8 @@
     "exportJson": "Esporta (JSON)",
     "views": "Viste",
     "graph": "Grafo",
-    "calendars": "Calendari"
+    "calendars": "Calendari",
+    "timeline": "Timeline"
   },
   "Members": {
     "title": "Membri",
@@ -676,7 +677,9 @@
     "newTable": "Nuova tabella",
     "editTable": "Modifica la tabella",
     "newGraph": "Nuovo grafo",
-    "editGraph": "Modifica il grafo"
+    "editGraph": "Modifica il grafo",
+    "newTimeline": "Nuova timeline",
+    "editTimeline": "Modifica la timeline"
   },
   "Table": {
     "title": "Tabella",
@@ -782,5 +785,56 @@
       "forbidden": "Non hai i permessi per modificare i calendari.",
       "generic": "Operazione non riuscita. Riprova."
     }
+  },
+  "Timeline": {
+    "title": "Timeline",
+    "intro": "Gli snippet con una data in un calendario del mondo, disposti nel tempo: eventi puntuali o a intervallo, in corsie per categoria o per tag. Ogni evento è un link allo snippet.",
+    "settings": "Impostazioni",
+    "calendar": "Calendario",
+    "lane": "Corsie per",
+    "laneCategory": "Categoria",
+    "laneTag": "Tag",
+    "startField": "Campo data di inizio",
+    "endField": "Campo data di fine (facoltativo)",
+    "endNone": "Nessuno: eventi puntuali",
+    "tag": "Tag",
+    "related": "Collegato a (titolo di uno snippet)",
+    "relatedHint": "Mostra solo gli eventi legati a quello snippet da una relazione, ad esempio un personaggio o un luogo.",
+    "relatedMissing": "Nessuno snippet leggibile con il titolo «{title}».",
+    "apply": "Applica",
+    "count": "Eventi mostrati: {shown} su {total}.",
+    "hidden": "{count, plural, one {# evento è fuori} other {# eventi sono fuori}} dalla finestra: scorri il tempo o riduci lo zoom.",
+    "truncated": "Sono mostrati i primi 500 eventi: restringi con un filtro.",
+    "skipped": "{count, plural, one {# snippet ha} other {# snippet hanno}} una data in un altro calendario o non più valida e non compare.",
+    "lanesTruncated": "Sono mostrate le prime 30 corsie: restringi con un filtro.",
+    "empty": "Nessun evento con questi criteri. Aggiungi una data in calendario agli snippet o cambia i filtri.",
+    "noCalendars": "Servono un calendario e un campo «data in calendario» per usare la timeline.",
+    "manageCalendars": "Gestisci i calendari",
+    "noFields": "Nessuna categoria ha un campo di tipo «data in calendario».",
+    "manageCategories": "Gestisci le categorie",
+    "noCategory": "Senza categoria",
+    "noTag": "Senza tag",
+    "controls": "Zoom e spostamento",
+    "panBack": "Indietro nel tempo",
+    "panForward": "Avanti nel tempo",
+    "zoomIn": "Ingrandisci",
+    "zoomOut": "Riduci",
+    "reset": "Mostra tutto",
+    "scroll": "Disegno della timeline (scorri per vedere tutto)",
+    "svgTitle": "Timeline degli eventi",
+    "svgDesc": "Eventi disposti nel tempo in corsie. Ogni evento è un link allo snippet; sotto c’è la stessa lista in una tabella.",
+    "pointLabel": "{title}, {start}",
+    "intervalLabel": "{title}, da {start} a {end}",
+    "legend": "Legenda delle categorie",
+    "tableTitle": "Eventi in ordine cronologico",
+    "tableHint": "La stessa timeline come tabella: comprende anche gli eventi fuori dalla finestra di zoom.",
+    "tableScroll": "Tabella degli eventi (scorri per vedere tutto)",
+    "tableCaption": "Eventi ordinati per data di inizio",
+    "event": "Evento",
+    "start": "Inizio",
+    "end": "Fine",
+    "categories": "Categorie",
+    "tags": "Tag",
+    "loadError": "Non riesco a caricare la timeline. Riprova."
   }
 }
