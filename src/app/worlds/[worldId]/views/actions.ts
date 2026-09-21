@@ -7,6 +7,7 @@ import { filtersOf, viewNameSchema } from '@/lib/views/filters';
 import { parseGraphParams } from '@/lib/graph/params';
 import { parseTimelineParams } from '@/lib/timeline/params';
 import { parseTreeParams } from '@/lib/tree/params';
+import { parseKanbanParams } from '@/lib/kanban/params';
 import { configFromQuery } from '@/lib/views/table';
 import { loadWorld } from '@/lib/worlds/context';
 import { uuidSchema } from '@/lib/worlds/schemas';
@@ -38,7 +39,8 @@ export async function saveView(formData: FormData) {
     requested === 'table' ||
     requested === 'graph' ||
     requested === 'timeline' ||
-    requested === 'tree'
+    requested === 'tree' ||
+    requested === 'kanban'
       ? requested
       : 'list';
   const back = `/worlds/${world}/${kind === 'list' ? 'search' : kind}`;
@@ -56,7 +58,7 @@ export async function saveView(formData: FormData) {
       world_id: world,
       name: name.data,
       kind,
-      filters: (kind === 'graph' || kind === 'timeline' || kind === 'tree'
+      filters: (kind === 'graph' || kind === 'timeline' || kind === 'tree' || kind === 'kanban'
         ? {}
         : filtersOf(params)) as Json,
       config: (kind === 'table'
@@ -67,7 +69,9 @@ export async function saveView(formData: FormData) {
             ? parseTimelineParams(rawOf(formData))
             : kind === 'tree'
               ? parseTreeParams(rawOf(formData))
-              : {}) as unknown as Json,
+              : kind === 'kanban'
+                ? parseKanbanParams(rawOf(formData))
+                : {}) as unknown as Json,
       shared: formData.get('shared') === 'on',
       created_by: auth.user.id,
     })

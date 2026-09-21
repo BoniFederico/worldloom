@@ -6,6 +6,9 @@ import { SearchResults } from '@/components/search-results';
 import { GraphView } from '@/components/graph-view';
 import { TimelineView } from '@/components/timeline-view';
 import { TreeView } from '@/components/tree-view';
+import { KanbanBoard } from '@/components/kanban-board';
+import { loadBoard, loadChoiceFields } from '@/lib/kanban/load';
+import { kanbanQuery, parseKanbanConfig } from '@/lib/kanban/params';
 import { TableView } from '@/components/table-view';
 import { loadGraph } from '@/lib/graph/load';
 import { graphQuery, parseGraphConfig } from '@/lib/graph/params';
@@ -100,12 +103,32 @@ export default async function ViewPage({ params, searchParams }: Props) {
   const isTree = view.kind === 'tree';
   const treeParams = parseTreeConfig(view.config);
   const treeData = isTree ? await loadTree(supabase, worldId, treeParams) : null;
+  // Bacheca: la configurazione salvata, letta con i permessi di chi guarda; da qui è di sola lettura.
+  const isKanban = view.kind === 'kanban';
+  const kanbanParams = parseKanbanConfig(view.config);
+  const kanbanChoice = isKanban ? await loadChoiceFields(supabase, worldId) : null;
+  const kanbanData = kanbanChoice
+    ? await loadBoard(supabase, worldId, kanbanParams, kanbanChoice.fields)
+    : null;
+  const kt = isKanban ? await getTranslations('Kanban') : null;
+  const kanbanLabel = (value: string | null) =>
+    !kt
+      ? (value ?? '')
+      : value === null
+        ? kt('none')
+        : kanbanParams.by === 'status' && (value === 'draft' || value === 'final')
+          ? kt(`status.${value}`)
+          : value;
   const editTable = `/worlds/${world.id}/table?${[query, configQuery(saved)].filter(Boolean).join('&')}`;
 
   return (
     <main id="main" className="page page-top">
       <section
-        className={isTable || isGraph || isTimeline || isTree ? 'content content-wide' : 'content'}
+        className={
+          isTable || isGraph || isTimeline || isTree || isKanban
+            ? 'content content-wide'
+            : 'content'
+        }
       >
         <p className="crumbs">
           <Link href={`/worlds/${world.id}/views`}>{t('title')}</Link>
@@ -232,6 +255,31 @@ export default async function ViewPage({ params, searchParams }: Props) {
               <TreeView worldId={world.id} forest={treeData.forest} />
             ) : treeData ? (
               <p className="field-hint">{t('treeEmpty')}</p>
+            ) : (
+              <p role="alert" className="message message-error">
+                {t('searchError')}
+              </p>
+            )}
+          </>
+        ) : isKanban ? (
+          <>
+            <p>
+              <Link
+                href={`/worlds/${world.id}/kanban${kanbanQuery(kanbanParams) ? `?${kanbanQuery(kanbanParams)}` : ''}`}
+                className="btn"
+              >
+                {t('editKanban')}
+              </Link>
+            </p>
+            {kanbanData && kanbanParams.by ? (
+              <KanbanBoard
+                worldId={world.id}
+                board={kanbanData.board}
+                by={kanbanParams.by}
+                category={kanbanParams.category}
+                label={kanbanLabel}
+                canWrite={false}
+              />
             ) : (
               <p role="alert" className="message message-error">
                 {t('searchError')}

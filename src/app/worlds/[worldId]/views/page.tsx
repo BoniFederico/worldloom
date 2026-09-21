@@ -63,6 +63,9 @@ export default async function ViewsPage({ params, searchParams }: Props) {
           </Link>{' '}
           <Link href={`/worlds/${world.id}/tree`} className="btn">
             {t('newTree')}
+          </Link>{' '}
+          <Link href={`/worlds/${world.id}/kanban`} className="btn">
+            {t('newKanban')}
           </Link>
         </p>
       </section>
