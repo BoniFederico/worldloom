@@ -380,3 +380,26 @@
   l'export/import JSON non porta ancora i calendari (i valori data importati restano nello snippet ma puntano a un calendario che non
   esiste nel nuovo mondo); la tabella (#24) non ordina ancora per questo tipo di campo (lo farà la timeline con il numero di giorno).
 - Deciso da: agente
+
+### D-027: Vista timeline
+
+- Data: 2026-09-21
+- Contesto: #27. Corsie per categoria o tag, eventi puntuali e a intervallo, zoom, filtri, alternativa testuale; usa i calendari di D-026.
+- Decisione: pagina `/worlds/<id>/timeline` (form GET, funziona senza JavaScript) e tipo di vista `timeline` in `saved_views` (D-023) con
+  `config` `{calendar, start, end, lane, category, tag, related, zoom, center}` passato da `parseTimelineConfig`. Gli eventi sono gli snippet
+  con un campo «data in calendario» di **inizio** e, se scelto, un secondo campo di **fine** (intervallo); una fine prima dell'inizio o non
+  valida rende l'evento puntuale. Si mostra un calendario alla volta (le date in altri calendari non si possono confrontare: sono contate
+  e segnalate). Il disegno è un `<svg>` prodotto sul server (nessuna libreria nel browser): la disposizione (`src/lib/timeline/layout.ts`,
+  pura e testata) calcola finestra, tacche della scala, corsie e righe senza sovrapposizioni.
+- Zoom: il livello 0 mostra tutti gli eventi con un margine del 5%; ogni livello (fino a 8) dimezza la finestra (minimo 10 giorni) attorno a un
+  centro (numero di giorno). Zoom e spostamento sono link normali (`?zoom=&center=`), quindi funzionano da tastiera e senza JavaScript; gli
+  eventi fuori finestra sono contati e restano nella tabella. Scala: tacche in anni (passo 1-2-5×10^k), poi mesi (fino a ~45 giorni di finestra
+  in su), poi giorni; gli anni mostrano l'era (D-026).
+- Corsie: per categoria (la prima in ordine alfabetico; «senza categoria» in fondo) o per tag (l'evento compare in ogni sua corsia); al massimo
+  30 corsie. Filtri: categoria, tag e «collegato a» (titolo di uno snippet: mostra lui e gli snippet legati da una relazione, in entrambi i versi).
+- Permessi: i dati si leggono con la sessione di chi guarda (RLS): uno snippet segreto non compare a un lettore, né in una vista condivisa.
+- Alternativa accessibile: tabella cronologica ordinata per numero di giorno (non per testo) con inizio, fine e corsia; ogni evento del disegno è
+  un link con etichetta parlante ("titolo, da … a …").
+- Limiti: al massimo 500 eventi (avviso); «collegato a» considera al massimo 150 snippet (lui e i primi collegati); un solo campo di inizio e uno di fine per volta; niente trascinamento né zoom con la rotella; le relazioni
+  con intervallo di validità (`valid_from/valid_to`) non sono ancora eventi; le etichette non evitano ogni sovrapposizione tra corsie vicine.
+- Deciso da: agente

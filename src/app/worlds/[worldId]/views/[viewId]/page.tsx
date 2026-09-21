@@ -4,9 +4,12 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { Feedback } from '@/components/feedback';
 import { SearchResults } from '@/components/search-results';
 import { GraphView } from '@/components/graph-view';
+import { TimelineView } from '@/components/timeline-view';
 import { TableView } from '@/components/table-view';
 import { loadGraph } from '@/lib/graph/load';
 import { graphQuery, parseGraphConfig } from '@/lib/graph/params';
+import { loadTimeline } from '@/lib/timeline/load';
+import { parseTimelineConfig, timelineQuery } from '@/lib/timeline/params';
 import { hasCriteria, rpcArgs } from '@/lib/search/params';
 import { paramsOfFilters, searchQuery } from '@/lib/views/filters';
 import { configFromQuery, configQuery, parseTableConfig } from '@/lib/views/table';
@@ -33,6 +36,7 @@ export default async function ViewPage({ params, searchParams }: Props) {
   const raw = await searchParams;
   const { error, notice } = raw;
   const { supabase, world, role } = await loadWorld(worldId);
+  const tt = await getTranslations('Timeline');
   const [t, { data: view }, { data: auth }] = await Promise.all([
     getTranslations('Views'),
     supabase
@@ -82,11 +86,17 @@ export default async function ViewPage({ params, searchParams }: Props) {
       ])
     : [null, null];
   const graphBase = `/worlds/${world.id}/graph`;
+
+  // Timeline: la configurazione salvata; i dati si leggono con i permessi di chi guarda. Zoom e spostamento aprono la timeline libera.
+  const isTimeline = view.kind === 'timeline';
+  const timelineParams = parseTimelineConfig(view.config);
+  const timelineData = isTimeline ? await loadTimeline(supabase, worldId, timelineParams) : null;
+  const timelineBase = `/worlds/${world.id}/timeline`;
   const editTable = `/worlds/${world.id}/table?${[query, configQuery(saved)].filter(Boolean).join('&')}`;
 
   return (
     <main id="main" className="page page-top">
-      <section className={isTable || isGraph ? 'content content-wide' : 'content'}>
+      <section className={isTable || isGraph || isTimeline ? 'content content-wide' : 'content'}>
         <p className="crumbs">
           <Link href={`/worlds/${world.id}/views`}>{t('title')}</Link>
         </p>
@@ -156,6 +166,42 @@ export default async function ViewPage({ params, searchParams }: Props) {
                 categories={graphCategories?.data ?? []}
                 nodeHref={(id) => `${graphBase}?${graphQuery({ ...graphParams, center: id })}`}
               />
+            ) : (
+              <p role="alert" className="message message-error">
+                {t('searchError')}
+              </p>
+            )}
+          </>
+        ) : isTimeline ? (
+          <>
+            <p>
+              <Link
+                href={`${timelineBase}${timelineQuery(timelineParams) ? `?${timelineQuery(timelineParams)}` : ''}`}
+                className="btn"
+              >
+                {t('editTimeline')}
+              </Link>
+            </p>
+            {timelineData?.calendar ? (
+              <TimelineView
+                worldId={world.id}
+                data={timelineData}
+                params={timelineParams}
+                href={(patch) => {
+                  const qs = timelineQuery({
+                    ...timelineParams,
+                    calendar: timelineData.calendar?.id ?? timelineParams.calendar,
+                    start: timelineData.startKey ?? timelineParams.start,
+                    end: timelineData.endKey ?? timelineParams.end,
+                    ...patch,
+                  });
+                  return qs ? `${timelineBase}?${qs}` : timelineBase;
+                }}
+              />
+            ) : timelineData ? (
+              <p className="field-hint">
+                {timelineData.calendars.length ? tt('noFields') : tt('noCalendars')}
+              </p>
             ) : (
               <p role="alert" className="message message-error">
                 {t('searchError')}

@@ -5,6 +5,7 @@ import { parseSearchParams } from '@/lib/search/params';
 import type { Json } from '@/lib/supabase/database.types';
 import { filtersOf, viewNameSchema } from '@/lib/views/filters';
 import { parseGraphParams } from '@/lib/graph/params';
+import { parseTimelineParams } from '@/lib/timeline/params';
 import { configFromQuery } from '@/lib/views/table';
 import { loadWorld } from '@/lib/worlds/context';
 import { uuidSchema } from '@/lib/worlds/schemas';
@@ -32,8 +33,9 @@ export async function saveView(formData: FormData) {
   const world = worldOf(formData);
   const params = parseSearchParams(rawOf(formData));
   const requested = field(formData, 'kind');
-  const kind = requested === 'table' || requested === 'graph' ? requested : 'list';
-  const back = `/worlds/${world}/${kind === 'table' ? 'table' : kind === 'graph' ? 'graph' : 'search'}`;
+  const kind =
+    requested === 'table' || requested === 'graph' || requested === 'timeline' ? requested : 'list';
+  const back = `/worlds/${world}/${kind === 'list' ? 'search' : kind}`;
   const name = viewNameSchema.safeParse(field(formData, 'name'));
   if (!name.success) redirect(`${back}?error=invalid_view_name`);
 
@@ -48,12 +50,14 @@ export async function saveView(formData: FormData) {
       world_id: world,
       name: name.data,
       kind,
-      filters: (kind === 'graph' ? {} : filtersOf(params)) as Json,
+      filters: (kind === 'graph' || kind === 'timeline' ? {} : filtersOf(params)) as Json,
       config: (kind === 'table'
         ? configFromQuery(rawOf(formData))
         : kind === 'graph'
           ? parseGraphParams(rawOf(formData))
-          : {}) as unknown as Json,
+          : kind === 'timeline'
+            ? parseTimelineParams(rawOf(formData))
+            : {}) as unknown as Json,
       shared: formData.get('shared') === 'on',
       created_by: auth.user.id,
     })

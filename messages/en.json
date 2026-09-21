@@ -105,7 +105,8 @@
     "exportJson": "Export (JSON)",
     "views": "Views",
     "graph": "Graph",
-    "calendars": "Calendars"
+    "calendars": "Calendars",
+    "timeline": "Timeline"
   },
   "Members": {
     "title": "Members",
@@ -676,7 +677,9 @@
     "newTable": "New table",
     "editTable": "Edit the table",
     "newGraph": "New graph",
-    "editGraph": "Edit the graph"
+    "editGraph": "Edit the graph",
+    "newTimeline": "New timeline",
+    "editTimeline": "Edit the timeline"
   },
   "Table": {
     "title": "Table",
@@ -782,5 +785,56 @@
       "forbidden": "You don’t have permission to change calendars.",
       "generic": "The operation failed. Try again."
     }
+  },
+  "Timeline": {
+    "title": "Timeline",
+    "intro": "Snippets with a date in one of the world’s calendars, laid out in time: point or interval events, in lanes by category or tag. Each event links to its snippet.",
+    "settings": "Settings",
+    "calendar": "Calendar",
+    "lane": "Lanes by",
+    "laneCategory": "Category",
+    "laneTag": "Tag",
+    "startField": "Start date field",
+    "endField": "End date field (optional)",
+    "endNone": "None: point events",
+    "tag": "Tag",
+    "related": "Linked to (title of a snippet)",
+    "relatedHint": "Only shows events linked to that snippet by a relation, for example a character or a place.",
+    "relatedMissing": "No readable snippet titled “{title}”.",
+    "apply": "Apply",
+    "count": "Events shown: {shown} of {total}.",
+    "hidden": "{count, plural, one {# event is} other {# events are}} outside the window: move through time or zoom out.",
+    "truncated": "The first 500 events are shown: narrow down with a filter.",
+    "skipped": "{count, plural, one {# snippet has} other {# snippets have}} a date in another calendar or no longer valid and is not shown.",
+    "lanesTruncated": "The first 30 lanes are shown: narrow down with a filter.",
+    "empty": "No events match. Add a calendar date to your snippets or change the filters.",
+    "noCalendars": "The timeline needs a calendar and a “calendar date” field.",
+    "manageCalendars": "Manage calendars",
+    "noFields": "No category has a “calendar date” field.",
+    "manageCategories": "Manage categories",
+    "noCategory": "No category",
+    "noTag": "No tag",
+    "controls": "Zoom and movement",
+    "panBack": "Back in time",
+    "panForward": "Forward in time",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "reset": "Show all",
+    "scroll": "Timeline drawing (scroll to see everything)",
+    "svgTitle": "Events timeline",
+    "svgDesc": "Events laid out in time, in lanes. Each event links to its snippet; the same list follows as a table.",
+    "pointLabel": "{title}, {start}",
+    "intervalLabel": "{title}, from {start} to {end}",
+    "legend": "Category legend",
+    "tableTitle": "Events in chronological order",
+    "tableHint": "The same timeline as a table: it also includes events outside the zoom window.",
+    "tableScroll": "Events table (scroll to see everything)",
+    "tableCaption": "Events sorted by start date",
+    "event": "Event",
+    "start": "Start",
+    "end": "End",
+    "categories": "Categories",
+    "tags": "Tags",
+    "loadError": "Could not load the timeline. Try again."
   }
 }

@@ -1396,3 +1396,85 @@ p.mention-none {
   max-height: 80vh;
   border-radius: var(--radius-sm);
 }
+
+.timeline {
+  display: block;
+  width: 100%;
+  min-width: 640px;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.timeline-scroll {
+  overflow-x: auto;
+  border-radius: var(--radius-sm);
+}
+
+.timeline-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-3) 0;
+}
+
+.timeline-band {
+  fill: transparent;
+}
+
+.timeline-band-alt {
+  fill: var(--surface-2);
+}
+
+.timeline-tick {
+  stroke: var(--border);
+  stroke-width: 1;
+}
+
+.timeline-tick-label {
+  fill: var(--text-muted);
+  font-family: var(--font-ui);
+  font-size: 11px;
+}
+
+.timeline-lane-label {
+  fill: var(--text);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.timeline-event-label {
+  fill: var(--text);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  pointer-events: none;
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 3px;
+}
+
+.timeline-event circle,
+.timeline-event rect {
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.timeline-event:hover circle,
+.timeline-event:hover rect,
+.timeline-event:focus-visible circle,
+.timeline-event:focus-visible rect {
+  stroke: var(--text);
+  stroke-width: 3;
+}
+
+.timeline-event:focus-visible {
+  outline: 3px solid var(--primary);
+  outline-offset: 2px;
+}
+
+.btn-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
