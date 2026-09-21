@@ -99,6 +99,41 @@ describe('mappe', () => {
     });
   });
 
+  it('una mappa di un luogo segreto e i percorsi che passano da un pin nascosto non si vedono ai lettori', async () => {
+    await withTx(async (db) => {
+      const { owner, reader, world, snippet } = await setup(db);
+      const open1 = await snippet('Porto Verde');
+      const open2 = await snippet('Foresta Nera');
+      const hidden = await snippet('Cripta', 'secret');
+      const region = (await createMap(db, owner, world)).rows[0].id as string;
+      const crypt = (await createMap(db, owner, world, { snippet: hidden })).rows[0].id as string;
+      const p1 = (await pin(db, owner, world, region, open1)).rows[0].id as string;
+      const p2 = (await pin(db, owner, world, region, open2)).rows[0].id as string;
+      const p3 = (await pin(db, owner, world, region, hidden)).rows[0].id as string;
+      const route = (name: string, stops: string[]) =>
+        actAs(db, owner, () =>
+          db.query(
+            `insert into map_routes (world_id, map_id, name, stops) values ($1, $2, $3, $4)`,
+            [world, region, name, stops],
+          ),
+        );
+      await route('Aperto', [p1, p2]);
+      await route('Verso la Cripta', [p1, p3]);
+
+      const maps = await actAs(db, reader, () => db.query('select id from maps'));
+      expect(maps.rows.map((r) => r.id)).toEqual([region]);
+      expect(maps.rows.map((r) => r.id)).not.toContain(crypt);
+      const routes = await actAs(db, reader, () => db.query('select name from map_routes'));
+      expect(routes.rows).toEqual([{ name: 'Aperto' }]);
+
+      // Chi può vedere tutto vede tutto.
+      expect((await actAs(db, owner, () => db.query('select 1 from maps'))).rows).toHaveLength(2);
+      expect(
+        (await actAs(db, owner, () => db.query('select 1 from map_routes'))).rows,
+      ).toHaveLength(2);
+    });
+  });
+
   it('coordinate fuori da 0–1 e pin doppi sullo stesso luogo sono rifiutati; la mappa non si cambia', async () => {
     await withTx(async (db) => {
       const { owner, world, snippet } = await setup(db);

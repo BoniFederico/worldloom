@@ -417,7 +417,8 @@
   regione → città → dungeon); altrimenti apre lo snippet. Un percorso è un elenco ordinato da 2 a 30 pin della stessa mappa (controllato da un trigger);
   eliminare un pin lo toglie dai percorsi e un percorso che resta con meno di 2 tappe sparisce.
 - Permessi: un pin si legge solo se si legge lo snippet (la policy interroga `snippets` con la RLS di chi legge): un luogo segreto non compare a un
-  lettore né come pin né nella tabella. Gli snippet nel cestino non compaiono.
+  lettore né come pin né nella tabella. Anche una mappa che raffigura un luogo nascosto e un percorso con una tappa nascosta non si
+  vedono (policy di lettura; dalla review). Gli snippet nel cestino non compaiono.
 - Interfaccia: l'immagine con i pin come link sovrapposti in percentuale e i percorsi in un SVG sopra, senza librerie; tabella alternativa dei pin
   (posizione, mappa collegata) e elenco dei percorsi con le tappe. Per chi scrive, un clic sulla mappa compila la posizione del nuovo pin
   (le percentuali si scrivono anche a mano: alternativa da tastiera e senza JavaScript). Filtro per categoria dei pin.

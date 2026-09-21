@@ -1,4 +1,4 @@
-import { originAllowed, readImageUpload, storeImage } from '@/lib/images/upload';
+import { IMAGE_BUCKET, originAllowed, readImageUpload, storeImage } from '@/lib/images/upload';
 import { parseMapForm } from '@/lib/maps/input';
 import { loadWorld } from '@/lib/worlds/context';
 
@@ -49,6 +49,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ wor
     .select('id')
     .single();
   if (error || !data) {
+    // L'immagine appena salvata non serve più: non si lascia un file orfano per un errore ripetibile dall'utente.
+    await supabase.storage.from(IMAGE_BUCKET).remove([`${worldId}/${image}`]);
     return see(`${back}?error=${error?.code === '23503' ? 'invalid_place' : 'generic'}`);
   }
   return see(`${back}/${data.id}?notice=created`);

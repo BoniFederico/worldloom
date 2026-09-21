@@ -112,8 +112,12 @@ alter table public.maps enable row level security;
 alter table public.map_pins enable row level security;
 alter table public.map_routes enable row level security;
 
+-- Una mappa che raffigura un luogo si vede solo se si vede il luogo (nome, immagine e id non rivelano uno snippet nascosto).
 create policy maps_read on public.maps for select to authenticated
-  using (private.world_role(world_id) is not null);
+  using (
+    private.world_role(world_id) is not null
+    and (snippet_id is null or exists (select 1 from public.snippets s where s.id = snippet_id))
+  );
 create policy maps_write on public.maps for all to authenticated
   using (private.can_write(world_id)) with check (private.can_write(world_id));
 
@@ -126,8 +130,16 @@ create policy map_pins_read on public.map_pins for select to authenticated
 create policy map_pins_write on public.map_pins for all to authenticated
   using (private.can_write(world_id)) with check (private.can_write(world_id));
 
+-- Un percorso si vede solo se si vedono tutte le sue tappe (la sottoquery su map_pins ha la RLS di chi legge):
+-- il nome, il numero di tappe e la forma di un percorso non rivelano un luogo nascosto.
 create policy map_routes_read on public.map_routes for select to authenticated
-  using (private.world_role(world_id) is not null);
+  using (
+    private.world_role(world_id) is not null
+    and not exists (
+      select 1 from unnest(stops) as s(pin)
+       where not exists (select 1 from public.map_pins p where p.id = s.pin)
+    )
+  );
 create policy map_routes_write on public.map_routes for all to authenticated
   using (private.can_write(world_id)) with check (private.can_write(world_id));
 
