@@ -1662,3 +1662,70 @@ p.mention-none {
   font-size: var(--text-sm);
   font-style: italic;
 }
+
+.kanban {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(16rem, 1fr);
+  gap: var(--space-3);
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+}
+
+.kanban-column {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  min-width: 0;
+}
+
+[data-over] .kanban-column[data-column]:hover {
+  outline: 2px dashed var(--primary);
+  outline-offset: 2px;
+}
+
+.kanban .kanban-title {
+  font-size: var(--text-md);
+  margin: 0 0 var(--space-2);
+}
+
+.kanban-count {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.kanban-cards {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kanban-card {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  background: var(--bg);
+  overflow-wrap: anywhere;
+}
+
+.kanban-card[draggable='true'] {
+  cursor: grab;
+}
+
+.kanban-move {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.kanban-move select {
+  min-width: 0;
+  width: 100%;
+}
+
+.kanban-empty {
+  margin: 0;
+}

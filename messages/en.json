@@ -108,7 +108,8 @@
     "calendars": "Calendars",
     "timeline": "Timeline",
     "maps": "Maps",
-    "tree": "Tree and hierarchy"
+    "tree": "Tree and hierarchy",
+    "kanban": "Board"
   },
   "Members": {
     "title": "Members",
@@ -684,7 +685,9 @@
     "editTimeline": "Edit the timeline",
     "newTree": "New tree",
     "editTree": "Edit the tree",
-    "treeEmpty": "No tree to show with this configuration."
+    "treeEmpty": "No tree to show with this configuration.",
+    "newKanban": "New board",
+    "editKanban": "Edit the board"
   },
   "Table": {
     "title": "Table",
@@ -942,5 +945,43 @@
     "repeatNote": "already shown above",
     "truncated": "The tree is too large: the first 500 snippets are shown. Pick a root to see a part of it.",
     "edgesTruncated": "There are very many relations with this label: 5,000 were read in each direction."
+  },
+  "Kanban": {
+    "title": "Board",
+    "intro": "See snippets as columns by their status or a choice field (for example “Plot status”), handy for plots and drafts. Move a card with “Move to”, or drag it.",
+    "settings": "Settings",
+    "by": "Columns by",
+    "pick": "Choose…",
+    "statusField": "Status (draft / final)",
+    "category": "Category",
+    "anyCategory": "All categories",
+    "apply": "Show the board",
+    "pickHint": "Choose the status or a choice field to build the board.",
+    "pickHintNoFields": "Choose “Status” to build the board. To use your own field, add a “choice” field to a category.",
+    "loadError": "Could not read the categories. Try again.",
+    "loadOrFieldError": "Could not build the board: the field no longer exists or reading failed.",
+    "count": "{count, plural, one {# snippet} other {# snippets}} on the board.",
+    "truncated": "The board is too large: the first 500 snippets are shown. Filter by category.",
+    "none": "No value",
+    "otherHint": "Value no longer among the field options.",
+    "emptyColumn": "No snippets.",
+    "move": "Move",
+    "moveLabel": "Move “{title}” to",
+    "status": {
+      "draft": "Draft",
+      "final": "Final"
+    },
+    "notices": {
+      "moved": "Card moved."
+    },
+    "errors": {
+      "forbidden": "You are not allowed to edit this snippet.",
+      "conflict": "Someone else changed the snippet: reload and try again.",
+      "required": "Required fields are missing: fill them in the snippet before moving it.",
+      "invalid_target": "Invalid destination.",
+      "unknown_field": "This snippet does not have that choice field.",
+      "move_failed": "Could not move the card. Try again.",
+      "invalid_fields": "One of the snippet values is not valid (for example an option that no longer exists): fix it in the snippet."
+    }
   }
 }

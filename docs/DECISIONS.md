@@ -449,3 +449,21 @@
 - Limiti: una sola etichetta per albero (niente
   alberi misti); niente disegno a nodi e linee orizzontale; la radice si sceglie per titolo esatto, non da un elenco.
 - Deciso da: agente
+
+### D-030: Bacheca kanban per stato o campo a scelta
+
+- Data: 2026-09-21
+- Contesto: #30. Una bacheca a colonne per trame e bozze, con spostamento accessibile e salvataggio come vista.
+- Decisione: pagina `/worlds/<id>/kanban` (form GET) e tipo di vista `kanban` in `saved_views` (D-023) con `config` `{by, category}`. `by` è `status`
+  (bozza / definitivo) oppure la chiave di un campo di tipo «scelta» di una categoria. Colonne: «senza valore» in testa, poi le opzioni nell'ordine del
+  campo, poi una colonna per ogni valore rimasto orfano (opzione rimossa dopo l'inserimento), non usabile come destinazione. Con un campo entrano solo gli
+  snippet di una categoria che lo definisce (se lo stesso campo è in più categorie, le opzioni si uniscono); per lo stato, tutti. Non archiviati né nel cestino.
+  Nessun dato nella vista: si legge con i permessi di chi guarda (RLS), quindi gli snippet segreti non compaiono al lettore.
+- Spostamento: ogni card ha un modulo «Sposta in» (select + pulsante), che funziona da tastiera, con lettori di schermo e senza JavaScript; il
+  trascinamento (`KanbanDnd`, HTML5) è solo un'aggiunta che imposta la destinazione nello stesso modulo e lo invia. La server action `moveCard` usa le
+  stesse regole del salvataggio (`planMove`, pura e testata): solo opzioni esistenti; passare a «definitivo» o togliere un valore a uno snippet definitivo
+  richiede i campi obbligatori. Scrive con una condizione su `updated_at` (mai sovrascrive una modifica più recente: errore «conflitto»), e passa dalla
+  cronologia versioni come ogni modifica. Nessuna migrazione: la RLS di `snippets` già limita l'aggiornamento a chi può scrivere.
+- Limiti: al massimo 500 snippet (avviso); la vista salvata è di sola lettura (per spostare si apre la bacheca); il trascinamento non funziona al tocco
+  (si usa il modulo); l'ordine nelle colonne è alfabetico, non si ordina a mano; le card non mostrano altri campi.
+- Deciso da: agente

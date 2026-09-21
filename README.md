@@ -1,7 +1,7 @@
 # Worldloom
 
 SaaS per scrittori, worldbuilder e dungeon master: scrivi snippet con categoria, collegali con relazioni dal nome libero e
-guarda lo stesso mondo come timeline, mappa, grafo, albero genealogico o tabella. Sopra il nucleo, un livello campagne con
+guarda lo stesso mondo come timeline, mappa, grafo, albero genealogico, bacheca kanban o tabella. Sopra il nucleo, un livello campagne con
 visibilità per elemento e schede personaggio configurabili.
 
 Specifica: [SPEC.md](SPEC.md) · Piano: [docs/PLAN.md](docs/PLAN.md) · Architettura: [docs/architecture.md](docs/architecture.md) ·

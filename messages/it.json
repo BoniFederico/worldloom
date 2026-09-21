@@ -108,7 +108,8 @@
     "calendars": "Calendari",
     "timeline": "Timeline",
     "maps": "Mappe",
-    "tree": "Albero e gerarchia"
+    "tree": "Albero e gerarchia",
+    "kanban": "Bacheca"
   },
   "Members": {
     "title": "Membri",
@@ -684,7 +685,9 @@
     "editTimeline": "Modifica la timeline",
     "newTree": "Nuovo albero",
     "editTree": "Modifica l’albero",
-    "treeEmpty": "Nessun albero da mostrare con questa configurazione."
+    "treeEmpty": "Nessun albero da mostrare con questa configurazione.",
+    "newKanban": "Nuova bacheca",
+    "editKanban": "Modifica la bacheca"
   },
   "Table": {
     "title": "Tabella",
@@ -942,5 +945,43 @@
     "repeatNote": "già mostrato sopra",
     "truncated": "L’albero è troppo grande: sono mostrati i primi 500 snippet. Scegli una radice per vederne una parte.",
     "edgesTruncated": "Le relazioni con questa etichetta sono moltissime: ne sono state lette 5.000 per ogni verso."
+  },
+  "Kanban": {
+    "title": "Bacheca",
+    "intro": "Vedi gli snippet come colonne secondo il loro stato o un campo a scelta (ad esempio «Stato della trama»), utile per trame e bozze. Sposta una card con «Sposta in», oppure trascinala.",
+    "settings": "Impostazioni",
+    "by": "Colonne per",
+    "pick": "Scegli…",
+    "statusField": "Stato (bozza / definitivo)",
+    "category": "Categoria",
+    "anyCategory": "Tutte le categorie",
+    "apply": "Mostra la bacheca",
+    "pickHint": "Scegli lo stato o un campo a scelta per costruire la bacheca.",
+    "pickHintNoFields": "Scegli «Stato» per costruire la bacheca. Per usare un tuo campo, aggiungi un campo di tipo «scelta» a una categoria.",
+    "loadError": "Non riesco a leggere le categorie. Riprova.",
+    "loadOrFieldError": "Non riesco a costruire la bacheca: il campo non esiste più o la lettura è fallita.",
+    "count": "{count, plural, one {# snippet} other {# snippet}} nella bacheca.",
+    "truncated": "La bacheca è troppo grande: sono mostrati i primi 500 snippet. Filtra per categoria.",
+    "none": "Senza valore",
+    "otherHint": "Valore non più tra le opzioni del campo.",
+    "emptyColumn": "Nessuno snippet.",
+    "move": "Sposta",
+    "moveLabel": "Sposta «{title}» in",
+    "status": {
+      "draft": "Bozza",
+      "final": "Definitivo"
+    },
+    "notices": {
+      "moved": "Card spostata."
+    },
+    "errors": {
+      "forbidden": "Non hai il permesso di modificare questo snippet.",
+      "conflict": "Lo snippet è stato modificato da qualcun altro: ricarica e riprova.",
+      "required": "Mancano campi obbligatori: completali nello snippet prima di spostarlo.",
+      "invalid_target": "Destinazione non valida.",
+      "unknown_field": "Questo snippet non ha quel campo a scelta.",
+      "move_failed": "Non è stato possibile spostare la card. Riprova.",
+      "invalid_fields": "Uno dei valori dello snippet non è valido (ad esempio un’opzione che non esiste più): correggilo nello snippet."
+    }
   }
 }

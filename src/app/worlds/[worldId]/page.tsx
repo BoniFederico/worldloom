@@ -73,6 +73,9 @@ export default async function WorldPage({ params, searchParams }: Props) {
         <p>
           <Link href={`/worlds/${world.id}/tree`} className="btn">
             {t('tree')}
+          </Link>{' '}
+          <Link href={`/worlds/${world.id}/kanban`} className="btn">
+            {t('kanban')}
           </Link>
         </p>
         <p>
