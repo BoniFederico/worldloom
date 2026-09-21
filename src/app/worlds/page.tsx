@@ -46,6 +46,12 @@ export default async function WorldsPage({ searchParams }: Props) {
           </ul>
         )}
 
+        <p>
+          <Link href="/worlds/import" className="btn">
+            {t('importLink')}
+          </Link>
+        </p>
+
         <h2>{t('createTitle')}</h2>
         <form action={createWorld} className="form form-inline">
           <Field name="name" label={t('name')} autoComplete="off" />

@@ -88,7 +88,8 @@
     "notices": {
       "renamed": "Nome aggiornato.",
       "deleted": "Mondo eliminato.",
-      "left": "Hai lasciato il mondo."
+      "left": "Hai lasciato il mondo.",
+      "imported": "Mondo importato."
     },
     "errors": {
       "invalid_input": "Il nome deve avere da 1 a 120 caratteri.",
@@ -99,7 +100,9 @@
     "categories": "Categorie",
     "snippets": "Snippet",
     "relationTypes": "Tipi di relazione",
-    "search": "Ricerca"
+    "search": "Ricerca",
+    "importLink": "Importa un mondo",
+    "exportJson": "Esporta (JSON)"
   },
   "Members": {
     "title": "Membri",
@@ -596,6 +599,20 @@
       "not_found": "Versione non trovata.",
       "forbidden": "Non hai i permessi per ripristinare.",
       "generic": "Operazione non riuscita. Riprova tra poco."
+    }
+  },
+  "Import": {
+    "title": "Importa un mondo",
+    "worlds": "Mondi",
+    "intro": "Crea un mondo nuovo da un file JSON esportato da Worldloom. Ne diventi il proprietario.",
+    "file": "File JSON",
+    "hint": "Massimo 4 MB e 5.000 snippet. Le immagini nel testo non vengono incluse nel file.",
+    "submit": "Importa",
+    "notices": {},
+    "errors": {
+      "invalid_file": "Il file non è valido: controlla che sia un export di Worldloom.",
+      "too_large": "Il file supera i 4 MB.",
+      "generic": "Importazione non riuscita. Riprova tra poco."
     }
   }
 }

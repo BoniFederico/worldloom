@@ -270,3 +270,15 @@
 - Limiti noti: le categorie e le relazioni non fanno parte della versione (il ripristino invece riallinea le relazioni da menzione, ricavando gli id dal documento lato server); dopo un ripristino le categorie restano quelle attuali; le menzioni nel confronto non mostrano il titolo;
   le versioni sono cancellate con lo snippet.
 - Deciso da: agente
+
+### D-021: Export/import JSON del mondo (formato v1)
+
+- Data: 2026-09-21
+- Contesto: #21. L'export deve rispettare i permessi e il round trip deve essere identico.
+- Decisione: formato `worldloom.world` v1 documentato in `docs/export-format.md`. L'export legge con la sessione dell'utente (la RLS
+  filtra), senza id né date di esportazione, con riferimenti ordinali e chiavi jsonb in ordine alfabetico (Postgres le riordina: scoperto
+  dal test e2e del round trip). L'import è un `POST` multipart a `/api/worlds/import` (controllo Origin, tetto di 4 MB con lunghezza
+  dichiarata) che crea un mondo nuovo, valida con zod, sanifica i corpi con `validateBody` e in caso di errore elimina il mondo creato.
+- Limiti: non atomico lato database (compensazione con eliminazione del mondo); cestino, cronologia, membri, immagini escluse.
+  L'export Markdown e l'import da Markdown/Obsidian/CSV restano in #43.
+- Deciso da: agente
