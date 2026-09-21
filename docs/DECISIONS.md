@@ -352,6 +352,8 @@
   nella forma inversa, senza badare alle maiuscole); le relazioni da menzione si possono nascondere.
 - Viste salvate: tipo `graph` con `config` `{center, depth, label, category, mentions}` passato da `parseGraphConfig` (stessi limiti della query
   string); ricentrare da una vista salvata apre il grafo libero senza modificarla.
+- Dalla review: gli archi sono al massimo 2.000 (`edges_truncated`, con avviso); gli snippet nel cestino non sono nodi e non fanno da ponte
+  nella ricerca dal centro né contano nel grado; ordinamento degli archi totale (deterministico).
 - Limiti: niente zoom/pan interattivo né trascinamento dei nodi (il browser può ingrandire l'SVG; sopra i 300 nodi bisogna restringere o
   scegliere un centro); il layout si ricalcola a ogni richiesta (O(iterazioni × nodi²), < 100 ms a 300 nodi); il filtro per categoria toglie
   anche i nodi intermedi di altre categorie (il vicinato è calcolato prima del filtro).

@@ -110,6 +110,7 @@ describe('seed di demo', () => {
       const overview = await time([STRESS_WORLD, null, 2, null, null, true, 300]);
       expect(overview.graph.nodes).toHaveLength(300);
       expect(overview.graph.truncated).toBe(true);
+      expect(overview.graph.edges.length).toBeLessThanOrEqual(2000);
       console.log('graph overview ms', Math.round(overview.ms));
       expect(overview.ms).toBeLessThan(1500);
       const near = await time([STRESS_WORLD, center, 2, null, null, true, 300]);

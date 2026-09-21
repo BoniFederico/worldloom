@@ -43,6 +43,7 @@ export async function GraphView({ worldId, graph, center, categories, nodeHref }
       {graph.truncated ? (
         <p className="message message-info">{t('truncated', { count: graph.nodes.length })}</p>
       ) : null}
+      {graph.edgesTruncated ? <p className="message message-info">{t('edgesTruncated')}</p> : null}
       {graph.nodes.length === 0 ? (
         <p className="empty">{t('empty')}</p>
       ) : (

@@ -11,6 +11,7 @@ type Graph = {
     from_mention: boolean;
   }[];
   truncated: boolean;
+  edges_truncated: boolean;
 };
 
 async function setup(db: Db) {
@@ -194,6 +195,25 @@ describe('graph_data', () => {
       expect((await graph(db, owner, other, { center: s.A })).nodes).toEqual([]);
       const huge = await graph(db, owner, world, { center: s.A, depth: 1000, max: 1_000_000 });
       expect(huge.nodes.length).toBeLessThanOrEqual(4);
+    });
+  });
+
+  it('gli snippet nel cestino non fanno da ponte e non contano nel grado', async () => {
+    await withTx(async (db) => {
+      const { owner, world, s } = await setup(db);
+      await db.query(`update snippets set deleted_at = now() where id = $1`, [s.B]);
+      const g = await graph(db, owner, world, { center: s.A, depth: 3, mentions: false });
+      expect(titles(g)).toEqual(['A']);
+      const all = await graph(db, owner, world, { mentions: false });
+      expect(titles(all)).toEqual(['C', 'D']);
+      expect(all.nodes.find((n) => n.title === 'C')?.degree).toBe(1);
+    });
+  });
+
+  it('segnala che gli archi non sono troncati quando sono pochi', async () => {
+    await withTx(async (db) => {
+      const { owner, world } = await setup(db);
+      expect((await graph(db, owner, world)).edges_truncated).toBe(false);
     });
   });
 

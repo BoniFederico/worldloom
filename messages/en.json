@@ -727,6 +727,7 @@
     "from": "From",
     "relation": "Relation",
     "to": "To",
-    "graphScroll": "Graph drawing (scroll to see everything)"
+    "graphScroll": "Graph drawing (scroll to see everything)",
+    "edgesTruncated": "There are more than 2,000 relations between these nodes: 2,000 are shown. Narrow the filters or choose a central node."
   }
 }

@@ -727,6 +727,7 @@
     "from": "Da",
     "relation": "Relazione",
     "to": "A",
-    "graphScroll": "Disegno del grafo (scorri per vedere tutto)"
+    "graphScroll": "Disegno del grafo (scorri per vedere tutto)",
+    "edgesTruncated": "Ci sono più di 2.000 relazioni tra questi nodi: ne sono mostrate 2.000. Restringi i filtri o scegli un nodo centrale."
   }
 }

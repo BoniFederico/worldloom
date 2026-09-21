@@ -11,7 +11,12 @@ export type GraphEdge = {
   inverse_label: string | null;
   from_mention: boolean;
 };
-export type GraphData = { nodes: GraphNode[]; edges: GraphEdge[]; truncated: boolean };
+export type GraphData = {
+  nodes: GraphNode[];
+  edges: GraphEdge[];
+  truncated: boolean;
+  edgesTruncated: boolean;
+};
 
 // I parametri opzionali della funzione SQL si passano come null (i tipi generati non li dichiarano nullable).
 const nullable = (value: string | null) => value as string;
@@ -41,5 +46,6 @@ export async function loadGraph(
     nodes: data.nodes as GraphNode[],
     edges: data.edges as GraphEdge[],
     truncated: data.truncated === true,
+    edgesTruncated: data.edges_truncated === true,
   };
 }

@@ -6,7 +6,8 @@
 --    5.000 snippet e 20.000 relazioni; con un centro: i nodi entro `p_depth` passi da esso (relazioni in entrambe le direzioni);
 --  * filtri: etichetta (anche quella inversa, senza badare alle maiuscole), categoria, inclusione delle relazioni da menzione;
 --  * profondità 0–4 e nodi 1–500: valori fuori intervallo vengono riportati nei limiti.
--- Restituisce {nodes:[{id,title,category_ids,degree}], edges:[{source,target,label,inverse_label,from_mention}], truncated}.
+-- Gli snippet nel cestino non sono nodi e non fanno da ponte. Al massimo 2.000 archi (`edges_truncated`).
+-- Restituisce {nodes:[{id,title,category_ids,degree}], edges:[{source,target,label,inverse_label,from_mention}], truncated, edges_truncated}.
 
 create or replace function public.graph_data(
   p_world uuid,
@@ -27,12 +28,15 @@ declare
   v_depth integer := least(greatest(coalesce(p_depth, 2), 0), 4);
   v_max integer := least(greatest(coalesce(p_max_nodes, 300), 1), 500);
   v_label text := nullif(private.norm_label(p_label), '');
+  v_max_edges constant integer := 2000;
   v_result jsonb;
 begin
   with recursive
   base as (
     select r.source_id, r.target_id, r.label, r.inverse_label, r.from_mention
       from public.relations r
+      join public.snippets a on a.id = r.source_id and a.deleted_at is null
+      join public.snippets b on b.id = r.target_id and b.deleted_at is null
      where r.world_id = p_world
        and (coalesce(p_mentions, true) or not r.from_mention)
        and (v_label is null
@@ -84,10 +88,16 @@ begin
   chosen as (
     select id, title from ranked where rn <= v_max
   ),
-  edges as (
+  edges_all as (
     select b.source_id, b.target_id, b.label, b.inverse_label, b.from_mention
       from base b
      where b.source_id in (select id from chosen) and b.target_id in (select id from chosen)
+  ),
+  -- Tetto sugli archi: 300 nodi ben connessi possono averne migliaia, e ognuno pesa nel JSON e nel disegno.
+  edges as (
+    select * from edges_all
+     order by source_id, target_id, label, coalesce(inverse_label, ''), from_mention
+     limit v_max_edges
   ),
   edge_degrees as (
     select id, count(*) as deg
@@ -109,8 +119,9 @@ begin
       select jsonb_agg(jsonb_build_object(
                'source', e.source_id, 'target', e.target_id, 'label', e.label,
                'inverse_label', e.inverse_label, 'from_mention', e.from_mention)
-             order by e.source_id, e.target_id, e.label)
+             order by e.source_id, e.target_id, e.label, coalesce(e.inverse_label, ''), e.from_mention)
         from edges e), '[]'::jsonb),
+    'edges_truncated', (select count(*) from edges_all) > v_max_edges,
     'truncated', exists (select 1 from ranked where rn > v_max)
   ) into v_result;
 
