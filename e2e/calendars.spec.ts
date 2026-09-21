@@ -126,7 +126,7 @@ test.describe('calendari personalizzati', () => {
 
     await page.goto(`/worlds/${worldId}/snippets`);
     await page.getByRole('link', { name: 'Incoronazione' }).click();
-    const date = page.getByRole('group', { name: 'Quando' });
+    const date = page.getByRole('group', { name: 'Quando', exact: true });
     await date.getByLabel('Era').selectOption('Seconda Era');
     await date.getByLabel('Anno').fill('12');
     await date.getByLabel('Mese').selectOption({ label: 'Zenit' });
@@ -134,7 +134,7 @@ test.describe('calendari personalizzati', () => {
     await page.getByRole('button', { name: 'Salva', exact: true }).click();
     await page.waitForURL(/notice=saved/);
 
-    const saved = page.getByRole('group', { name: 'Quando' });
+    const saved = page.getByRole('group', { name: 'Quando', exact: true });
     await expect(saved.getByLabel('Era')).toHaveValue('Seconda Era');
     await expect(saved.getByLabel('Anno')).toHaveValue('12');
     await expect(saved.getByLabel('Mese')).toHaveValue('2');
@@ -144,21 +144,23 @@ test.describe('calendari personalizzati', () => {
     // Il 21 del mese non esiste (20 giorni): l'errore compare e il valore digitato non si perde.
     await saved.getByLabel('Giorno').fill('21');
     await page.getByRole('button', { name: 'Salva', exact: true }).click();
-    await expect(page.getByRole('group', { name: 'Quando' })).toContainText(
+    await expect(page.getByRole('group', { name: 'Quando', exact: true })).toContainText(
       'Data non valida per questo calendario',
     );
-    await expect(page.getByRole('group', { name: 'Quando' }).getByLabel('Giorno')).toHaveValue(
-      '21',
-    );
+    await expect(
+      page.getByRole('group', { name: 'Quando', exact: true }).getByLabel('Giorno'),
+    ).toHaveValue('21');
 
     // Svuotare i campi cancella la data.
-    const again = page.getByRole('group', { name: 'Quando' });
+    const again = page.getByRole('group', { name: 'Quando', exact: true });
     await again.getByLabel('Anno').fill('');
     await again.getByLabel('Mese').selectOption('');
     await again.getByLabel('Giorno').fill('');
     await page.getByRole('button', { name: 'Salva', exact: true }).click();
     await page.waitForURL(/notice=saved/);
-    await expect(page.getByRole('group', { name: 'Quando' }).getByLabel('Anno')).toHaveValue('');
+    await expect(
+      page.getByRole('group', { name: 'Quando', exact: true }).getByLabel('Anno'),
+    ).toHaveValue('');
   });
 
   test('i lettori vedono i calendari ma non li modificano; accessibilità', async ({ browser }) => {

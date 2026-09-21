@@ -1,4 +1,5 @@
 import { fieldsSchema } from '@/lib/fields/fields';
+import { loadRestricted, withRestricted } from '@/lib/visibility/restricted';
 import type { createClient } from '@/lib/supabase/server';
 import type { SearchParams } from '@/lib/search/params';
 import type { TableContext, TableRow } from './table';
@@ -81,6 +82,8 @@ export async function loadTableRows(
     .order('updated_at', { ascending: false })
     .limit(TABLE_LIMIT + 1);
   if (error || !data) return null;
+  // I campi riservati non stanno nella colonna pubblica: chi li può leggere li vede uniti agli altri.
+  const restricted = await loadRestricted(supabase, worldId);
   const rows = data.slice(0, TABLE_LIMIT).map((s): TableRow => ({
     id: s.id,
     title: s.title,
@@ -88,10 +91,13 @@ export async function loadTableRows(
     tags: s.tags,
     updated_at: s.updated_at,
     category_ids: s.snippet_categories.map((c) => c.category_id),
-    fields:
+    fields: withRestricted(
+      s.id,
       typeof s.fields === 'object' && s.fields !== null && !Array.isArray(s.fields)
         ? (s.fields as Record<string, unknown>)
         : {},
+      restricted,
+    ),
   }));
   return { rows, truncated: data.length > TABLE_LIMIT };
 }

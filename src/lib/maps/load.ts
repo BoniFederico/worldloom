@@ -12,6 +12,7 @@ export type MapPin = {
   x: number;
   y: number;
   categoryIds: string[];
+  visibility: 'secret' | 'shared' | 'members' | 'public';
   /** La mappa che raffigura questo luogo, se esiste: un clic sul pin la apre. */
   placeMap: { id: string; name: string } | null;
 };
@@ -75,7 +76,7 @@ export async function loadMapDetail(
     supabase
       .from('map_pins')
       .select(
-        'id, snippet_id, x, y, snippets!inner(title, deleted_at, snippet_categories(category_id))',
+        'id, snippet_id, x, y, visibility, snippets!inner(title, deleted_at, snippet_categories(category_id))',
       )
       .eq('map_id', mapId)
       .is('snippets.deleted_at', null)
@@ -123,6 +124,7 @@ export async function loadMapDetail(
       x: p.x,
       y: p.y,
       categoryIds: p.snippets.snippet_categories.map((c) => c.category_id),
+      visibility: p.visibility,
       placeMap: placeMapOf.get(p.snippet_id) ?? null,
     })),
     routes: (routesResult.data ?? []).map((r) => ({ id: r.id, name: r.name, stops: r.stops })),

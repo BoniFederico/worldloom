@@ -41,6 +41,8 @@ export type RawWorld = {
     body: unknown;
     created_at: string;
     category_ids: string[];
+    /** Campi riservati (segreti o condivisi) leggibili da chi esporta: i loro valori sono già dentro `fields`. */
+    restricted?: Record<string, 'secret' | 'shared'>;
   }[];
   relationTypes: {
     label: string;
@@ -106,6 +108,11 @@ const exportSchema = z.object({
           .record(z.string(), z.unknown())
           .refine((v) => JSON.stringify(v).length <= MAX_FIELDS_LENGTH, 'campi troppo grandi'),
         body: z.unknown(),
+        // Campi con visibilità ristretta (i valori stanno in `fields`). In importazione diventano segreti del nuovo mondo:
+        // i destinatari scelti non si esportano.
+        fieldVisibility: z
+          .record(z.string().regex(/^[a-z][a-z0-9_]{0,39}$/), z.enum(['secret', 'shared']))
+          .optional(),
         createdAt: date,
       }),
     )
@@ -268,6 +275,9 @@ export function buildExport(raw: RawWorld): WorldExport {
           ? (sortKeys(s.fields) as Record<string, unknown>)
           : {},
       body: sortKeys(mapMentions(sanitizeBody(s.body), (id) => snippetRef.get(id) ?? null)),
+      ...(s.restricted && Object.keys(s.restricted).length
+        ? { fieldVisibility: sortKeys(s.restricted) as Record<string, 'secret' | 'shared'> }
+        : {}),
       createdAt: iso(s.created_at),
     })),
     relationTypes: [...raw.relationTypes]
@@ -332,7 +342,9 @@ export type ImportPlan =
       ok: true;
       world: { name: string };
       categories: RawWorld['categories'];
-      snippets: Omit<RawWorld['snippets'][number], 'deleted_at' | 'category_ids'>[];
+      snippets: Omit<RawWorld['snippets'][number], 'deleted_at' | 'category_ids' | 'restricted'>[];
+      /** Campi riservati da creare dopo gli snippet (tutti segreti): i loro valori non entrano in `snippets.fields`. */
+      restrictedFields: { snippet_id: string; key: string; value: unknown }[];
       snippetCategories: { snippet_id: string; category_id: string }[];
       relationTypes: RawWorld['relationTypes'];
       relations: RawWorld['relations'];
@@ -348,6 +360,7 @@ export function planImport(data: WorldExport, newId: () => string): ImportPlan {
   const snippetId = new Map(data.snippets.map((s) => [s.ref, newId()]));
 
   const snippets: Extract<ImportPlan, { ok: true }>['snippets'] = [];
+  const restrictedFields: Extract<ImportPlan, { ok: true }>['restrictedFields'] = [];
   for (const s of data.snippets) {
     const remapped = mapMentions(dropImages(s.body), (ref) => snippetId.get(ref) ?? null);
     const body: DocNode | null = validateBody(remapped);
@@ -360,10 +373,19 @@ export function planImport(data: WorldExport, newId: () => string): ImportPlan {
       archived_at: s.archived ? new Date(s.createdAt).toISOString() : null,
       tags: s.tags,
       aliases: s.aliases,
-      fields: s.fields,
+      fields: Object.fromEntries(
+        Object.entries(s.fields).filter(([key]) => !(key in (s.fieldVisibility ?? {}))),
+      ),
       body,
       created_at: s.createdAt,
     });
+    for (const key of Object.keys(s.fieldVisibility ?? {})) {
+      restrictedFields.push({
+        snippet_id: snippetId.get(s.ref) as string,
+        key,
+        value: s.fields[key] ?? null,
+      });
+    }
   }
 
   return {
@@ -378,6 +400,7 @@ export function planImport(data: WorldExport, newId: () => string): ImportPlan {
       content_template: null,
     })),
     snippets,
+    restrictedFields,
     snippetCategories: data.snippets.flatMap((s) =>
       s.categories.map((c) => ({
         snippet_id: snippetId.get(s.ref) as string,

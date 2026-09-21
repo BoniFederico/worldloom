@@ -174,6 +174,8 @@ describe('graph_data', () => {
   it('rispetta i permessi: uno snippet segreto non compare a un lettore, né le sue relazioni', async () => {
     await withTx(async (db) => {
       const { owner, reader, world, s } = await setup(db);
+      // Impostazione di prova diretta: il trigger accetta il cambio solo con il parametro di set_visibility.
+      await db.query("select set_config('worldloom.set_visibility', 'on', true)");
       await db.query(`update snippets set visibility = 'secret' where id = $1`, [s.D]);
       const asReader = await graph(db, reader, world);
       expect(titles(asReader)).toEqual(['A', 'B', 'C']);

@@ -111,7 +111,7 @@ test.describe('relazioni', () => {
     await addRelation(page, 'Arathorn', 'amico di');
 
     const item = page.locator('.relations li').first();
-    await item.locator('summary').click();
+    await item.locator('summary').first().click();
     await item.getByLabel('Note', { exact: true }).fill('Da sempre.');
     await item.locator('input[name="from_year"]').fill('10');
     await item.getByRole('button', { name: 'Salva' }).click();
@@ -187,7 +187,7 @@ test.describe('relazioni', () => {
     await page.goto(urlA);
     await addRelation(page, 'Arathorn', 'amico di', { inverse: 'amico di' });
     await expect(page.getByRole('status')).toHaveText('Relazione aggiunta.');
-    await page.locator('.relations li').first().locator('summary').click();
+    await page.locator('.relations li').first().locator('summary').first().click();
     expect(await noSeriousViolations(page)).toEqual([]);
   });
 });

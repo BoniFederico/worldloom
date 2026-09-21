@@ -2,6 +2,10 @@ import Link from 'next/link';
 import { getTranslations } from 'next-intl/server';
 import { deleteRelation, updateRelation } from '@/app/worlds/[worldId]/snippets/relation-actions';
 import { RelationForm, TimeFields } from '@/components/relation-form';
+import { VisibilityForm } from '@/components/visibility-form';
+import { applyItemVisibility } from '@/app/worlds/[worldId]/snippets/visibility-actions';
+import { loadShareTargets, loadShares } from '@/lib/visibility/load';
+import type { Level } from '@/lib/visibility/input';
 import { relationView, topLabels, type TimePoint } from '@/lib/relations/input';
 import type { createClient } from '@/lib/supabase/server';
 
@@ -36,11 +40,13 @@ export async function RelationsPanel({
   snippetTitle,
   canWrite,
 }: Props) {
-  const t = await getTranslations('Relations');
+  const [t, tv] = await Promise.all([getTranslations('Relations'), getTranslations('Visibility')]);
 
   const { data: rows } = await supabase
     .from('relations')
-    .select('id, source_id, target_id, label, inverse_label, notes, valid_from, valid_to')
+    .select(
+      'id, source_id, target_id, label, inverse_label, notes, valid_from, valid_to, visibility',
+    )
     .eq('world_id', worldId)
     .eq('from_mention', false) // le menzioni hanno il loro pannello (backlink)
     .or(`source_id.eq.${snippetId},target_id.eq.${snippetId}`)
@@ -54,6 +60,19 @@ export async function RelationsPanel({
   const titles = new Map((others ?? []).map((s) => [s.id, s.title]));
   // Le relazioni verso snippet nel cestino non si mostrano (tornano se lo snippet viene ripristinato).
   const views = allViews.filter((v) => titles.has(v.view.otherId));
+
+  // Destinatari possibili e attuali della visibilità delle relazioni (solo per chi scrive).
+  const [shareTargets, relationShares] = canWrite
+    ? await Promise.all([
+        loadShareTargets(supabase, worldId),
+        loadShares(
+          supabase,
+          worldId,
+          'relation',
+          views.map((v) => v.row.id),
+        ),
+      ])
+    : [[], new Map<string, string[]>()];
 
   // Suggerimenti: etichette già usate nel mondo e possibili destinazioni.
   const [{ data: used }, { data: targets }, { data: types }] = canWrite
@@ -175,6 +194,25 @@ export async function RelationsPanel({
                         {t('save')}
                       </button>
                     </form>
+                  </details>
+                ) : null}
+                {canWrite ? (
+                  <details className="field-edit">
+                    <summary>
+                      {tv('itemSummary', { level: tv(`levels.${row.visibility}`) })}
+                      <span className="sr-only">
+                        {' '}
+                        {row.label} — {otherTitle}
+                      </span>
+                    </summary>
+                    <VisibilityForm
+                      action={applyItemVisibility}
+                      hidden={{ world: worldId, kind: 'relation', item: row.id, from: snippetId }}
+                      idPrefix={`vis-${row.id}`}
+                      level={row.visibility as Level}
+                      users={relationShares.get(row.id) ?? []}
+                      targets={shareTargets}
+                    />
                   </details>
                 ) : null}
                 {canWrite ? (
