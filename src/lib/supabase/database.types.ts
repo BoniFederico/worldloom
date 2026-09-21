@@ -66,6 +66,123 @@ export type Database = {
           },
         ];
       };
+      campaign_invites: {
+        Row: {
+          campaign_id: string;
+          created_at: string;
+          created_by: string;
+          email: string | null;
+          expires_at: string;
+          id: string;
+          max_uses: number;
+          revoked_at: string | null;
+          role: Database['public']['Enums']['campaign_role'];
+          token: string;
+          uses: number;
+        };
+        Insert: {
+          campaign_id: string;
+          created_at?: string;
+          created_by: string;
+          email?: string | null;
+          expires_at: string;
+          id?: string;
+          max_uses?: number;
+          revoked_at?: string | null;
+          role: Database['public']['Enums']['campaign_role'];
+          token?: string;
+          uses?: number;
+        };
+        Update: {
+          campaign_id?: string;
+          created_at?: string;
+          created_by?: string;
+          email?: string | null;
+          expires_at?: string;
+          id?: string;
+          max_uses?: number;
+          revoked_at?: string | null;
+          role?: Database['public']['Enums']['campaign_role'];
+          token?: string;
+          uses?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'campaign_invites_campaign_id_fkey';
+            columns: ['campaign_id'];
+            isOneToOne: false;
+            referencedRelation: 'campaigns';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      campaign_members: {
+        Row: {
+          campaign_id: string;
+          created_at: string;
+          role: Database['public']['Enums']['campaign_role'];
+          user_id: string;
+        };
+        Insert: {
+          campaign_id: string;
+          created_at?: string;
+          role: Database['public']['Enums']['campaign_role'];
+          user_id: string;
+        };
+        Update: {
+          campaign_id?: string;
+          created_at?: string;
+          role?: Database['public']['Enums']['campaign_role'];
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'campaign_members_campaign_id_fkey';
+            columns: ['campaign_id'];
+            isOneToOne: false;
+            referencedRelation: 'campaigns';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      campaigns: {
+        Row: {
+          created_at: string;
+          description: string;
+          id: string;
+          name: string;
+          owner_id: string;
+          updated_at: string;
+          world_id: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          description?: string;
+          id?: string;
+          name: string;
+          owner_id: string;
+          updated_at?: string;
+          world_id?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          description?: string;
+          id?: string;
+          name?: string;
+          owner_id?: string;
+          updated_at?: string;
+          world_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'campaigns_world_id_fkey';
+            columns: ['world_id'];
+            isOneToOne: false;
+            referencedRelation: 'worlds';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       categories: {
         Row: {
           color: string | null;
@@ -669,6 +786,7 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      accept_campaign_invite: { Args: { p_token: string }; Returns: string };
       add_world_member: {
         Args: {
           p_email: string;
@@ -697,6 +815,19 @@ export type Database = {
           p_world: string;
         };
         Returns: Json;
+      };
+      leave_campaign: { Args: { p_campaign: string }; Returns: undefined };
+      preview_campaign_invite: {
+        Args: { p_token: string };
+        Returns: {
+          already_member: boolean;
+          campaign_name: string;
+          role: Database['public']['Enums']['campaign_role'];
+        }[];
+      };
+      remove_campaign_member: {
+        Args: { p_campaign: string; p_user: string };
+        Returns: undefined;
       };
       restore_snippet_version: {
         Args: { p_snippet: string; p_updated: string; p_version: number };
@@ -740,12 +871,21 @@ export type Database = {
           updated_at: string;
         }[];
       };
+      set_campaign_member_role: {
+        Args: {
+          p_campaign: string;
+          p_role: Database['public']['Enums']['campaign_role'];
+          p_user: string;
+        };
+        Returns: undefined;
+      };
       transfer_world_ownership: {
         Args: { p_new_owner: string; p_world: string };
         Returns: undefined;
       };
     };
     Enums: {
+      campaign_role: 'dm' | 'co_dm' | 'player' | 'observer';
       snippet_status: 'draft' | 'final';
       visibility: 'secret' | 'shared' | 'members' | 'public';
       world_role: 'owner' | 'editor' | 'commenter' | 'reader';
@@ -873,6 +1013,7 @@ export const Constants = {
   },
   public: {
     Enums: {
+      campaign_role: ['dm', 'co_dm', 'player', 'observer'],
       snippet_status: ['draft', 'final'],
       visibility: ['secret', 'shared', 'members', 'public'],
       world_role: ['owner', 'editor', 'commenter', 'reader'],

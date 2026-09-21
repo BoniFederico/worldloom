@@ -22,6 +22,7 @@ export async function AppHeader() {
       </Link>
       <nav aria-label={t('mainNav')} className="app-nav">
         <Link href="/worlds">{t('worlds')}</Link>
+        <Link href="/campaigns">{t('campaigns')}</Link>
       </nav>
       <Link href={signedIn ? '/account' : '/login'} className="app-nav-link">
         {signedIn ? t('account') : t('login')}

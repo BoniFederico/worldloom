@@ -26,8 +26,8 @@ export async function createUser(
 ): Promise<string> {
   const id = randomUUID();
   await db.query(
-    `insert into auth.users (id, email, aud, role, raw_user_meta_data)
-     values ($1, $2, 'authenticated', 'authenticated', $3)`,
+    `insert into auth.users (id, email, aud, role, raw_user_meta_data, email_confirmed_at)
+     values ($1, $2, 'authenticated', 'authenticated', $3, now())`,
     [id, `${name}-${id}@example.test`, JSON.stringify(meta)],
   );
   return id;
