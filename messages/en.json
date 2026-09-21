@@ -107,7 +107,8 @@
     "graph": "Graph",
     "calendars": "Calendars",
     "timeline": "Timeline",
-    "maps": "Maps"
+    "maps": "Maps",
+    "tree": "Tree and hierarchy"
   },
   "Members": {
     "title": "Members",
@@ -680,7 +681,10 @@
     "newGraph": "New graph",
     "editGraph": "Edit the graph",
     "newTimeline": "New timeline",
-    "editTimeline": "Edit the timeline"
+    "editTimeline": "Edit the timeline",
+    "newTree": "New tree",
+    "editTree": "Edit the tree",
+    "treeEmpty": "No tree to show with this configuration."
   },
   "Table": {
     "title": "Table",
@@ -915,5 +919,28 @@
       "forbidden": "You don’t have permission to change maps.",
       "generic": "The operation failed. Try again."
     }
+  },
+  "Tree": {
+    "title": "Tree and hierarchy",
+    "intro": "Pick a relation label and see the same world as a tree: a family tree with “parent of”, a chain of command with “commands”, a sequence of chapters with “follows”…",
+    "settings": "Settings",
+    "label": "Relation label",
+    "labelHint": "A relation “A parent of B” puts A above B. The inverse label works too: if “B child of A” has “parent of” as its inverse, the tree is the same.",
+    "root": "Start from (title of a snippet, optional)",
+    "direction": "What to show",
+    "down": "Descendants (downwards)",
+    "up": "Ancestors (upwards)",
+    "apply": "Show the tree",
+    "pickHint": "Pick a label to build the tree.",
+    "empty": "No relations with the label “{label}” between readable snippets.",
+    "rootMissing": "No readable snippet titled “{title}”.",
+    "loadError": "Could not build the tree. Try again.",
+    "count": "{nodes, plural, one {# snippet} other {# snippets}} in the tree, {edges, plural, one {# relation} other {# relations}}.",
+    "treeLabel": "Relation tree",
+    "cycleWarning": "Some relations form a cycle (a snippet turns out to be its own descendant): the link that closes the loop is marked and not followed.",
+    "cycleNote": "cycle: already an ancestor",
+    "repeatNote": "already shown above",
+    "truncated": "The tree is too large: the first 500 snippets are shown. Pick a root to see a part of it.",
+    "edgesTruncated": "There are very many relations with this label: 5,000 were read in each direction."
   }
 }

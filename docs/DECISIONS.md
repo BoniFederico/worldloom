@@ -426,3 +426,21 @@
   della mappa né zoom/pan dell'immagine (il browser può ingrandire); fino a 8 tappe nel modulo del percorso; niente eliminazione dei file
   inutilizzati (come D-016); le mappe non sono ancora nell'export JSON né nelle viste salvate; la lettura dell'immagine resta per tutti i membri (D-016).
 - Deciso da: agente
+
+### D-029: Albero genealogico e gerarchia da un'etichetta di relazione
+
+- Data: 2026-09-21
+- Contesto: #29. Una gerarchia generata da un'etichetta scelta dall'utente, con gestione dei cicli e alternativa testuale.
+- Decisione: pagina `/worlds/<id>/tree` (form GET, senza JavaScript) e tipo di vista `tree` in `saved_views` (D-023) con `config`
+  `{label, dir, root}`. Una relazione «A padre di B» mette A sopra B; l'etichetta si cerca sia come etichetta sia come inversa (una relazione
+  «B figlio di A» con inversa «padre di» dà lo stesso albero), senza badare a maiuscole e spazi. Le relazioni da menzione sono escluse. Si può partire da
+  uno snippet (titolo) e scegliere discendenti o antenati (archi invertiti). Nessun dato nella vista: si legge con i permessi di chi guarda (RLS).
+- Cicli e più genitori (`src/lib/tree/build.ts`, pura e testata): le radici sono gli snippet senza genitori; un nodo con più genitori è espanso una sola
+  volta e le altre volte compare come rimando («già mostrato sopra»); un ciclo si ferma quando torna su un antenato (segnato «ciclo»), quindi il calcolo
+  termina sempre; un ciclo senza radice parte dal primo snippet per titolo. L'attraversamento è iterativo (catene lunghe non fanno traboccare lo stack);
+  tetto di 500 nodi con avviso.
+- Interfaccia e accessibilità: l'albero è una lista annidata (`ul` in `ul`), quindi la struttura è già il testo e un lettore di schermo annuncia i livelli;
+  le linee sono decorazione CSS; ogni nome è un link allo snippet. Nessuna libreria.
+- Limiti: legge fino a 5.000 relazioni per etichetta e per verso e 10.000 titoli (avviso oltre il tetto); una sola etichetta per albero (niente
+  alberi misti); niente disegno a nodi e linee orizzontale; la radice si sceglie per titolo esatto, non da un elenco.
+- Deciso da: agente

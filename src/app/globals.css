@@ -1629,3 +1629,36 @@ p.mention-none {
   display: inline-block;
   margin-left: var(--space-2);
 }
+
+.tree,
+.tree ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tree ul {
+  margin-left: var(--space-3);
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--border-strong);
+}
+
+.tree li {
+  position: relative;
+  padding: var(--space-1) 0;
+}
+
+.tree ul > li::before {
+  content: '';
+  position: absolute;
+  top: 0.9rem;
+  left: calc(-1 * var(--space-4));
+  width: var(--space-3);
+  border-top: 2px solid var(--border-strong);
+}
+
+.tree-note {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+  font-style: italic;
+}
