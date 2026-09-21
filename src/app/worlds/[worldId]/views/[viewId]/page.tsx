@@ -94,10 +94,12 @@ export default async function ViewPage({ params, searchParams }: Props) {
                   autoComplete="off"
                 />
               </div>
-              <label className="check">
-                <input type="checkbox" name="shared" defaultChecked={view.shared} />
-                {t('shareWithMembers')}
-              </label>
+              {view.created_by === auth.user?.id ? (
+                <label className="check">
+                  <input type="checkbox" name="shared" defaultChecked={view.shared} />
+                  {t('shareWithMembers')}
+                </label>
+              ) : null}
               <button type="submit" className="btn">
                 {t('save')}
               </button>

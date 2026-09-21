@@ -311,6 +311,8 @@
   `anon` non ha alcun permesso sulla tabella. Oggi è renderizzato il tipo `list` (i filtri della ricerca full-text di D-019, salvati con
   `filtersOf`/`paramsOfFilters`: i filtri letti dal database passano dallo stesso parsing e limiti della query string); gli altri tipi
   mostrano «disponibile presto» finché non arriva il loro renderer, che leggerà `config` con un proprio schema zod.
+- Dalla review: la condivisione (`shared`) la cambia solo il creatore; il proprietario può rinominare o eliminare la vista di un altro ma non
+  renderla privata (non la vedrebbe più e la RLS rifiuterebbe l'aggiornamento): il form non mostra la casella e l'azione aggiorna solo il nome.
 - Limiti noti: nessuna vista personale per chi non scrive (lettori e commentatori); il proprietario non vede le viste private altrui
   (può però eliminarle); il nome di una vista condivisa è visibile a tutti i membri anche se i suoi risultati non lo sono.
 - Deciso da: agente

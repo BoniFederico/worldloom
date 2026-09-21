@@ -107,6 +107,26 @@ test.describe('viste salvate', () => {
     expect((await owner.page.goto(url))?.status()).toBe(404);
   });
 
+  test('il proprietario rinomina la vista condivisa di un editor ma non ne cambia la condivisione', async ({
+    browser,
+  }) => {
+    const owner = await newUser(browser, 'Autrice');
+    const editor = await newUser(browser, 'Revisore');
+    const worldId = await createWorld(owner.page, 'Moderazione');
+    await addMember(owner.page, worldId, editor.email, 'editor');
+    await createSnippet(owner.page, worldId, 'Elara');
+    const url = await saveView(editor.page, worldId, 'Elara', 'Dell’editor', true);
+
+    await owner.page.goto(url);
+    await expect(owner.page.getByLabel('Condividi con i membri del mondo')).toHaveCount(0);
+    await owner.page.getByLabel('Nome', { exact: true }).fill('Rinominata');
+    await owner.page.getByRole('button', { name: 'Salva', exact: true }).click();
+    await expect(owner.page.getByRole('status')).toHaveText('Vista aggiornata.');
+    await editor.page.goto(url);
+    await expect(editor.page.getByRole('heading', { level: 1, name: 'Rinominata' })).toBeVisible();
+    await expect(editor.page.getByText('condivisa')).toBeVisible();
+  });
+
   test('un nome vuoto viene rifiutato', async ({ browser }) => {
     const { page } = await newUser(browser, 'Autrice');
     const worldId = await createWorld(page, 'Vuoto');

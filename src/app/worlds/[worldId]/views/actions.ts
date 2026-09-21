@@ -60,10 +60,25 @@ export async function updateView(formData: FormData) {
   const name = viewNameSchema.safeParse(field(formData, 'name'));
   if (!name.success) redirect(`${page}?error=invalid_name`);
   const { supabase } = await loadWorld(world);
+  const { data: auth } = await supabase.auth.getUser();
+  const { data: current } = await supabase
+    .from('saved_views')
+    .select('created_by')
+    .eq('id', id)
+    .eq('world_id', world)
+    .maybeSingle();
+  if (!current) redirect(`${page}?error=forbidden`);
+  // La condivisione la decide solo chi ha creato la vista: il proprietario può rinominare quella di un altro, ma non
+  // renderla privata (non la vedrebbe più, e la RLS rifiuterebbe l'aggiornamento).
+  const isCreator = current.created_by === auth.user?.id;
   // La RLS limita l'aggiornamento a chi l'ha creata e al proprietario: se non può, nessuna riga cambia.
   const { data, error } = await supabase
     .from('saved_views')
-    .update({ name: name.data, shared: formData.get('shared') === 'on' })
+    .update(
+      isCreator
+        ? { name: name.data, shared: formData.get('shared') === 'on' }
+        : { name: name.data },
+    )
     .eq('id', id)
     .eq('world_id', world)
     .select('id');
