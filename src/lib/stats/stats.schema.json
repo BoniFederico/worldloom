@@ -1,0 +1,113 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://worldloom.app/schemas/stats-schema-v1.json",
+  "title": "Schema di statistiche Worldloom (versione 1)",
+  "description": "Descrive la struttura del documento. La semantica (chiavi uniche, formule valide e senza cicli, riferimenti esistenti, layout) è controllata dal validatore dell'app.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "name"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "name": { "$ref": "#/definitions/label" },
+    "description": { "type": "string", "maxLength": 500 },
+    "attributes": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "label", "type"],
+        "properties": {
+          "key": { "$ref": "#/definitions/key" },
+          "label": { "$ref": "#/definitions/label" },
+          "type": { "enum": ["integer", "number"] },
+          "min": { "type": "number" },
+          "max": { "type": "number" },
+          "default": { "type": "number" }
+        }
+      }
+    },
+    "derived": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "label", "formula"],
+        "properties": {
+          "key": { "$ref": "#/definitions/key" },
+          "label": { "$ref": "#/definitions/label" },
+          "formula": { "$ref": "#/definitions/formula" }
+        }
+      }
+    },
+    "resources": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "label", "type"],
+        "properties": {
+          "key": { "$ref": "#/definitions/key" },
+          "label": { "$ref": "#/definitions/label" },
+          "type": { "const": "pool" },
+          "max": { "type": "number", "minimum": 0 },
+          "maxFormula": { "$ref": "#/definitions/formula" }
+        },
+        "oneOf": [{ "required": ["max"] }, { "required": ["maxFormula"] }]
+      }
+    },
+    "lists": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "label", "item"],
+        "properties": {
+          "key": { "$ref": "#/definitions/key" },
+          "label": { "$ref": "#/definitions/label" },
+          "item": {
+            "type": "object",
+            "minProperties": 1,
+            "maxProperties": 12,
+            "propertyNames": { "$ref": "#/definitions/key" },
+            "additionalProperties": { "enum": ["text", "integer", "number"] }
+          }
+        }
+      }
+    },
+    "text": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["key", "label"],
+        "properties": {
+          "key": { "$ref": "#/definitions/key" },
+          "label": { "$ref": "#/definitions/label" }
+        }
+      }
+    },
+    "layout": {
+      "type": "array",
+      "maxItems": 200,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["section", "fields"],
+        "properties": {
+          "section": { "$ref": "#/definitions/label" },
+          "fields": { "type": "array", "maxItems": 200, "items": { "$ref": "#/definitions/key" } }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "key": { "type": "string", "pattern": "^[a-z][a-z0-9_]{0,31}$" },
+    "label": { "type": "string", "minLength": 1, "maxLength": 80 },
+    "formula": { "type": "string", "maxLength": 500 }
+  }
+}

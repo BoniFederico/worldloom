@@ -4,7 +4,7 @@
 
 ## Stato
 
-- Fase: M1 completata (#15–#22); M2 in corso: #23–#30 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe, albero, kanban); M3: #31, #32 chiuse (campagne e inviti, visibilità e rivelazione); prossimo #33 (sistema di statistiche).
+- Fase: M1 completata (#15–#22); M2 in corso: #23–#30 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe, albero, kanban); M3: #31, #32 chiuse (campagne e inviti, visibilità e rivelazione); #33 chiusa (libreria statistiche); prossimo #34 (schede personaggio).
 
 ## Backlog (in ordine di esecuzione)
 
@@ -41,7 +41,7 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 30  | Bacheca kanban per campo di stato                                               | feat  | 15, 17     | done  | colonne da stato o campo, modulo + drag (D-030)    |
 | 31  | Campagne e inviti con ruoli                                                     | feat  | 13         | done  | campagne, ruoli, inviti link/email (D-031)         |
 | 32  | Visibilità per elemento e rivelazione                                           | feat  | 31         | done  | quattro livelli, registro, campi riservati (D-032) |
-| 33  | Sistema di statistiche: schema JSON, validazione e interprete di formule sicuro | feat  | 13         | todo  |                                                    |
+| 33  | Sistema di statistiche: schema JSON, validazione e interprete di formule sicuro | feat  | 13         | done  | schema JSON, formule sandboxed, preset (D-033)     |
 | 34  | Schede personaggio PG/PNG                                                       | feat  | 33         | todo  |                                                    |
 | 35  | Migrazione guidata dello schema di statistiche                                  | feat  | 33         | todo  |                                                    |
 | 36  | Sessioni, diario e bacheca messaggi                                             | feat  | 13         | todo  |                                                    |
