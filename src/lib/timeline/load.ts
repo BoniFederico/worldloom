@@ -1,4 +1,9 @@
-import { isValidDate, type Calendar, type CalendarDate } from '@/lib/calendars/calendar';
+import {
+  isValidDate,
+  toDayNumber,
+  type Calendar,
+  type CalendarDate,
+} from '@/lib/calendars/calendar';
 import { loadCalendars, type NamedCalendar } from '@/lib/calendars/load';
 import { fieldsSchema } from '@/lib/fields/fields';
 import type { createClient } from '@/lib/supabase/server';
@@ -8,6 +13,8 @@ import type { TimelineParams } from './params';
 type Client = Awaited<ReturnType<typeof createClient>>;
 
 export const TIMELINE_LIMIT = 500;
+/** Al massimo tanti snippet collegati nel filtro «collegato a» (gli id finiscono nell'indirizzo della richiesta). */
+export const RELATED_LIMIT = 150;
 
 export type DateField = { key: string; label: string };
 export type TimelineCategory = { id: string; name: string; color: string | null };
@@ -30,7 +37,7 @@ export type TimelineData = {
 };
 
 /** Caratteri speciali di `ilike` resi letterali: il titolo si confronta per uguaglianza senza badare alle maiuscole. */
-const escapeLike = (value: string) => value.replace(/[\\%_]/g, (c) => `\\${c}`);
+const escapeLike = (value: string) => value.replace(/[\\%_]/g, (c) => `\\${c}`).replace(/\*/g, '_'); // in PostgREST anche `*` fa da jolly
 
 const asRecord = (value: unknown): Record<string, unknown> | null =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
@@ -46,6 +53,20 @@ export function readCalendarDate(c: NamedCalendar, value: unknown): CalendarDate
   const date = { year, month, day };
   return isValidDate(c.calendar as Calendar, date) ? date : null;
 }
+
+/** Fine di un evento a intervallo: se manca, non esiste nel calendario o precede l'inizio l'evento è puntuale. */
+export function eventEnd(
+  c: NamedCalendar,
+  start: CalendarDate,
+  value: unknown,
+): CalendarDate | null {
+  const end = readCalendarDate(c, value);
+  if (!end) return null;
+  return toDayNumber(c.calendar, end) < toDayNumber(c.calendar, start) ? null : end;
+}
+
+/** Un tag che PostgREST non sa scrivere in un letterale di array si filtra in memoria invece di far fallire la richiesta. */
+const SAFE_TAG = /^[^{}",\\]+$/;
 
 /**
  * Eventi della timeline con i permessi di chi guarda (RLS): snippet con un campo «data in calendario» di inizio,
@@ -102,6 +123,7 @@ export async function loadTimeline(
       .eq('world_id', worldId)
       .is('deleted_at', null)
       .ilike('title', escapeLike(p.related))
+      .order('id')
       .limit(1)
       .maybeSingle();
     if (!target) return { ...base, relatedMissing: true };
@@ -111,7 +133,10 @@ export async function loadTimeline(
       .eq('world_id', worldId)
       .or(`source_id.eq.${target.id},target_id.eq.${target.id}`)
       .limit(2000);
-    onlyIds = [...new Set([target.id, ...(rels ?? []).flatMap((r) => [r.source_id, r.target_id])])];
+    const neighbours = [...new Set((rels ?? []).flatMap((r) => [r.source_id, r.target_id]))].filter(
+      (id) => id !== target.id,
+    );
+    onlyIds = [target.id, ...neighbours.slice(0, RELATED_LIMIT - 1)];
   }
 
   const select = (
@@ -127,7 +152,8 @@ export async function loadTimeline(
     .is('archived_at', null)
     .not(`fields->${startKey}`, 'is', null);
   if (p.category) query = query.eq('category_filter.category_id', p.category);
-  if (p.tag) query = query.contains('tags', [p.tag]);
+  const tag = p.tag;
+  if (tag && SAFE_TAG.test(tag)) query = query.contains('tags', [tag]);
   if (onlyIds) query = query.in('id', onlyIds);
   const { data, error: queryError } = await query.order('id').limit(TIMELINE_LIMIT + 1);
   if (queryError) return null;
@@ -136,6 +162,7 @@ export async function loadTimeline(
   const events: TimelineEvent[] = [];
   let skipped = 0;
   for (const row of rows.slice(0, TIMELINE_LIMIT)) {
+    if (tag && !SAFE_TAG.test(tag) && !row.tags.includes(tag)) continue;
     const values = asRecord(row.fields) ?? {};
     const start = readCalendarDate(calendar, values[startKey]);
     if (!start) {
@@ -146,7 +173,7 @@ export async function loadTimeline(
       id: row.id,
       title: row.title,
       start,
-      end: endKey ? readCalendarDate(calendar, values[endKey]) : null,
+      end: endKey ? eventEnd(calendar, start, values[endKey]) : null,
       categoryIds: row.snippet_categories.map((c) => c.category_id),
       tags: row.tags,
     });

@@ -111,12 +111,17 @@ function buildTicks(
       push(toDayNumber(c, { year, month: 1, day: 1 }), yearLabel(c, year));
     }
   } else if (span > 45) {
+    // Un mese ogni `step`: al massimo una dozzina di tacche, con i mesi allineati all'inizio dell'anno.
+    const monthDays = yearDays / c.months.length;
+    const step = [1, 2, 3, 4, 6, 12].find((n) => n >= span / monthDays / 12) ?? 12;
     let { year, month } = fromDayNumber(c, Math.floor(range.from));
-    for (let guard = 0; guard < 400; guard++) {
+    for (let guard = 0; guard < 800; guard++) {
       const day = toDayNumber(c, { year, month, day: 1 });
       if (day > range.to) break;
-      const name = c.months[month - 1]?.name ?? String(month);
-      push(day, month === 1 ? `${name} ${yearLabel(c, year)}` : name);
+      if ((month - 1) % step === 0) {
+        const name = c.months[month - 1]?.name ?? String(month);
+        push(day, month === 1 ? `${name} ${yearLabel(c, year)}` : name);
+      }
       month++;
       if (month > c.months.length) {
         month = 1;

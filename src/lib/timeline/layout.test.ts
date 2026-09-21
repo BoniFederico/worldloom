@@ -189,6 +189,25 @@ describe('scala', () => {
   });
 });
 
+describe('scala a mesi su finestre lunghe', () => {
+  it('con ~4 anni di finestra le tacche sono poche e coprono fino alla fine', () => {
+    const l = layoutTimeline(
+      cal,
+      [
+        { ...ev('a', 100), start: { year: 100, month: 1, day: 5 } },
+        { ...ev('b', 100), start: { year: 104, month: 2, day: 5 } },
+      ],
+      options(),
+    );
+    expect(l.ticks.length).toBeGreaterThan(3);
+    expect(l.ticks.length).toBeLessThanOrEqual(16);
+    const last = l.ticks[l.ticks.length - 1]!;
+    expect(last.x).toBeGreaterThan(960 * 0.7);
+    const gaps = l.ticks.slice(1).map((t, i) => t.x - l.ticks[i]!.x);
+    expect(Math.min(...gaps)).toBeGreaterThan(40);
+  });
+});
+
 describe('sortEvents', () => {
   it('ordina per data con il numero di giorno, non per testo', () => {
     const sorted = sortEvents(cal, [ev('tardi', 300), ev('presto', -50), ev('mezzo', 150)]);

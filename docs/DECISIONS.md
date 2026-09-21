@@ -400,6 +400,6 @@
 - Permessi: i dati si leggono con la sessione di chi guarda (RLS): uno snippet segreto non compare a un lettore, né in una vista condivisa.
 - Alternativa accessibile: tabella cronologica ordinata per numero di giorno (non per testo) con inizio, fine e corsia; ogni evento del disegno è
   un link con etichetta parlante ("titolo, da … a …").
-- Limiti: al massimo 500 eventi (avviso); un solo campo di inizio e uno di fine per volta; niente trascinamento né zoom con la rotella; le relazioni
+- Limiti: al massimo 500 eventi (avviso); «collegato a» considera al massimo 150 snippet (lui e i primi collegati); un solo campo di inizio e uno di fine per volta; niente trascinamento né zoom con la rotella; le relazioni
   con intervallo di validità (`valid_from/valid_to`) non sono ancora eventi; le etichette non evitano ogni sovrapposizione tra corsie vicine.
 - Deciso da: agente

@@ -36,6 +36,7 @@ export default async function ViewPage({ params, searchParams }: Props) {
   const raw = await searchParams;
   const { error, notice } = raw;
   const { supabase, world, role } = await loadWorld(worldId);
+  const tt = await getTranslations('Timeline');
   const [t, { data: view }, { data: auth }] = await Promise.all([
     getTranslations('Views'),
     supabase
@@ -197,6 +198,10 @@ export default async function ViewPage({ params, searchParams }: Props) {
                   return qs ? `${timelineBase}?${qs}` : timelineBase;
                 }}
               />
+            ) : timelineData ? (
+              <p className="field-hint">
+                {timelineData.calendars.length ? tt('noFields') : tt('noCalendars')}
+              </p>
             ) : (
               <p role="alert" className="message message-error">
                 {t('searchError')}
