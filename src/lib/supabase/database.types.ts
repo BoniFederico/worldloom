@@ -234,6 +234,7 @@ export type Database = {
           map_id: string;
           snippet_id: string;
           updated_at: string;
+          visibility: Database['public']['Enums']['visibility'];
           world_id: string;
           x: number;
           y: number;
@@ -244,6 +245,7 @@ export type Database = {
           map_id: string;
           snippet_id: string;
           updated_at?: string;
+          visibility?: Database['public']['Enums']['visibility'];
           world_id: string;
           x: number;
           y: number;
@@ -254,6 +256,7 @@ export type Database = {
           map_id?: string;
           snippet_id?: string;
           updated_at?: string;
+          visibility?: Database['public']['Enums']['visibility'];
           world_id?: string;
           x?: number;
           y?: number;
@@ -604,6 +607,38 @@ export type Database = {
           },
         ];
       };
+      snippet_restricted_fields: {
+        Row: {
+          key: string;
+          snippet_id: string;
+          value: Json;
+          visibility: Database['public']['Enums']['visibility'];
+          world_id: string;
+        };
+        Insert: {
+          key: string;
+          snippet_id: string;
+          value: Json;
+          visibility: Database['public']['Enums']['visibility'];
+          world_id: string;
+        };
+        Update: {
+          key?: string;
+          snippet_id?: string;
+          value?: Json;
+          visibility?: Database['public']['Enums']['visibility'];
+          world_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'snippet_restricted_fields_world_id_snippet_id_fkey';
+            columns: ['world_id', 'snippet_id'];
+            isOneToOne: false;
+            referencedRelation: 'snippets';
+            referencedColumns: ['world_id', 'id'];
+          },
+        ];
+      };
       snippet_versions: {
         Row: {
           aliases: string[];
@@ -725,6 +760,110 @@ export type Database = {
           },
         ];
       };
+      visibility_log: {
+        Row: {
+          changed_by: string | null;
+          created_at: string;
+          field_key: string;
+          from_level: string;
+          id: string;
+          is_reveal: boolean;
+          item_id: string;
+          kind: string;
+          note: string;
+          session_id: string | null;
+          shared_with: string[];
+          to_level: string;
+          world_id: string;
+        };
+        Insert: {
+          changed_by?: string | null;
+          created_at?: string;
+          field_key?: string;
+          from_level: string;
+          id?: string;
+          is_reveal: boolean;
+          item_id: string;
+          kind: string;
+          note?: string;
+          session_id?: string | null;
+          shared_with?: string[];
+          to_level: string;
+          world_id: string;
+        };
+        Update: {
+          changed_by?: string | null;
+          created_at?: string;
+          field_key?: string;
+          from_level?: string;
+          id?: string;
+          is_reveal?: boolean;
+          item_id?: string;
+          kind?: string;
+          note?: string;
+          session_id?: string | null;
+          shared_with?: string[];
+          to_level?: string;
+          world_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'visibility_log_world_id_fkey';
+            columns: ['world_id'];
+            isOneToOne: false;
+            referencedRelation: 'worlds';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      visibility_shares: {
+        Row: {
+          created_at: string;
+          created_by: string | null;
+          field_key: string;
+          id: string;
+          item_id: string;
+          kind: string;
+          user_id: string;
+          world_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by?: string | null;
+          field_key?: string;
+          id?: string;
+          item_id: string;
+          kind: string;
+          user_id: string;
+          world_id: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string | null;
+          field_key?: string;
+          id?: string;
+          item_id?: string;
+          kind?: string;
+          user_id?: string;
+          world_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'visibility_shares_world_id_fkey';
+            columns: ['world_id'];
+            isOneToOne: false;
+            referencedRelation: 'worlds';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'visibility_shares_world_id_user_id_fkey';
+            columns: ['world_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'world_members';
+            referencedColumns: ['world_id', 'user_id'];
+          },
+        ];
+      };
       world_members: {
         Row: {
           created_at: string;
@@ -804,6 +943,10 @@ export type Database = {
         };
         Returns: string;
       };
+      can_read_image: {
+        Args: { p_file: string; p_world: string };
+        Returns: boolean;
+      };
       graph_data: {
         Args: {
           p_category: string;
@@ -876,6 +1019,18 @@ export type Database = {
           p_campaign: string;
           p_role: Database['public']['Enums']['campaign_role'];
           p_user: string;
+        };
+        Returns: undefined;
+      };
+      set_visibility: {
+        Args: {
+          p_field: string;
+          p_item: string;
+          p_kind: string;
+          p_level: Database['public']['Enums']['visibility'];
+          p_note?: string;
+          p_session?: string;
+          p_users?: string[];
         };
         Returns: undefined;
       };

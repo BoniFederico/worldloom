@@ -376,3 +376,57 @@ describe('robustezza dell’importazione', () => {
     expect(parseExport(withTemplate).ok).toBe(false);
   });
 });
+
+describe('campi riservati', () => {
+  const withSecret: RawWorld = {
+    ...raw,
+    snippets: raw.snippets.map((s) =>
+      s.id === ids.sA
+        ? {
+            ...s,
+            fields: { eta: 42, segreto: 'è un drago' },
+            restricted: { segreto: 'secret' as const },
+          }
+        : s,
+    ),
+  };
+
+  it("l'export include il valore e la sua visibilità solo per chi lo ha letto", () => {
+    const file = buildExport(withSecret);
+    const elara = file.snippets.find((s) => s.title === 'Elara');
+    expect(elara?.fields).toEqual({ eta: 42, segreto: 'è un drago' });
+    expect(elara?.fieldVisibility).toEqual({ segreto: 'secret' });
+    // Gli snippet senza campi riservati non hanno la chiave: i file esistenti non cambiano.
+    expect(file.snippets.find((s) => s.title === 'Porto Verde')).not.toHaveProperty(
+      'fieldVisibility',
+    );
+    // Un giocatore che non ha letto il valore non lo trova nel file.
+    const reader = buildExport(raw).snippets.find((s) => s.title === 'Elara');
+    expect(reader?.fields).toEqual({ eta: 42 });
+  });
+
+  it("l'importazione rimette il valore nella tabella riservata, mai nella colonna pubblica", () => {
+    const parsed = parseExport(JSON.parse(JSON.stringify(buildExport(withSecret))));
+    expect(parsed.ok).toBe(true);
+    if (!parsed.ok) return;
+    let n = 0;
+    const plan = planImport(
+      parsed.data,
+      () => `00000000-0000-4000-8000-${String(++n).padStart(12, '0')}`,
+    );
+    if (!plan.ok) throw new Error(plan.error);
+    const elara = plan.snippets.find((s) => s.title === 'Elara');
+    expect(elara?.fields).toEqual({ eta: 42 });
+    expect(plan.restrictedFields).toEqual([
+      { snippet_id: elara?.id, key: 'segreto', value: 'è un drago' },
+    ]);
+  });
+
+  it('un file con una chiave di visibilità non valida è rifiutato', () => {
+    const file = JSON.parse(JSON.stringify(buildExport(withSecret)));
+    file.snippets[0].fieldVisibility = { 'Chiave Non Valida': 'secret' };
+    expect(parseExport(file).ok).toBe(false);
+    file.snippets[0].fieldVisibility = { segreto: 'public' };
+    expect(parseExport(file).ok).toBe(false);
+  });
+});

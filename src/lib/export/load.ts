@@ -1,5 +1,6 @@
 import type { createClient } from '@/lib/supabase/server';
 import type { Json } from '@/lib/supabase/database.types';
+import { loadRestricted, withRestricted } from '@/lib/visibility/restricted';
 import type { RawWorld } from './world';
 
 type Client = Awaited<ReturnType<typeof createClient>>;
@@ -71,12 +72,22 @@ export async function loadRawWorld(supabase: Client, worldId: string): Promise<R
     ),
   ]);
   if (!categories || !snippets || !types || !relations) return null;
+  // Campi riservati leggibili da chi esporta (con la sua RLS): vanno nel file con la loro visibilità.
+  const restricted = await loadRestricted(supabase, worldId);
 
   return {
     world,
     categories,
     snippets: snippets.map(({ snippet_categories, ...s }) => ({
       ...s,
+      fields: withRestricted(
+        s.id,
+        typeof s.fields === 'object' && s.fields !== null && !Array.isArray(s.fields)
+          ? (s.fields as Record<string, unknown>)
+          : {},
+        restricted,
+      ),
+      restricted: restricted.levels.get(s.id) ?? {},
       category_ids: snippet_categories.map((c) => c.category_id),
     })),
     relationTypes: types,

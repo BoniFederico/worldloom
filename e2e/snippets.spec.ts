@@ -243,12 +243,12 @@ test.describe('snippet', () => {
     await page.keyboard.press('ControlOrMeta+A');
     await page.getByRole('button', { name: 'Link', exact: true }).click();
     await page.getByLabel('Indirizzo del link').fill('javascript:alert(1)');
-    await page.getByRole('button', { name: 'Applica' }).click();
+    await page.getByRole('button', { name: 'Applica', exact: true }).click();
     await expect(page.getByText('Indirizzo non valido')).toBeVisible();
     await expect(editorOf(page).locator('a')).toHaveCount(0);
 
     await page.getByLabel('Indirizzo del link').fill('https://example.com');
-    await page.getByRole('button', { name: 'Applica' }).click();
+    await page.getByRole('button', { name: 'Applica', exact: true }).click();
     await expect(editorOf(page).locator('a')).toHaveAttribute('href', 'https://example.com');
   });
 

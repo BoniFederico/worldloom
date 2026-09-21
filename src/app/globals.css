@@ -1735,3 +1735,27 @@ p.mention-none {
   min-width: 12rem;
   font-size: var(--text-sm);
 }
+
+.checklist {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.visibility-log {
+  padding-left: var(--space-5);
+}
+
+.visibility-log li {
+  margin-bottom: var(--space-2);
+}
+
+.fields-list dt {
+  font-weight: 600;
+}
+
+.fields-list dd {
+  margin: 0 0 var(--space-2);
+}

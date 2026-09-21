@@ -386,7 +386,8 @@
       "trashed": "Snippet moved to the trash.",
       "restored": "Snippet restored.",
       "deleted": "Snippet deleted permanently.",
-      "version_restored": "Version restored."
+      "version_restored": "Version restored.",
+      "visibility_saved": "Visibility saved."
     },
     "errors": {
       "invalid_title": "A title is required (300 characters at most).",
@@ -398,7 +399,12 @@
       "confirm_required": "Tick the confirmation to delete permanently.",
       "generic": "Something went wrong. Please try again.",
       "invalid_body": "The text is not valid. Please try again.",
-      "invalid_labels": "Invalid tags or aliases: 30 tags of 40 characters and 20 aliases of 100 at most."
+      "invalid_labels": "Invalid tags or aliases: 30 tags of 40 characters and 20 aliases of 100 at most.",
+      "invalid_visibility": "Check the form: pick at least one player for “Chosen players” and keep the note under 500 characters.",
+      "visibility_failed": "Could not change the visibility. Try again.",
+      "users_required": "Pick at least one player for “Chosen players”.",
+      "invalid_users": "You can only share with members of the world.",
+      "invalid_note": "The note is too long (500 characters at most)."
     },
     "editor": {
       "toolbar": "Text formatting",
@@ -906,7 +912,8 @@
       "pin_added": "Pin added.",
       "pin_removed": "Pin removed.",
       "route_added": "Route added.",
-      "route_removed": "Route deleted."
+      "route_removed": "Route deleted.",
+      "visibility_saved": "Visibility saved."
     },
     "errors": {
       "invalid_name": "The name is required (80 characters at most).",
@@ -921,7 +928,12 @@
       "invalid_stops": "A route needs 2 to 30 stops, chosen among this map’s pins.",
       "confirm_required": "Tick the confirmation to delete the map.",
       "forbidden": "You don’t have permission to change maps.",
-      "generic": "The operation failed. Try again."
+      "generic": "The operation failed. Try again.",
+      "invalid_visibility": "Check the form: pick at least one player for “Chosen players” and keep the note under 500 characters.",
+      "visibility_failed": "Could not change the visibility. Try again.",
+      "users_required": "Pick at least one player for “Chosen players”.",
+      "invalid_users": "You can only share with members of the world.",
+      "invalid_note": "The note is too long (500 characters at most)."
     }
   },
   "Tree": {
@@ -1067,5 +1079,39 @@
       "invalid_invite": "This invite is not valid: it may be expired, used up, revoked or meant for another account.",
       "already_member": "You are already in this campaign."
     }
+  },
+  "Visibility": {
+    "title": "Visibility and reveals",
+    "intro": "Decide who sees this snippet and each of its fields. “DM only” is for those who write in the world (the DM) only; “Chosen players” only for the members you pick; “All members” and “Public” for everyone else. Every change is logged.",
+    "level": "Snippet level",
+    "levels": {
+      "secret": "DM only (secret)",
+      "shared": "Chosen players",
+      "members": "All members",
+      "public": "Public"
+    },
+    "usersLegend": "Chosen players",
+    "usersHint": "They apply to every item in this form set to “Chosen players”. You pick among members who do not write in the world.",
+    "noPlayers": "No players: add readers or commenters from the world members panel to be able to share with them.",
+    "fieldsLegend": "Fields",
+    "fieldsHint": "A field is never more visible than its snippet. “Same as snippet” brings it back to the snippet level.",
+    "fieldLevels": {
+      "members": "Same as snippet",
+      "secret": "DM only (secret)",
+      "shared": "Chosen players"
+    },
+    "note": "Note (optional), for example what was revealed and why. Recipients of a reveal can read it too.",
+    "save": "Apply visibility",
+    "itemSummary": "Visibility: {level}",
+    "logTitle": "Reveal log",
+    "logEmpty": "No visibility change logged.",
+    "logSnippet": "snippet",
+    "logField": "field “{name}”",
+    "logChange": "from “{from}” to “{to}”",
+    "logUsers": "Recipients: {names}",
+    "reveal": "Reveal",
+    "unknownUser": "User",
+    "fieldUsers": "Field recipients",
+    "fieldLevel": "Field level"
   }
 }

@@ -386,7 +386,8 @@
       "trashed": "Snippet spostato nel cestino.",
       "restored": "Snippet ripristinato.",
       "deleted": "Snippet eliminato definitivamente.",
-      "version_restored": "Versione ripristinata."
+      "version_restored": "Versione ripristinata.",
+      "visibility_saved": "Visibilità salvata."
     },
     "errors": {
       "invalid_title": "Il titolo è obbligatorio (massimo 300 caratteri).",
@@ -398,7 +399,12 @@
       "confirm_required": "Spunta la conferma per eliminare definitivamente.",
       "generic": "Operazione non riuscita. Riprova.",
       "invalid_body": "Il testo non è valido. Riprova.",
-      "invalid_labels": "Tag o alias non validi: massimo 30 tag di 40 caratteri e 20 alias di 100."
+      "invalid_labels": "Tag o alias non validi: massimo 30 tag di 40 caratteri e 20 alias di 100.",
+      "invalid_visibility": "Controlla il modulo: scegli almeno un giocatore per «Giocatori scelti» e una nota di al massimo 500 caratteri.",
+      "visibility_failed": "Non è stato possibile cambiare la visibilità. Riprova.",
+      "users_required": "Scegli almeno un giocatore per «Giocatori scelti».",
+      "invalid_users": "Puoi condividere solo con membri del mondo.",
+      "invalid_note": "La nota è troppo lunga (al massimo 500 caratteri)."
     },
     "editor": {
       "toolbar": "Formattazione del testo",
@@ -906,7 +912,8 @@
       "pin_added": "Pin aggiunto.",
       "pin_removed": "Pin tolto.",
       "route_added": "Percorso aggiunto.",
-      "route_removed": "Percorso eliminato."
+      "route_removed": "Percorso eliminato.",
+      "visibility_saved": "Visibilità salvata."
     },
     "errors": {
       "invalid_name": "Il nome è obbligatorio (massimo 80 caratteri).",
@@ -921,7 +928,12 @@
       "invalid_stops": "Servono da 2 a 30 tappe, scelte tra i pin di questa mappa.",
       "confirm_required": "Spunta la conferma per eliminare la mappa.",
       "forbidden": "Non hai i permessi per modificare le mappe.",
-      "generic": "Operazione non riuscita. Riprova."
+      "generic": "Operazione non riuscita. Riprova.",
+      "invalid_visibility": "Controlla il modulo: scegli almeno un giocatore per «Giocatori scelti» e una nota di al massimo 500 caratteri.",
+      "visibility_failed": "Non è stato possibile cambiare la visibilità. Riprova.",
+      "users_required": "Scegli almeno un giocatore per «Giocatori scelti».",
+      "invalid_users": "Puoi condividere solo con membri del mondo.",
+      "invalid_note": "La nota è troppo lunga (al massimo 500 caratteri)."
     }
   },
   "Tree": {
@@ -1067,5 +1079,39 @@
       "invalid_invite": "Questo invito non è valido: può essere scaduto, esaurito, revocato o destinato a un altro account.",
       "already_member": "Fai già parte di questa campagna."
     }
+  },
+  "Visibility": {
+    "title": "Visibilità e rivelazioni",
+    "intro": "Decidi chi vede questo snippet e ognuno dei suoi campi. «Solo DM» è solo per chi scrive nel mondo (il DM); «Giocatori scelti» solo per i membri che indichi; «Tutti i membri» e «Pubblico» per gli altri. Ogni cambio è registrato.",
+    "level": "Livello dello snippet",
+    "levels": {
+      "secret": "Solo DM (segreto)",
+      "shared": "Giocatori scelti",
+      "members": "Tutti i membri",
+      "public": "Pubblico"
+    },
+    "usersLegend": "Giocatori scelti",
+    "usersHint": "Valgono per ogni elemento di questo modulo impostato su «Giocatori scelti». Si sceglie tra i membri che non scrivono nel mondo.",
+    "noPlayers": "Nessun giocatore: aggiungi lettori o commentatori dal pannello dei membri del mondo per poter condividere con loro.",
+    "fieldsLegend": "Campi",
+    "fieldsHint": "Un campo non è mai più visibile dello snippet. «Come lo snippet» lo riporta al livello dello snippet.",
+    "fieldLevels": {
+      "members": "Come lo snippet",
+      "secret": "Solo DM (segreto)",
+      "shared": "Giocatori scelti"
+    },
+    "note": "Nota (facoltativa), ad esempio cosa riveli e perché. La leggono anche i destinatari di una rivelazione.",
+    "save": "Applica visibilità",
+    "itemSummary": "Visibilità: {level}",
+    "logTitle": "Registro delle rivelazioni",
+    "logEmpty": "Nessun cambio di visibilità registrato.",
+    "logSnippet": "snippet",
+    "logField": "campo «{name}»",
+    "logChange": "da «{from}» a «{to}»",
+    "logUsers": "Destinatari: {names}",
+    "reveal": "Rivelazione",
+    "unknownUser": "Utente",
+    "fieldUsers": "Destinatari del campo",
+    "fieldLevel": "Livello del campo"
   }
 }

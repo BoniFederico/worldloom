@@ -1,5 +1,6 @@
 import { fieldsSchema, type FieldDefinition } from '@/lib/fields/fields';
 import type { createClient } from '@/lib/supabase/server';
+import { loadRestricted, withRestricted } from '@/lib/visibility/restricted';
 import { buildBoard, type Board, type Card } from './build';
 import type { KanbanParams } from './params';
 
@@ -108,15 +109,19 @@ export async function loadBoard(
     fields: unknown;
     updated_at: string;
   }[];
+  const restricted = await loadRestricted(supabase, worldId);
   const seen = new Set<string>();
   const cards: Card[] = [];
   for (const s of rows.slice(0, KANBAN_LIMIT)) {
     if (seen.has(s.id)) continue; // uno snippet in più categorie del campo compare una volta sola
     seen.add(s.id);
-    const fields =
+    const fields = withRestricted(
+      s.id,
       typeof s.fields === 'object' && s.fields !== null && !Array.isArray(s.fields)
         ? (s.fields as Record<string, unknown>)
-        : {};
+        : {},
+      restricted,
+    );
     const raw = field ? fields[field.key] : s.status;
     cards.push({
       id: s.id,

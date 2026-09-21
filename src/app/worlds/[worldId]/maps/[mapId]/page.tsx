@@ -2,12 +2,15 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Feedback } from '@/components/feedback';
+import { VisibilityForm } from '@/components/visibility-form';
+import { loadShareTargets, loadShares } from '@/lib/visibility/load';
 import { MapFrame } from '@/components/map-frame';
 import { imageSrc } from '@/lib/images/sniff';
 import { MAX_STOPS, toPercent } from '@/lib/maps/input';
 import { loadMapDetail } from '@/lib/maps/load';
 import { loadWorld } from '@/lib/worlds/context';
 import { uuidSchema } from '@/lib/worlds/schemas';
+import { applyItemVisibility } from '../../snippets/visibility-actions';
 import { addPin, addRoute, deleteMap, removePin, removeRoute } from '../actions';
 
 type Props = {
@@ -59,6 +62,19 @@ export default async function MapPage({ params, searchParams }: Props) {
   }
 
   const { map, pins, routes } = detail;
+  // Visibilità dei pin: destinatari possibili e attuali (solo per chi scrive).
+  const tv = await getTranslations('Visibility');
+  const [shareTargets, pinShares] = canWrite
+    ? await Promise.all([
+        loadShareTargets(supabase, worldId),
+        loadShares(
+          supabase,
+          worldId,
+          'pin',
+          pins.map((p) => p.id),
+        ),
+      ])
+    : [[], new Map<string, string[]>()];
   const shown = category ? pins.filter((p) => p.categoryIds.includes(category)) : pins;
   const byId = new Map(shown.map((p) => [p.id, p]));
   const allById = new Map(pins.map((p) => [p.id, p]));
@@ -207,6 +223,20 @@ export default async function MapPage({ params, searchParams }: Props) {
                     </td>
                     {canWrite ? (
                       <td>
+                        <details className="field-edit">
+                          <summary>
+                            {tv('itemSummary', { level: tv(`levels.${p.visibility}`) })}
+                            <span className="sr-only"> {p.title}</span>
+                          </summary>
+                          <VisibilityForm
+                            action={applyItemVisibility}
+                            hidden={{ world: world.id, kind: 'pin', item: p.id, from: map.id }}
+                            idPrefix={`vis-${p.id}`}
+                            level={p.visibility}
+                            users={pinShares.get(p.id) ?? []}
+                            targets={shareTargets}
+                          />
+                        </details>
                         <form action={removePin}>
                           <input type="hidden" name="world" value={world.id} />
                           <input type="hidden" name="map" value={map.id} />

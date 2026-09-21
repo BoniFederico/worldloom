@@ -6,9 +6,15 @@ import { BacklinksPanel } from '@/components/backlinks-panel';
 import { RelationsPanel } from '@/components/relations-panel';
 import { RichText } from '@/components/rich-text';
 import { SnippetForm } from '@/components/snippet-form';
+import { VisibilityForm } from '@/components/visibility-form';
+import { VisibilityLog } from '@/components/visibility-log';
 import { loadCalendars } from '@/lib/calendars/load';
 import { fieldsSchema, type FieldDefinition } from '@/lib/fields/fields';
 import { docToText, mentionsOf, sanitizeBody, withMentionLabels } from '@/lib/snippets/body';
+import { cellValueText } from '@/lib/views/table';
+import { loadShareTargets, loadShares } from '@/lib/visibility/load';
+import { loadRestricted, withRestricted } from '@/lib/visibility/restricted';
+import { fieldLevelOf, type Level } from '@/lib/visibility/input';
 import { loadWorld } from '@/lib/worlds/context';
 import { uuidSchema } from '@/lib/worlds/schemas';
 import {
@@ -18,6 +24,7 @@ import {
   trashSnippet,
   unarchiveSnippet,
 } from '../actions';
+import { applySnippetVisibility } from '../visibility-actions';
 
 type Props = {
   params: Promise<{ worldId: string; snippetId: string }>;
@@ -33,13 +40,14 @@ export default async function SnippetPage({ params, searchParams }: Props) {
   const { worldId, snippetId } = await params;
   if (!uuidSchema.safeParse(snippetId).success) notFound();
   const { supabase, world, canWrite } = await loadWorld(worldId);
-  const [t, { error, notice }, { data: snippet }, { data: categories }] = await Promise.all([
+  const [t, tv, { error, notice }, { data: snippet }, { data: categories }] = await Promise.all([
     getTranslations('Snippets'),
+    getTranslations('Visibility'),
     searchParams,
     supabase
       .from('snippets')
       .select(
-        'id, title, body, fields, tags, aliases, status, archived_at, deleted_at, updated_at, snippet_categories(category_id)',
+        'id, title, body, fields, tags, aliases, status, visibility, archived_at, deleted_at, updated_at, snippet_categories(category_id)',
       )
       .eq('id', snippetId)
       .eq('world_id', worldId)
@@ -107,6 +115,19 @@ export default async function SnippetPage({ params, searchParams }: Props) {
 
   const trashed = snippet.deleted_at !== null;
   const editable = canWrite && !trashed;
+
+  // I campi riservati non stanno nella colonna pubblica: chi li può leggere (il DM, o i destinatari) li vede uniti agli altri.
+  const restricted = await loadRestricted(supabase, worldId);
+  const values = withRestricted(snippet.id, asRecord(snippet.fields), restricted);
+  const [targets, snippetShares, fieldShares] = editable
+    ? await Promise.all([
+        loadShareTargets(supabase, worldId),
+        loadShares(supabase, worldId, 'snippet', [snippet.id]),
+        loadShares(supabase, worldId, 'field', [snippet.id]),
+      ])
+    : [[], new Map<string, string[]>(), new Map<string, string[]>()];
+  const fieldLevels = restricted.levels.get(snippet.id) ?? {};
+  const sharedUsers = snippetShares.get(snippet.id) ?? [];
   const ids = (
     <>
       <input type="hidden" name="world" value={world.id} />
@@ -138,7 +159,7 @@ export default async function SnippetPage({ params, searchParams }: Props) {
               categoryIds,
               tags: snippet.tags,
               aliases: snippet.aliases,
-              values: asRecord(snippet.fields),
+              values,
             }}
             categories={(categories ?? []).map((c) => ({
               id: c.id,
@@ -170,6 +191,22 @@ export default async function SnippetPage({ params, searchParams }: Props) {
           </>
         )}
 
+        {!editable && defs.length ? (
+          <section aria-labelledby="snippet-fields">
+            <h2 id="snippet-fields">{t('fieldsTitle')}</h2>
+            <dl className="fields-list">
+              {defs
+                .filter((d) => cellValueText(values[d.key]) !== '')
+                .map((d) => (
+                  <div key={d.key}>
+                    <dt>{d.label}</dt>
+                    <dd>{cellValueText(values[d.key])}</dd>
+                  </div>
+                ))}
+            </dl>
+          </section>
+        ) : null}
+
         {!trashed ? (
           <>
             <Feedback scope="Relations" notice={notice} error={error} />
@@ -182,6 +219,33 @@ export default async function SnippetPage({ params, searchParams }: Props) {
               canWrite={canWrite}
             />
           </>
+        ) : null}
+
+        {editable ? (
+          <section aria-labelledby="visibility">
+            <h2 id="visibility">{tv('title')}</h2>
+            <p className="field-hint">{tv('intro')}</p>
+            <VisibilityForm
+              action={applySnippetVisibility}
+              hidden={{ world: world.id, id: snippet.id }}
+              idPrefix="vis"
+              level={snippet.visibility as Level}
+              users={sharedUsers}
+              targets={targets}
+              fields={defs.map((d) => ({
+                key: d.key,
+                label: d.label,
+                level: fieldLevelOf(fieldLevels, d.key),
+                users: fieldShares.get(`${snippet.id}:${d.key}`) ?? [],
+              }))}
+            />
+            <VisibilityLog
+              supabase={supabase}
+              worldId={world.id}
+              snippetId={snippet.id}
+              fieldLabels={Object.fromEntries(defs.map((d) => [d.key, d.label]))}
+            />
+          </section>
         ) : null}
 
         {editable ? (

@@ -73,7 +73,7 @@ test.describe('tipi di relazione', () => {
     await expect(item).toContainText('luogo di nascita di');
     await expect(item).toContainText('Da: Personaggio · A: Luogo');
 
-    await item.locator('summary').click();
+    await item.locator('summary').first().click();
     await item.locator('select[name="target"]').selectOption({ label: 'Qualsiasi categoria' });
     await item.getByRole('button', { name: 'Salva' }).click();
     await expect(page.getByRole('status')).toHaveText('Tipo salvato.');
@@ -151,7 +151,7 @@ test.describe('tipi di relazione', () => {
     const { page, worldId } = await setup(browser);
     await createType(page, worldId, 'alleato di', { inverse: 'alleato di' });
     await expect(page.getByRole('status')).toHaveText('Tipo creato.');
-    await page.locator('.relations li').first().locator('summary').click();
+    await page.locator('.relations li').first().locator('summary').first().click();
     expect(await noSeriousViolations(page)).toEqual([]);
   });
 });

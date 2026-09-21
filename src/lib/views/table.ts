@@ -105,6 +105,9 @@ function valueText(value: unknown): string {
   return '';
 }
 
+/** Testo semplice di un valore di campo (per elenchi e tabelle). */
+export const cellValueText = (value: unknown): string => valueText(value);
+
 /** Testo di una cella (sempre testo semplice: la pagina lo mostra come nodo React, mai come HTML). */
 export function cellText(row: TableRow, column: string, ctx: TableContext): string {
   switch (column) {

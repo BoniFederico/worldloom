@@ -55,6 +55,18 @@ export async function importWorld(
           })),
         ),
     ),
+    // Campi riservati: nella tabella dedicata, come segreti del nuovo mondo (mai nella colonna pubblica).
+    ...chunks(plan.restrictedFields).map(
+      (rows) => () =>
+        supabase.from('snippet_restricted_fields').insert(
+          rows.map((r) => ({
+            ...r,
+            world_id: worldId,
+            value: r.value as Json,
+            visibility: 'secret' as const,
+          })),
+        ),
+    ),
     ...chunks(plan.snippetCategories).map(
       (rows) => () =>
         supabase.from('snippet_categories').insert(rows.map((r) => ({ ...r, world_id: worldId }))),

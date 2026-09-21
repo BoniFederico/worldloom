@@ -490,3 +490,40 @@
   applicativo su anteprima e adesione (256 bit casuali rendono inutile indovinare il token; il limite di piattaforma arriva con #46); nessun trasferimento del ruolo di DM; i membri di una campagna non ottengono ancora accesso ai contenuti del mondo collegato (arriva con #32, visibilità e rivelazione);
   niente notifiche degli inviti (#37); l'elenco delle campagne non è paginato.
 - Deciso da: agente
+
+### D-032: Visibilità per elemento e rivelazione
+
+- Data: 2026-09-21
+- Contesto: #32. Quattro livelli (segreto = solo DM, giocatori scelti, tutti i membri, pubblico) su snippet, relazioni, pin e campi; rivelazione registrata e legabile a una
+  sessione; nessun dato nascosto deve mai partire dal server. Migrazione `20260921150000_visibility.sql`.
+- Chi è il «DM» e chi il «giocatore»: nel mondo, chi scrive (proprietario ed editor) è il lato DM e vede tutto; lettori e commentatori sono i giocatori. Le campagne (D-031) non
+  danno ancora accesso ai contenuti del mondo: per condividere con un giocatore, questi deve essere membro del mondo (lettore o commentatore).
+- Modello: la lettura la decide la RLS, quindi ricerca, grafo, timeline, mappe, albero, bacheca, tabella ed export (tutti con la sessione di chi guarda) si adeguano da soli.
+  `snippets_read` e `relations_read` gestiscono anche `shared` (destinatari in `visibility_shares`, con chiave esterna composita sui membri del mondo: chi esce perde le
+  condivisioni; eliminare l'elemento le cancella con un trigger). I pin hanno un livello proprio (`map_pins.visibility`, predefinito «tutti i membri» come prima) oltre al
+  vincolo di vedere lo snippet; percorsi e mappe restano nascosti se una tappa lo è.
+- Campi: i valori dei campi segreti o condivisi **non stanno in `snippets.fields`** ma in `snippet_restricted_fields` (RLS propria). Un trigger toglie da `fields` ogni chiave
+  che ha una riga riservata, quindi nessuna scrittura (salvataggio, ripristino di versione, import) la può far tornare nella colonna pubblica. Le viste che mostrano i valori
+  li uniscono con `loadRestricted`/`withRestricted` (con la RLS di chi guarda: il DM li vede tutti, un giocatore solo quelli condivisi con lui): pagina dello snippet, tabella,
+  bacheca, export. Un campo non è mai più visibile dello snippet: «tutti i membri» e «pubblico» sono lo stato normale, quindi per i campi i livelli sono segreto, giocatori
+  scelti e «come lo snippet».
+- Cambi di livello: solo `set_visibility` (security definer, solo chi scrive, atomica, con blocco della riga; un trigger rifiuta ogni scrittura diretta di `visibility` su snippet,
+  relazioni e pin, e i valori riservati si aggiornano ma non si cancellano né cambiano livello se non da lì; dalla review): cambia livello, sostituisce i destinatari, sposta il valore del
+  campo tra la colonna e la tabella riservata, e scrive `visibility_log` (chi, quando, da/a, destinatari, nota, `session_id` facoltativo, `is_reveal`). È una rivelazione quando
+  l'elemento diventa visibile a qualcuno che prima non lo vedeva (anche aggiungere un destinatario). La tabella delle sessioni arriva con #36, che aggiunge la chiave esterna.
+  Il registro lo leggono chi scrive e i destinatari di una rivelazione; nessuno lo modifica.
+- Immagini (chiude il limite di D-016): un giocatore legge un file solo se è usato da qualcosa che vede (mappa, testo o campo di uno snippet leggibile: `can_read_image`,
+  security invoker); altrimenti 404. Chi scrive legge tutto.
+- Export/import: `fieldVisibility` per snippet (vedi `docs/export-format.md`); un valore riservato rientra come segreto del nuovo mondo, mai nella colonna pubblica.
+- Interfaccia: sezione «Visibilità e rivelazioni» nella pagina dello snippet (livello, giocatori scelti, livello di ogni campo, nota, registro), modulo per ogni relazione e
+  per ogni pin; senza JavaScript. Chi non scrive vede i campi leggibili dello snippet in un elenco.
+- Modulo dello snippet: i destinatari dello snippet e quelli di ogni campo «giocatori scelti» sono liste separate (mai ereditati: un semplice Salva non allarga l'accesso a un
+  campo già condiviso con altri). Le chiamate sono ordinate in modo sicuro: prima si restringono i campi, poi si cambia lo snippet, per ultimo si allargano i campi «come lo snippet»;
+  se una chiamata fallisce a metà, resta almeno la restrizione precedente. La nota del registro la leggono anche i destinatari di una rivelazione (lo dice il modulo).
+- Limiti: un campo riservato non compare nella timeline né nei filtri
+  per valore (le loro query lavorano sulla colonna pubblica: nessuna fuga, ma neanche per il DM); duplicare uno snippet non copia i campi riservati; il ripristino di una
+  versione non riporta i campi riservati; la visibilità dei campi non copre le immagini nei campi; il livello «pubblico» prepara la wiki (#42) ma non la pubblica; nessun
+  filtro per livello negli elenchi; la sessione si lega solo via API finché non esiste la pagina delle sessioni (#36); `can_read_image` scandisce i testi degli snippet per ogni immagine di un giocatore (risposte con
+  cache di un'ora, non misurato su mondi molto grandi); un cambio di livello aggiorna `updated_at` dello snippet (un modulo di modifica già aperto darà «conflitto»); per un campo
+  la rivelazione è registrata come tale anche se lo snippet resta segreto; la chiave di un campo non è validata contro le categorie (solo per chi scrive).
+- Deciso da: agente

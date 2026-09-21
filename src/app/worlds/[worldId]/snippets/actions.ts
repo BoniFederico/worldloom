@@ -127,7 +127,7 @@ export async function saveSnippet(_prev: SaveState, formData: FormData): Promise
   const { supabase, canWrite } = await loadWorld(world);
   if (!canWrite) return fail('forbidden');
 
-  const [{ data: row }, { data: cats }] = await Promise.all([
+  const [{ data: row }, { data: cats }, { data: restrictedRows }] = await Promise.all([
     supabase
       .from('snippets')
       .select('body, fields, updated_at')
@@ -142,7 +142,12 @@ export async function saveSnippet(_prev: SaveState, formData: FormData): Promise
           .eq('world_id', world)
           .in('id', chosen)
       : Promise.resolve({ data: [] as { id: string; fields_schema: Json }[] }),
+    // Campi riservati (segreti o condivisi): non stanno in `snippets.fields`, ma il modulo del DM li mostra e li rimanda.
+    supabase.from('snippet_restricted_fields').select('key, value').eq('snippet_id', id),
   ]);
+  const restricted = Object.fromEntries(
+    (restrictedRows ?? []).map((r) => [r.key, r.value === null ? undefined : r.value]),
+  );
   if (!row) redirect(`${listPath(world)}?error=not_found`);
   if (row.updated_at !== token) return fail('conflict');
 
@@ -160,7 +165,7 @@ export async function saveSnippet(_prev: SaveState, formData: FormData): Promise
     : undefined;
   const merged = mergeFieldInput(
     defs,
-    asRecord(row.fields),
+    { ...asRecord(row.fields), ...restricted },
     (name) => {
       const value = formData.get(name);
       return value === null ? undefined : String(value);
@@ -241,6 +246,15 @@ export async function saveSnippet(_prev: SaveState, formData: FormData): Promise
         ? error.message
         : 'generic',
     );
+  }
+  // Un valore riservato lo scrive la tabella dedicata (il trigger lo toglie da `fields`): lo si aggiorna con il valore del modulo.
+  for (const key of Object.keys(restricted)) {
+    const { error: restrictedError } = await supabase
+      .from('snippet_restricted_fields')
+      .update({ value: (checked.values[key] ?? null) as Json })
+      .eq('snippet_id', id)
+      .eq('key', key);
+    if (restrictedError) return fail('generic');
   }
   redirect(`${listPath(world)}/${id}?notice=saved`);
 }
