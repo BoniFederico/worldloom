@@ -525,6 +525,12 @@ body {
   justify-self: start;
 }
 
+.btn-large {
+  min-height: 56px;
+  padding: 0 var(--space-8, 2rem);
+  font-size: var(--text-lg, 1.125rem);
+}
+
 a.btn {
   display: inline-flex;
   align-items: center;
@@ -1914,4 +1920,21 @@ p.mention-none {
   padding: var(--space-3, 0.75rem);
   border: 1px solid var(--border);
   border-radius: 8px;
+}
+.encounter-list {
+  list-style: none;
+  margin: var(--space-4, 1rem) 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3, 0.75rem);
+}
+.encounter-list > li {
+  padding: var(--space-4, 1rem);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.encounter-current {
+  border-color: var(--accent, var(--border-strong));
+  border-width: 2px;
+  background: var(--surface-2);
 }

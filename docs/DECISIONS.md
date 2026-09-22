@@ -694,3 +694,33 @@
   nessuna modifica o eliminazione di un tiro; il vantaggio/svantaggio raddoppia l'intero tiro (non solo un singolo dado in mezzo a un'espressione con più
   termini, caso raro e fuori scopo).
 - Deciso da: agente
+
+### D-040: Tracker di iniziativa: PF come scoppio dallo schema (non sincronizzato), niente "modalità al tavolo" separata
+
+- Data: 2026-09-27
+- Contesto: #40 chiede turni, condizioni e PF dallo schema di statistiche, con un layout adatto al tablet. I criteri di accettazione dell'issue (più stretti
+  del testo SPEC completo, che cita anche "rivelazione rapida" e "tiri" nella modalità al tavolo) elencano solo due voci: «Turni, condizioni, PF dallo
+  schema» e «Layout tablet» — la portata di questa PR segue quei due punti.
+- Un "encounter" (`campaign_encounters`) appartiene a una campagna; i partecipanti (`encounter_participants`) sono un personaggio della campagna (PG o PNG)
+  o una comparsa senza scheda (es. un mostro generico usato una sola volta). Turni e round li avanza solo chi gestisce la campagna (DM/co-DM, come le
+  sessioni D-036); i giocatori leggono per seguire il proprio turno, ma non lo controllano.
+- **PF come scoppio, non sincronizzati con la scheda**: `hp_current`/`hp_max` sono colonne proprie di `encounter_participants`, inserite a mano quando si
+  aggiunge il partecipante (anche se collegato a un personaggio) e modificate durante lo scontro senza mai scrivere su `characters.sheet`. Alternativa
+  scartata: leggere/scrivere live la risorsa del personaggio avrebbe richiesto entrare nel flusso di concorrenza ottimistica delle schede (`rev`, D-034),
+  complessità sproporzionata per un tracker pensato come artefatto della singola sessione al tavolo, non come fonte di verità a lungo termine (il DM
+  aggiorna la scheda a parte, quando vuole). L'etichetta della risorsa (`resource_label`, es. «Punti ferita») è testo libero proprio perché lo schema di
+  statistiche è generico (D-033): non esiste una chiave "hp" fissa da leggere.
+- **Ordine di iniziativa calcolato, non persistito**: l'ordine (decrescente, a parità chi è stato aggiunto prima resta prima) si ricalcola lato
+  applicazione (`src/lib/encounters/turn.ts`) da `initiative` e `created_at` a ogni caricamento; `turn_index` è solo la posizione in quell'ordine. Se
+  l'iniziativa di qualcuno cambia a metà scontro, l'ordine si adegua da solo invece di restare fissato a un momento precedente.
+- **Nessuna "modalità al tavolo" come pagina separata**: il layout della pagina dello scontro stesso è quello ottimizzato per tablet (tocco ≥44px già
+  garantito dal design system, colonna singola, pulsante "Prossimo turno" grande). "Rivelazione rapida" e "tiri" citati in SPEC sono già serviti dalle
+  pagine dedicate (visibilità/rivelazione D-032, tiratore di dadi D-039): non replicati qui, fuori scopo per i criteri di accettazione di questa issue.
+- **Bug di cache scoperto durante i test e2e**: `nextTurn` reindirizza sempre alla stessa URL (nessun parametro a distinguerla). Senza `revalidatePath`,
+  Next.js può riusare la Router Cache e non rileggere lo stato appena aggiornato al secondo "Prossimo turno" di seguito — invisibile con un solo clic, ma
+  riproducibile in modo deterministico con clic ripetuti (esattamente il caso reale di chi avanza più turni di fila). Corretto aggiungendo
+  `revalidatePath(back)` prima del redirect.
+- Limiti noti: eliminare un personaggio non aggiorna i partecipanti già aggiunti agli scontri passati (restano con `character_id` nullo per il vincolo
+  `on delete set null`, il nome resta quello scritto al momento); nessuna cronologia di chi ha modificato PF o condizioni (a differenza delle schede,
+  D-034); un partecipante non può essere riordinato manualmente, solo tramite l'iniziativa.
+- Deciso da: agente

@@ -126,6 +126,47 @@ export type Database = {
           },
         ];
       };
+      campaign_encounters: {
+        Row: {
+          campaign_id: string;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          name: string;
+          round: number;
+          turn_index: number;
+          updated_at: string;
+        };
+        Insert: {
+          campaign_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          name?: string;
+          round?: number;
+          turn_index?: number;
+          updated_at?: string;
+        };
+        Update: {
+          campaign_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          name?: string;
+          round?: number;
+          turn_index?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'campaign_encounters_campaign_id_fkey';
+            columns: ['campaign_id'];
+            isOneToOne: false;
+            referencedRelation: 'campaigns';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       campaign_invites: {
         Row: {
           campaign_id: string;
@@ -489,6 +530,70 @@ export type Database = {
             columns: ['campaign_id'];
             isOneToOne: false;
             referencedRelation: 'campaigns';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      encounter_participants: {
+        Row: {
+          campaign_id: string;
+          character_id: string | null;
+          conditions: string[];
+          created_at: string;
+          encounter_id: string;
+          hp_current: number | null;
+          hp_max: number | null;
+          id: string;
+          initiative: number;
+          name: string;
+          resource_label: string;
+        };
+        Insert: {
+          campaign_id: string;
+          character_id?: string | null;
+          conditions?: string[];
+          created_at?: string;
+          encounter_id: string;
+          hp_current?: number | null;
+          hp_max?: number | null;
+          id?: string;
+          initiative?: number;
+          name: string;
+          resource_label?: string;
+        };
+        Update: {
+          campaign_id?: string;
+          character_id?: string | null;
+          conditions?: string[];
+          created_at?: string;
+          encounter_id?: string;
+          hp_current?: number | null;
+          hp_max?: number | null;
+          id?: string;
+          initiative?: number;
+          name?: string;
+          resource_label?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'encounter_participants_campaign_id_fkey';
+            columns: ['campaign_id'];
+            isOneToOne: false;
+            referencedRelation: 'campaigns';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'encounter_participants_character_id_fkey';
+            columns: ['character_id'];
+            isOneToOne: false;
+            referencedRelation: 'characters';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'encounter_participants_encounter_id_fkey';
+            columns: ['encounter_id'];
+            isOneToOne: false;
+            referencedRelation: 'campaign_encounters';
             referencedColumns: ['id'];
           },
         ];

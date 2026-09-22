@@ -1086,7 +1086,8 @@
     "sessions": "Sessions",
     "chronicle": "Chronicle",
     "messages": "Message board",
-    "dice": "Dice"
+    "dice": "Dice",
+    "encounters": "Encounters"
   },
   "Visibility": {
     "title": "Visibility and reveals",
@@ -1426,6 +1427,49 @@
       "roll_invalid_sides": "A die must have 1 to 1000 sides.",
       "roll_too_many_dice": "Too many dice in this notation (100 at most).",
       "roll_formula_error": "The formula is not valid: check the syntax and the stats used.",
+      "failed": "The operation failed."
+    }
+  },
+  "Encounters": {
+    "title": "Encounters",
+    "unnamed": "Unnamed encounter",
+    "empty": "There are no encounters yet.",
+    "roundOf": "round {round}",
+    "newTitle": "New encounter",
+    "name": "Name (optional)",
+    "participantName": "Name",
+    "create": "Create",
+    "roundTurn": "Round {round}",
+    "nextTurn": "Next turn",
+    "noParticipants": "No participants yet: add one to start.",
+    "yourTurn": "Turn:",
+    "initiativeOf": "initiative {value}",
+    "initiative": "Initiative",
+    "hp": "Hit points",
+    "hpCurrent": "Current HP",
+    "hpMax": "Max HP",
+    "resourceLabel": "Label (optional)",
+    "conditions": "Conditions",
+    "save": "Save",
+    "remove": "Remove",
+    "addTitle": "Add participant",
+    "character": "Character (optional)",
+    "noCharacter": "None (no-sheet extra)",
+    "add": "Add",
+    "deleteTitle": "Delete encounter",
+    "delete": "Delete",
+    "confirmDelete": "I confirm I want to delete this encounter.",
+    "notices": {
+      "created": "Encounter created.",
+      "added": "Participant added.",
+      "saved": "Participant updated.",
+      "removed": "Participant removed.",
+      "deleted": "Encounter deleted."
+    },
+    "errors": {
+      "forbidden": "Only campaign managers can do this.",
+      "invalid_input": "Check the fields you entered.",
+      "confirm_required": "Confirm the operation with the checkbox.",
       "failed": "The operation failed."
     }
   },
