@@ -1,3 +1,4 @@
+import { logError } from '@/lib/logger';
 import type { createClient } from '@/lib/supabase/server';
 import type { Json } from '@/lib/supabase/database.types';
 import type { ImportPlan } from './world';
@@ -100,7 +101,7 @@ export async function importWorld(
   } catch {
     // Niente importazioni a metà: se anche l'eliminazione fallisce il mondo resta, ma lo si segnala nei log.
     const { error: cleanup } = await supabase.from('worlds').delete().eq('id', worldId);
-    if (cleanup) console.error('import: pulizia del mondo parziale non riuscita', worldId);
+    if (cleanup) logError('import_cleanup_failed', { worldId });
     return null;
   }
 }
