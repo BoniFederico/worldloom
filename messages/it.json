@@ -102,6 +102,7 @@
     "categories": "Categorie",
     "snippets": "Snippet",
     "relationTypes": "Tipi di relazione",
+    "coherence": "Controllo di coerenza",
     "search": "Ricerca",
     "importLink": "Importa un mondo",
     "exportJson": "Esporta (JSON)",
@@ -725,6 +726,20 @@
     "empty": "Nessuno snippet corrisponde ai filtri.",
     "loadError": "Non è stato possibile caricare la tabella. Riprova.",
     "filtersOnly": "I filtri della tabella sono categoria, tag, stato, campo e archivio; la ricerca nel testo è nella pagina di ricerca."
+  },
+  "Coherence": {
+    "title": "Controllo di coerenza",
+    "intro": "Anomalie che vale la pena controllare: non bloccano nulla, sono solo segnalazioni.",
+    "truncated": "Il mondo ha più elementi di quanti se ne possano controllare in una volta: il report è parziale.",
+    "temporalTitle": "Intervalli di validità invertiti",
+    "temporalHint": "Una relazione la cui validità finisce prima di iniziare (a livello di mese o giorno, entro lo stesso anno).",
+    "temporalEmpty": "Nessun intervallo invertito.",
+    "missingInverseTitle": "Relazioni senza etichetta inversa",
+    "missingInverseHint": "Relazioni inserite senza dire come si chiamano viste dall’altra parte (es. «genitore di» → «figlio di»).",
+    "missingInverseEmpty": "Tutte le relazioni hanno un’etichetta inversa.",
+    "orphansTitle": "Snippet senza relazioni",
+    "orphansHint": "Snippet non collegati a nessun altro elemento del mondo.",
+    "orphansEmpty": "Nessuno snippet è isolato."
   },
   "Graph": {
     "title": "Grafo delle relazioni",

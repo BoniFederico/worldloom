@@ -102,6 +102,7 @@
     "categories": "Categories",
     "snippets": "Snippets",
     "relationTypes": "Relation types",
+    "coherence": "Coherence check",
     "search": "Search",
     "importLink": "Import a world",
     "exportJson": "Export (JSON)",
@@ -725,6 +726,20 @@
     "empty": "No snippet matches the filters.",
     "loadError": "The table could not be loaded. Try again.",
     "filtersOnly": "Table filters are category, tag, status, field and archive; full-text search is on the search page."
+  },
+  "Coherence": {
+    "title": "Coherence check",
+    "intro": "Anomalies worth a look: nothing is blocked, these are just flags.",
+    "truncated": "This world has more items than can be checked at once: the report is partial.",
+    "temporalTitle": "Reversed validity intervals",
+    "temporalHint": "A relation whose validity ends before it starts (at month or day level, within the same year).",
+    "temporalEmpty": "No reversed interval.",
+    "missingInverseTitle": "Relations without an inverse label",
+    "missingInverseHint": "Relations added without saying how they look from the other side (e.g. \"parent of\" → \"child of\").",
+    "missingInverseEmpty": "Every relation has an inverse label.",
+    "orphansTitle": "Snippets with no relations",
+    "orphansHint": "Snippets not linked to anything else in the world.",
+    "orphansEmpty": "No snippet is isolated."
   },
   "Graph": {
     "title": "Relationship graph",

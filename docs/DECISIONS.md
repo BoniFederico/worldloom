@@ -724,3 +724,28 @@
   `on delete set null`, il nome resta quello scritto al momento); nessuna cronologia di chi ha modificato PF o condizioni (a differenza delle schede,
   D-034); un partecipante non può essere riordinato manualmente, solo tramite l'iniziativa.
 - Deciso da: agente
+
+### D-041: Controllo di coerenza: solo tre anomalie davvero generiche, niente "evento dopo la morte"
+
+- Data: 2026-09-27
+- Contesto: #41 chiede di segnalare anomalie. I criteri di accettazione dell'issue elencano "anomalie temporali, inverse mancanti, orfani" — più
+  stretti dell'esempio di SPEC ("personaggio che partecipa a un evento dopo la sua data di morte, relazione con etichetta inversa mancante, snippet
+  orfani"). L'esempio della SPEC non è implementabile in modo generico: il prodotto non ha un concetto di "personaggio" o "morte", solo snippet e campi
+  tipizzati per categoria senza significato noto all'app (D-033 lo dice esplicitamente per le formule; lo stesso vale qui). Non esiste nello schema
+  alcun modo di sapere che un campo `calendar_date` rappresenta una data di morte piuttosto che, che so, la data di fondazione di una città.
+- Le tre anomalie implementate usano solo dati che l'app già capisce, senza inventare semantica:
+  - **Inverse mancanti**: una relazione (non da menzione) con `inverse_label` nullo. Corrisponde esattamente all'esempio SPEC.
+  - **Orfani**: uno snippet che non compare né come origine né come destinazione di nessuna relazione.
+  - **Anomalie temporali**: l'intervallo di validità di una relazione (`valid_from`/`valid_to`) invertito a precisione di mese o giorno **nello stesso
+    anno**. Scoperta interessante durante l'implementazione: il modulo di modifica di una relazione (`src/lib/relations/input.ts`, `inOrder`) già
+    impedisce di creare un intervallo così tramite l'interfaccia normale; solo il database controlla l'anno (`private.valid_time`,
+    `relations_details.sql`). L'unica via realistica per un'anomalia di questo tipo è l'**importazione di un mondo** (#21): lo schema di validazione
+    dell'import (`src/lib/export/world.ts`, lo schema `time`) controlla solo la forma dei singoli capi dell'intervallo, non il loro ordine reciproco —
+    un file esportato e poi modificato a mano (o generato da uno strumento esterno) può quindi introdurre un'inversione che passa sia l'import sia il
+    vincolo del database. Il controllo di coerenza serve proprio a intercettare questa deriva, non a duplicare un controllo che l'interfaccia già fa.
+- Nessuna tabella nuova: le tre query girano sulle tabelle esistenti (`relations`, `snippets`) con la sessione di chi guarda, come grafo e ricerca — la
+  RLS decide cosa si vede, senza bisogno di restringere la pagina a chi scrive. Limite di 5.000 righe lette per controllo (report parziale oltre,
+  segnalato in pagina) per restare utilizzabile anche sul mondo della prova di carico (#22).
+- Limiti noti: nessun controllo su relazioni tra coppie diverse di snippet che si accavallano nel tempo (richiederebbe sapere se le etichette sono
+  "esclusive", informazione che l'app non ha); una relazione verso uno snippet cestinato non compare nel report (si esclude, non si segnala).
+- Deciso da: agente
