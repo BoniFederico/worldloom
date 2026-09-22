@@ -35,7 +35,9 @@
       "title": "Crea un account",
       "lead": "Ti mandiamo un’email per confermare l’indirizzo.",
       "submit": "Crea account",
-      "toLogin": "Hai già un account? Accedi"
+      "toLogin": "Hai già un account? Accedi",
+      "privacyLabel": "Ho letto l'informativa sulla privacy e accetto il trattamento dei miei dati.",
+      "privacyLink": "Informativa sulla privacy"
     },
     "forgot": {
       "title": "Reimposta la password",
@@ -49,19 +51,33 @@
     },
     "account": {
       "title": "Il tuo account",
-      "signOut": "Esci"
+      "signOut": "Esci",
+      "privacyAcceptedAt": "Informativa accettata il",
+      "privacyNotRecorded": "Non registrata (accesso con GitHub prima che venisse introdotta).",
+      "exportTitle": "I tuoi dati",
+      "exportIntro": "Scarica una copia dei dati personali che l'app conserva su di te (profilo, mondi e campagne a cui appartieni, note private di sessione).",
+      "exportButton": "Esporta i miei dati (JSON)",
+      "deleteTitle": "Elimina l'account",
+      "deleteWarning": "Elimina per sempre il tuo account. Se possiedi mondi o campagne, trasferiscine la proprietà o eliminali prima: non puoi cancellare l'account finché ne possiedi. Ciò che hai scritto nei mondi di altri resta, ma l'autore diventa «Account eliminato».",
+      "deleteConfirm": "Voglio eliminare il mio account",
+      "delete": "Elimina l'account"
     },
     "notices": {
       "check_email": "Controlla la posta: ti abbiamo inviato un link per confermare l’indirizzo.",
       "reset_sent": "Se l’indirizzo è registrato, riceverai un link per reimpostare la password.",
-      "password_updated": "Password aggiornata."
+      "password_updated": "Password aggiornata.",
+      "account_deleted": "Il tuo account è stato eliminato."
     },
     "errors": {
       "invalid_input": "I dati inseriti non sono validi. Controlla email e password.",
       "invalid_credentials": "Email o password errate.",
       "email_not_confirmed": "Conferma prima l’indirizzo con il link che ti abbiamo inviato.",
       "link": "Il link non è valido o è scaduto. Richiedine uno nuovo.",
-      "generic": "Qualcosa è andato storto. Riprova tra poco."
+      "generic": "Qualcosa è andato storto. Riprova tra poco.",
+      "privacy_required": "Devi accettare l'informativa sulla privacy per creare un account.",
+      "confirm_required": "Spunta la conferma per eliminare l'account.",
+      "owns_worlds": "Possiedi ancora dei mondi: trasferiscine la proprietà o eliminali prima di cancellare l'account.",
+      "owns_campaigns": "Possiedi ancora delle campagne: eliminale prima di cancellare l'account."
     },
     "oauth": {
       "github": "Continua con GitHub",
@@ -757,6 +773,34 @@
     "mentionedIn": "Menzionato in",
     "categoryUncategorized": "Senza categoria",
     "poweredBy": "Wiki pubblica generata da Worldloom."
+  },
+  "Privacy": {
+    "title": "Informativa sulla privacy",
+    "intro": "Questa pagina riassume quali dati personali raccoglie Worldloom, perché, e come esercitare i tuoi diritti. Non sostituisce una consulenza legale: chi gestisce questa installazione deve completarla con i propri dati di contatto prima di un uso reale.",
+    "data": {
+      "title": "Quali dati raccogliamo",
+      "body": "Email e password (la password non è mai leggibile: è conservata con hash sicuro), nome visualizzato, e i contenuti che scrivi (mondi, snippet, relazioni, messaggi, tiri di dado, note di sessione). Se accedi con GitHub riceviamo anche il nome pubblico del tuo profilo."
+    },
+    "purpose": {
+      "title": "Perché li usiamo",
+      "body": "Solo per fornire il servizio: farti accedere, mostrarti i mondi a cui appartieni, far funzionare le funzionalità che usi (ricerca, notifiche, collaborazione). Nessun uso per pubblicità o profilazione, nessuna vendita a terzi."
+    },
+    "retention": {
+      "title": "Per quanto tempo",
+      "body": "Finché il tuo account esiste. Gli snippet eliminati restano nel cestino 30 giorni prima di sparire per sempre. Se cancelli l'account, i tuoi dati personali (email, password, note private) si cancellano; il contenuto che hai scritto in mondi di altri utenti resta, ma l'autore diventa «Account eliminato»."
+    },
+    "rights": {
+      "title": "I tuoi diritti",
+      "body": "Puoi vedere e scaricare i tuoi dati personali (pagina «Il tuo account») ed eliminare completamente il tuo account in qualsiasi momento, senza dover chiedere a nessuno."
+    },
+    "sharing": {
+      "title": "Con chi condividiamo i dati",
+      "body": "I dati sono ospitati su Supabase (database, autenticazione, storage dei file) e l'app è distribuita da Vercel: entrambi trattano i dati solo per conto di questa installazione, come responsabili del trattamento. Nessun altro fornitore terzo riceve i tuoi dati."
+    },
+    "contact": {
+      "title": "Contatti",
+      "body": "Per domande sui tuoi dati o per esercitare un diritto non coperto da questa pagina, scrivi a chi gestisce questa installazione di Worldloom."
+    }
   },
   "Coherence": {
     "title": "Controllo di coerenza",

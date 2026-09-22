@@ -4,7 +4,7 @@
 
 ## Stato
 
-- Fase: M1 completata (#15–#22); M2 in corso: #23–#30 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe, albero, kanban); M3: #31–#41 chiuse (campagne e inviti, visibilità e rivelazione, statistiche, schede, migrazione, sessioni/diario/bacheca, notifiche in-app, collaborazione in tempo reale, tiratore di dadi, tracker di iniziativa, controllo di coerenza); M4 in corso: #42 chiusa (wiki pubblica del mondo); #43 parziale (import da Markdown/Obsidian/CSV fatto, manca «modelli condivisibili»); prossimo #44 (GDPR), poi il resto di #43 e #100 (export Markdown).
+- Fase: M1 completata (#15–#22); M2 in corso: #23–#30 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe, albero, kanban); M3: #31–#41 chiuse (campagne e inviti, visibilità e rivelazione, statistiche, schede, migrazione, sessioni/diario/bacheca, notifiche in-app, collaborazione in tempo reale, tiratore di dadi, tracker di iniziativa, controllo di coerenza); M4 in corso: #42 chiusa (wiki pubblica del mondo); #43 parziale (import da Markdown/Obsidian/CSV fatto, manca «modelli condivisibili»); #44 chiusa (GDPR); prossimo #45 (osservabilità e backup), poi il resto di #43 e #100 (export Markdown).
 
 ## Backlog (in ordine di esecuzione)
 
@@ -53,7 +53,7 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 42  | Wiki pubblica del mondo                                                         | feat  | M1         | done     | slug del mondo, solo testo/relazioni pubblici (D-042)                        |
 | 43  | Import da Markdown, Obsidian, CSV e modelli di mondo                            | feat  | M1         | parziale | import da Markdown/Obsidian/CSV fatto (D-043); manca «modelli condivisibili» |
 | 100 | Export del mondo in Markdown con front matter                                   | feat  | 21         | todo     | completa il MUST di export rimandato da D-021/D-043                          |
-| 44  | GDPR: esportazione e cancellazione account, informativa e consenso              | feat  | M1         | todo     |                                                                              |
+| 44  | GDPR: esportazione e cancellazione account, informativa e consenso              | feat  | M1         | done     | anonimizzazione dei contributi altrove, no service role (D-044)              |
 | 45  | Osservabilità, backup e ripristino                                              | chore | M1         | todo     |                                                                              |
 | 46  | Performance e sicurezza: CSP, audit, budget LCP                                 | chore | M1         | todo     |                                                                              |
 | 47  | Guida utente, documentazione export/import e schema statistiche                 | docs  | M1         | todo     |                                                                              |

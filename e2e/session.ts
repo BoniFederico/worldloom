@@ -8,6 +8,7 @@ export async function registerAndSignIn(page: Page, name = 'Ada Lovelace'): Prom
   await page.getByLabel('Nome visualizzato').fill(name);
   await page.getByLabel('Email').fill(email);
   await page.getByLabel('Password', { exact: true }).fill(PASSWORD);
+  await page.locator('input[name="privacyAccepted"]').check();
   await page.getByRole('button', { name: 'Crea account' }).click();
   await expect(page.getByRole('status')).toContainText('Controlla la posta');
   await page.goto(await linkFromEmail(email));

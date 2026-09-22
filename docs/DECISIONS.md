@@ -830,3 +830,41 @@ null)`: una categoria si vede solo se almeno uno snippet pubblico la usa, coeren
   `maxDuration` sulla rotta) prima della compensazione che elimina il mondo. Messaggi d'errore delle due rotte separati da quello dell'import
   JSON (`invalid_markdown`/`invalid_csv` invece di `invalid_file`, che parlava di «export di Worldloom» anche per un CSV sbagliato).
 - Deciso da: agente
+
+### D-044: GDPR: cancellazione con anonimizzazione, non cascata; consenso solo per email+password
+
+- Data: 2026-09-29
+- Contesto: #44 chiede export dei dati personali, cancellazione completa dell'account e una pagina informativa. Migrazioni
+  `20260929090000_account_deletion.sql` e `20260929091000_privacy_consent.sql`.
+- **Cancellazione dell'account**: `worlds.owner_id` e `campaigns.owner_id` sono `not null` senza cascata — chi possiede un mondo o una
+  campagna deve prima trasferirne la proprietà o eliminarli (funzioni già esistenti, D-020/#13/#31), altrimenti la cancellazione fallisce con
+  un errore chiaro. Domanda posta all'utente (`AskUserQuestion`): cosa fare del contenuto scritto in mondi di **altri** utenti (`created_by` su
+  `snippets`, `relations`, `saved_views`, anch'esse `not null` senza cascata)? Tre opzioni: cancellarlo a cascata (perdita di dati non propri
+  per chi possiede quei mondi), bloccare la cancellazione se l'utente ha mai scritto altrove (nella pratica blocca quasi chiunque abbia
+  collaborato), o **anonimizzare** (il contenuto resta, l'autore diventa un account segnaposto). Scelta dall'utente: anonimizzare — lo stesso
+  pattern di GitHub/Slack/Wikipedia per gli account cancellati.
+- Account segnaposto fisso (`00000000-0000-0000-0000-000000000001`, `raw_user_meta_data.display_name = "Account eliminato"`), creato una volta
+  dalla migrazione: nessuna password, nessuna identità, email `.invalid` (RFC 2606) — non autenticabile. La funzione `public.delete_own_account()`
+  (security definer, come `set_visibility`/`transfer_world_ownership`) blocca se l'utente possiede mondi o campagne, altrimenti riassegna
+  `created_by` al segnaposto su `snippets`/`relations`/`saved_views` e cancella la riga in `auth.users` — tutto il resto (appartenenze,
+  notifiche, note private di sessione, profilo) è già `on delete cascade` verso `auth.users` (verificato su ogni migrazione precedente); le
+  colonne di audit rimanenti (calendari, mappe, personaggi, sessioni, tiri di dado, scontri, commenti) erano già `on delete set null`.
+- I trigger di immutabilità su `created_by` (`private.forbid_identity_change` per snippets/relations, `private.saved_views_immutable`)
+  bloccherebbero anche questa riassegnazione: aggiunto un lasciapassare per transazione (`set_config('worldloom.reassign_author', 'on', true)`),
+  stesso meccanismo già usato da `set_visibility` per il suo lasciapassare.
+- **Nessun bisogno della chiave di servizio Supabase**: cancellare `auth.users` di solito richiede l'API admin (service role, un segreto da
+  configurare); qui la funzione gira come proprietaria (il ruolo delle migrazioni, superuser in locale e in cloud) e cancella la riga
+  direttamente via SQL, bypassando sia la RLS sia il bisogno di quella chiave.
+- **Export dei dati personali**: `GET /account/export`, distinto dall'export di un mondo (#21, già completo): profilo, appartenenze a mondi e
+  campagne con ruolo, note private di sessione. Non ripete il contenuto dei mondi (già esportabile da chi vi appartiene con l'export del
+  mondo) né gli snippet/relazioni scritti (restano nel mondo, non sono "dati personali" nel senso GDPR una volta condivisi in un contesto
+  collaborativo — la loro provenienza compare comunque nell'export del mondo per chi può leggerli).
+- **Consenso**: spunta obbligatoria alla registrazione con email+password (`profiles.privacy_accepted_at`, popolata dal trigger
+  `handle_new_user` da un campo dei metadati); pagina `/privacy` con una sintesi in linguaggio semplice (cosa si raccoglie, perché, per quanto
+  tempo, diritti, responsabili del trattamento, contatti). L'accesso OAuth (GitHub) non registra ancora un consenso esplicito — limite noto,
+  non c'è un passaggio server-side prima della creazione dell'account su quel percorso; il link all'informativa compare comunque nella pagina
+  di registrazione, vicino al pulsante OAuth.
+- Limiti noti: la pagina `/privacy` è un modello onesto ma generico (i contatti dicono di scrivere a «chi gestisce questa installazione»,
+  senza inventare un indirizzo reale) — chi porta il prodotto in produzione deve completarla con i propri dati legali prima di affidarcisi;
+  nessun log di controllo su chi ha esercitato un diritto GDPR; nessun consenso registrato per gli accessi OAuth.
+- Deciso da: utente (anonimizzare vs cancellare vs bloccare), agente (il resto)

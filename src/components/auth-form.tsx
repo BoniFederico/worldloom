@@ -8,8 +8,18 @@ type PageProps = {
   children: React.ReactNode;
 };
 
-const NOTICES = ['check_email', 'reset_sent', 'password_updated'];
-const ERRORS = ['invalid_input', 'invalid_credentials', 'email_not_confirmed', 'link', 'generic'];
+const NOTICES = ['check_email', 'reset_sent', 'password_updated', 'account_deleted'];
+const ERRORS = [
+  'invalid_input',
+  'invalid_credentials',
+  'email_not_confirmed',
+  'link',
+  'generic',
+  'privacy_required',
+  'confirm_required',
+  'owns_worlds',
+  'owns_campaigns',
+];
 
 /** Cornice comune delle pagine di accesso: titolo, avvisi ed errori con ruoli accessibili. */
 export async function AuthPage({ title, lead, notice, error, children }: PageProps) {
