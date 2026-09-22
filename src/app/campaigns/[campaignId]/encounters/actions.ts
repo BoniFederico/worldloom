@@ -44,8 +44,13 @@ export async function deleteEncounter(formData: FormData) {
     redirect(`${detailPath(campaign.data, id.data)}?error=confirm_required`);
   }
   const { supabase } = await loadCampaign(campaign.data);
-  await supabase.from('campaign_encounters').delete().eq('id', id.data);
-  redirect(`${back}?notice=deleted`);
+  const { data, error } = await supabase
+    .from('campaign_encounters')
+    .delete()
+    .eq('id', id.data)
+    .select('id');
+  revalidatePath(back);
+  redirect(`${back}?${error || !data?.length ? 'error=failed' : 'notice=deleted'}`);
 }
 
 /** Passa al partecipante successivo nell'ordine di iniziativa; dopo l'ultimo si torna al primo e il round avanza. */
@@ -118,6 +123,7 @@ export async function addParticipant(formData: FormData) {
     hp_max: hpMax.value,
     resource_label: resourceLabel.data,
   });
+  revalidatePath(back);
   redirect(`${back}?${error ? 'error=failed' : 'notice=added'}`);
 }
 
@@ -148,6 +154,7 @@ export async function updateParticipant(formData: FormData) {
       conditions: conditions.values,
     })
     .eq('id', id.data);
+  revalidatePath(back);
   redirect(`${back}?${error ? 'error=failed' : 'notice=saved'}`);
 }
 
@@ -158,6 +165,11 @@ export async function removeParticipant(formData: FormData) {
   if (!campaign.success || !encounter.success || !id.success) redirect('/campaigns');
   const back = detailPath(campaign.data, encounter.data);
   const { supabase } = await loadCampaign(campaign.data);
-  await supabase.from('encounter_participants').delete().eq('id', id.data);
-  redirect(`${back}?notice=removed`);
+  const { data, error } = await supabase
+    .from('encounter_participants')
+    .delete()
+    .eq('id', id.data)
+    .select('id');
+  revalidatePath(back);
+  redirect(`${back}?${error || !data?.length ? 'error=failed' : 'notice=removed'}`);
 }

@@ -130,6 +130,21 @@ describe('tracker di iniziativa: permessi', () => {
     });
   });
 
+  it('un partecipante deve riferire un campaign_id coerente con il suo scontro', async () => {
+    await withTx(async (db) => {
+      const { dm, campaign } = await setup(db);
+      const otherCampaign = await actAs(db, dm, () =>
+        db.query(`insert into campaigns (name, owner_id) values ('Altra', $1) returning id`, [dm]),
+      ).then((r) => r.rows[0].id as string);
+      const encounter = await createEncounter(db, dm, campaign).then((r) => r.rows[0].id as string);
+      // encounter_id punta allo scontro di `campaign`, ma campaign_id dichiara `otherCampaign`: l'exists della
+      // policy di insert deve rifiutarlo anche se chi scrive gestisce entrambe le campagne.
+      await expect(addParticipant(db, dm, encounter, otherCampaign)).rejects.toThrow(
+        /row-level security/,
+      );
+    });
+  });
+
   it('eliminare lo scontro elimina anche i partecipanti (cascata)', async () => {
     await withTx(async (db) => {
       const { dm, campaign } = await setup(db);
