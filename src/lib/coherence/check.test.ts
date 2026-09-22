@@ -38,6 +38,12 @@ describe('isTemporalAnomaly', () => {
     ).toBe(false);
   });
 
+  it('stesso giorno su entrambi i capi: nessuna anomalia (l’intervallo è di un solo giorno, non invertito)', () => {
+    expect(
+      isTemporalAnomaly({ year: 1200, month: 6, day: 10 }, { year: 1200, month: 6, day: 10 }),
+    ).toBe(false);
+  });
+
   it('anno uguale, mese crescente: nessuna anomalia', () => {
     expect(isTemporalAnomaly({ year: 1200, month: 2 }, { year: 1200, month: 6 })).toBe(false);
   });
