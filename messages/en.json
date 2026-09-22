@@ -658,8 +658,19 @@
     "errors": {
       "invalid_file": "The file is not valid: check that it is a Worldloom export.",
       "too_large": "The file is larger than 4 MB.",
+      "invalid_name": "The world name must be 1 to 120 characters long.",
       "generic": "Import failed. Try again shortly."
-    }
+    },
+    "markdownTitle": "Import from Markdown or Obsidian",
+    "markdownIntro": "Each file becomes a snippet. Title, tags and aliases are read from front matter (title, tags, aliases); [[Title]] wikilinks between files become mentions. No categories: assign them after importing.",
+    "markdownFiles": "Markdown files (.md)",
+    "markdownSubmit": "Import from Markdown",
+    "worldName": "New world's name",
+    "csvTitle": "Import from CSV",
+    "csvIntro": "The first row is the header. The \"title\" column (or the first one) becomes the snippet's title; the others become text fields of a single category.",
+    "csvFile": "CSV file",
+    "csvCategory": "Category name",
+    "csvSubmit": "Import from CSV"
   },
   "Views": {
     "title": "Views",
