@@ -35,14 +35,14 @@ export async function POST(request: Request) {
     return NextResponse.redirect(new URL('/login?next=%2Fworlds%2Fimport', request.url), 303);
 
   const declared = Number(request.headers.get('content-length'));
-  if (!Number.isFinite(declared) || declared <= 0) return back(request, 'invalid_file');
+  if (!Number.isFinite(declared) || declared <= 0) return back(request, 'invalid_markdown');
   if (declared > MAX_BYTES + 64 * 1024) return back(request, 'too_large');
 
   let form: FormData;
   try {
     form = await request.formData();
   } catch {
-    return back(request, 'invalid_file');
+    return back(request, 'invalid_markdown');
   }
 
   const name = worldNameSchema.safeParse(String(form.get('name') ?? ''));
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
 
   const entries = form.getAll('files').filter((f): f is File => f instanceof File && f.size > 0);
   if (entries.length === 0 || entries.length > MAX_MARKDOWN_FILES)
-    return back(request, 'invalid_file');
+    return back(request, 'invalid_markdown');
   let total = 0;
   for (const file of entries) {
     if (file.size > MAX_FILE_BYTES) return back(request, 'too_large');
@@ -64,11 +64,11 @@ export async function POST(request: Request) {
       entries.map(async (f) => ({ name: f.name, content: await f.text() })),
     );
   } catch {
-    return back(request, 'invalid_file');
+    return back(request, 'invalid_markdown');
   }
 
   const plan = planMarkdownImport(name.data, files, randomUUID);
-  if (!plan.ok) return back(request, 'invalid_file');
+  if (!plan.ok) return back(request, 'invalid_markdown');
 
   const worldId = await importWorld(supabase, auth.user.id, plan);
   if (!worldId) return back(request, 'generic');

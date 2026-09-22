@@ -821,4 +821,12 @@ null)`: una categoria si vede solo se almeno uno snippet pubblico la usa, coeren
   testo, anche per numeri o date: l'utente può cambiare tipo dopo, D-013 garantisce che i valori non si perdano); niente immagini (Obsidian le
   referenzia come allegati locali, fuori scopo qui); tetto di 2.000 file Markdown e 5.000 righe CSV, 500 KB per file Markdown, 4 MB in totale
   (stessi ordini di grandezza dell'import JSON, D-021).
+- **Due tetti aggiunti in review**: un CSV con più di 60 colonne dati (oltre il titolo) è rifiutato, allineato al limite di `fieldsSchema`
+  (`src/lib/fields/fields.ts`) — sopra quel numero la categoria non si potrebbe più modificare dall'interfaccia e ogni lettura che valida lo
+  schema la tratterebbe come priva di campi, nascondendo i dati importati senza errore visibile. Le relazioni generate dai wikilink tra i file di
+  un import Markdown sono limitate a 5.000 in totale (oltre il tetto per singolo file di `MAX_MENTIONS`, 200, già imposto da `validateBody`):
+  senza un tetto complessivo, fino a 2.000 file × 200 menzioni ciascuno avrebbero potuto produrre centinaia di migliaia di righe, molte più di
+  quante l'import JSON stesso ammetta (`MAX_RELATIONS`), col rischio concreto che un'importazione così grande si interrompesse a metà (nessun
+  `maxDuration` sulla rotta) prima della compensazione che elimina il mondo. Messaggi d'errore delle due rotte separati da quello dell'import
+  JSON (`invalid_markdown`/`invalid_csv` invece di `invalid_file`, che parlava di «export di Worldloom» anche per un CSV sbagliato).
 - Deciso da: agente

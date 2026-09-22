@@ -34,14 +34,14 @@ export async function POST(request: Request) {
     return NextResponse.redirect(new URL('/login?next=%2Fworlds%2Fimport', request.url), 303);
 
   const declared = Number(request.headers.get('content-length'));
-  if (!Number.isFinite(declared) || declared <= 0) return back(request, 'invalid_file');
+  if (!Number.isFinite(declared) || declared <= 0) return back(request, 'invalid_csv');
   if (declared > MAX_BYTES + 64 * 1024) return back(request, 'too_large');
 
   let form: FormData;
   try {
     form = await request.formData();
   } catch {
-    return back(request, 'invalid_file');
+    return back(request, 'invalid_csv');
   }
 
   const name = worldNameSchema.safeParse(String(form.get('name') ?? ''));
@@ -49,18 +49,18 @@ export async function POST(request: Request) {
   const categoryName = String(form.get('category') ?? '').trim() || 'Importato';
 
   const file = form.get('file');
-  if (!(file instanceof File) || file.size === 0) return back(request, 'invalid_file');
+  if (!(file instanceof File) || file.size === 0) return back(request, 'invalid_csv');
   if (file.size > MAX_BYTES) return back(request, 'too_large');
 
   let text: string;
   try {
     text = await file.text();
   } catch {
-    return back(request, 'invalid_file');
+    return back(request, 'invalid_csv');
   }
 
   const plan = planCsvImport(name.data, categoryName, parseCsv(text), randomUUID);
-  if (!plan.ok) return back(request, 'invalid_file');
+  if (!plan.ok) return back(request, 'invalid_csv');
 
   const worldId = await importWorld(supabase, auth.user.id, plan);
   if (!worldId) return back(request, 'generic');

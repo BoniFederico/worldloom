@@ -69,4 +69,21 @@ describe('planCsvImport', () => {
       error: expect.any(String),
     });
   });
+
+  it('più di 60 colonne oltre al titolo è un errore (tetto di fieldsSchema)', () => {
+    const headers = ['titolo', ...Array.from({ length: 61 }, (_, i) => `campo${i}`)];
+    const rows = [headers, ['A', ...Array.from({ length: 61 }, () => 'x')]];
+    expect(planCsvImport('Aurelia', 'Cat', rows, ids())).toEqual({
+      ok: false,
+      error: expect.any(String),
+    });
+  });
+
+  it('esattamente 60 colonne oltre al titolo è ammesso', () => {
+    const headers = ['titolo', ...Array.from({ length: 60 }, (_, i) => `campo${i}`)];
+    const rows = [headers, ['A', ...Array.from({ length: 60 }, () => 'x')]];
+    const plan = planCsvImport('Aurelia', 'Cat', rows, ids());
+    expect(plan.ok).toBe(true);
+    if (plan.ok) expect(plan.categories[0]?.fields_schema).toHaveLength(60);
+  });
 });

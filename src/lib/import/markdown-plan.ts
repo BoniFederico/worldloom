@@ -5,6 +5,10 @@ import { MAX_ALIASES, MAX_ALIAS_LENGTH, MAX_TAGS, MAX_TAG_LENGTH } from '@/lib/s
 import { mentionsOf, validateBody } from '@/lib/snippets/body';
 
 export const MAX_MARKDOWN_FILES = 2000;
+// Ogni file è già limitato a 200 menzioni da `validateBody` (MAX_MENTIONS), ma niente limita il totale tra più
+// file: senza un tetto qui, `importWorld` potrebbe dover scrivere molte più righe di quante l'import JSON ne
+// ammetta (MAX_RELATIONS in src/lib/export/world.ts), rischiando un'importazione lunga e a metà se si interrompe.
+export const MAX_MARKDOWN_RELATIONS = 5000;
 
 /**
  * Piano di importazione da file Markdown (uno snippet per file), compatibile con Obsidian: front matter
@@ -67,6 +71,8 @@ export function planMarkdownImport(
     // rappresenta (D-018: «menziona»/«menzionato in», `from_mention: true`), perché l'importazione scrive le
     // righe direttamente e non passa dalla funzione `save_snippet` che di norma la sincronizza.
     for (const targetId of mentionsOf(body)) {
+      if (relations.length >= MAX_MARKDOWN_RELATIONS)
+        return { ok: false, error: 'troppi wikilink' };
       relations.push({
         source_id: p.id,
         target_id: targetId,

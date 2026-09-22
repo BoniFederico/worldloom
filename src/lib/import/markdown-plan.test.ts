@@ -101,4 +101,20 @@ describe('planMarkdownImport', () => {
     expect(plan.relations).toEqual([]);
     expect(plan.world.name).toBe('Aurelia');
   });
+
+  it('troppi wikilink complessivi tra i file sono un errore (tetto sulle relazioni)', () => {
+    // 200 file bersaglio (il massimo per file, MAX_MENTIONS) e 26 file sorgente che li citano tutti:
+    // 26 * 200 = 5200 relazioni, sopra il tetto di 5000.
+    const targets = Array.from({ length: 200 }, (_, i) => ({
+      name: `t${i}.md`,
+      content: `---\ntitle: T${i}\n---\nBersaglio.`,
+    }));
+    const links = Array.from({ length: 200 }, (_, i) => `[[T${i}]]`).join(' ');
+    const sources = Array.from({ length: 26 }, (_, i) => ({
+      name: `s${i}.md`,
+      content: `---\ntitle: S${i}\n---\n${links}`,
+    }));
+    const plan = planMarkdownImport('Aurelia', [...targets, ...sources], ids());
+    expect(plan).toEqual({ ok: false, error: expect.any(String) });
+  });
 });

@@ -657,6 +657,8 @@
     "notices": {},
     "errors": {
       "invalid_file": "Il file non è valido: controlla che sia un export di Worldloom.",
+      "invalid_markdown": "I file non sono validi: controlla che siano file Markdown (.md) con un testo entro i limiti.",
+      "invalid_csv": "Il file non è valido: controlla che la prima riga sia l'intestazione, che ci sia almeno una riga con un titolo e non più di 60 colonne.",
       "too_large": "Il file supera i 4 MB.",
       "invalid_name": "Il nome del mondo deve avere da 1 a 120 caratteri.",
       "generic": "Importazione non riuscita. Riprova tra poco."

@@ -3,6 +3,10 @@ import { validateValue, type FieldDefinition } from '@/lib/fields/fields';
 import { EMPTY_DOC } from '@/lib/snippets/body';
 
 export const MAX_CSV_ROWS = 5000;
+// Allineato al tetto di `fieldsSchema` (src/lib/fields/fields.ts): oltre questo numero di campi una categoria
+// non si potrebbe più modificare dall'interfaccia, e ogni lettura che valida lo schema la tratterebbe come
+// priva di campi, nascondendo i dati importati senza errore visibile.
+export const MAX_CSV_FIELDS = 60;
 const TITLE_HEADERS = new Set(['title', 'titolo', 'nome', 'name']);
 
 /** Trasforma un'intestazione in una chiave di campo valida (`^[a-z][a-z0-9_]{0,39}$`), unica nel foglio. */
@@ -38,6 +42,7 @@ export function planCsvImport(
   if (rows.length - 1 > MAX_CSV_ROWS) return { ok: false, error: 'troppe righe' };
 
   const headers = rows[0] ?? [];
+  if (headers.length - 1 > MAX_CSV_FIELDS) return { ok: false, error: 'troppe colonne' };
   const titleIndex = Math.max(
     0,
     headers.findIndex((h) => TITLE_HEADERS.has(h.trim().toLowerCase())),
