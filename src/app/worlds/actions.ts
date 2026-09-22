@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { emailSchema } from '@/lib/auth/schemas';
+import { wikiSlugSchema } from '@/lib/wiki/slug';
 import { assignableRoleSchema, uuidSchema, worldNameSchema } from '@/lib/worlds/schemas';
 
 const field = (formData: FormData, name: string) => String(formData.get(name) ?? '');
@@ -53,6 +54,39 @@ export async function deleteWorld(formData: FormData) {
   const { data, error } = await supabase.from('worlds').delete().eq('id', id.data).select('id');
   if (error || !data?.length) redirect(`/worlds/${id.data}/settings?error=generic`);
   redirect('/worlds?notice=deleted');
+}
+
+export async function publishWiki(formData: FormData) {
+  const id = uuidSchema.safeParse(field(formData, 'id'));
+  if (!id.success) redirect('/worlds');
+  const back = `/worlds/${id.data}/settings`;
+  const slug = wikiSlugSchema.safeParse(field(formData, 'wikiSlug'));
+  if (!slug.success) redirect(`${back}?error=invalid_slug`);
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('worlds')
+    .update({ wiki_slug: slug.data })
+    .eq('id', id.data)
+    .select('id');
+  if (error?.code === '23505') redirect(`${back}?error=slug_taken`);
+  if (error || !data?.length) redirect(`${back}?error=generic`);
+  redirect(`${back}?notice=wiki_published`);
+}
+
+export async function unpublishWiki(formData: FormData) {
+  const id = uuidSchema.safeParse(field(formData, 'id'));
+  if (!id.success) redirect('/worlds');
+  const back = `/worlds/${id.data}/settings`;
+
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from('worlds')
+    .update({ wiki_slug: null })
+    .eq('id', id.data)
+    .select('id');
+  if (error || !data?.length) redirect(`${back}?error=generic`);
+  redirect(`${back}?notice=wiki_unpublished`);
 }
 
 const membersPath = (worldId: string) => `/worlds/${worldId}/members`;

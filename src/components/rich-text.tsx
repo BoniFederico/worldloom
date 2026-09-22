@@ -13,11 +13,22 @@ type Context = {
   titles?: Record<string, string>;
   /** Testo neutro per una menzione che chi guarda non può risolvere. */
   unavailable: string;
+  /** Base del link di una menzione (default `/worlds/<worldId>/snippets`); usata dalla wiki pubblica. */
+  linkBase?: string;
+  /** Base del link di un'immagine (default il file così com'è salvato); usata dalla wiki pubblica. */
+  imageBase?: string;
 };
 
-export function RichText({ doc, worldId, titles, unavailable }: { doc: unknown } & Context) {
+export function RichText({
+  doc,
+  worldId,
+  titles,
+  unavailable,
+  linkBase,
+  imageBase,
+}: { doc: unknown } & Context) {
   const clean = sanitizeBody(doc);
-  const context = { worldId, titles, unavailable };
+  const context = { worldId, titles, unavailable, linkBase, imageBase };
   return <div className="prose">{(clean.content ?? []).map((n, i) => block(n, i, context))}</div>;
 }
 
@@ -35,8 +46,9 @@ function inline(nodes: DocNode[] = [], context: Context): ReactNode[] {
           </span>
         );
       }
+      const base = context.linkBase ?? `/worlds/${context.worldId}/snippets`;
       return (
-        <Link key={i} className="mention" href={`/worlds/${context.worldId}/snippets/${id}`}>
+        <Link key={i} className="mention" href={`${base}/${id}`}>
           @{title}
         </Link>
       );
@@ -81,16 +93,23 @@ function block(node: DocNode, key: number, context: Context): ReactNode {
       );
     case 'listItem':
       return <li key={key}>{children()}</li>;
-    case 'image':
+    case 'image': {
+      const original = typeof node.attrs?.src === 'string' ? node.attrs.src : undefined;
+      // La wiki pubblica serve le immagini da una rotta diversa (senza autenticazione): stesso file, altra base.
+      const src =
+        context.imageBase && original
+          ? `${context.imageBase}/${original.slice(original.lastIndexOf('/') + 1)}`
+          : original;
       return (
         // eslint-disable-next-line @next/next/no-img-element -- immagine privata servita da una rotta autenticata
         <img
           key={key}
-          src={typeof node.attrs?.src === 'string' ? node.attrs.src : undefined}
+          src={src}
           alt={typeof node.attrs?.alt === 'string' ? node.attrs.alt : ''}
           loading="lazy"
         />
       );
+    }
     case 'table':
       return (
         <div key={key} className="table-wrap">
