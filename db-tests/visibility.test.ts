@@ -388,7 +388,21 @@ describe('registro delle rivelazioni', () => {
     await withTx(async (db) => {
       const { dm, anna, snippet } = await setup(db);
       const id = await snippet('Mappa', 'secret');
-      const session = '33333333-3333-4333-8333-333333333333';
+      // Una rivelazione può legarsi a una sessione (#36): ne serve una vera, la chiave esterna la impone.
+      const session = (
+        await actAs(db, dm, () =>
+          db.query(`insert into campaigns (name, owner_id) values ('Prova', $1) returning id`, [
+            dm,
+          ]),
+        ).then(({ rows }) =>
+          actAs(db, dm, () =>
+            db.query(
+              `insert into campaign_sessions (campaign_id, created_by) values ($1, $2) returning id`,
+              [rows[0].id, dm],
+            ),
+          ),
+        )
+      ).rows[0].id as string;
       await setVisibility(db, dm, 'snippet', id, 'shared', {
         users: [anna],
         session,

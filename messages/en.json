@@ -1080,7 +1080,10 @@
       "already_member": "You are already in this campaign."
     },
     "characters": "Character sheets",
-    "stats": "Stats"
+    "stats": "Stats",
+    "sessions": "Sessions",
+    "chronicle": "Chronicle",
+    "messages": "Message board"
   },
   "Visibility": {
     "title": "Visibility and reveals",
@@ -1296,6 +1299,95 @@
       "too_many": "You have reached the maximum number of sheets.",
       "invalid_owner": "The owner must be a player of the campaign.",
       "confirm_required": "Confirm the deletion to proceed."
+    }
+  },
+  "Sessions": {
+    "title": "Sessions",
+    "empty": "There are no sessions yet.",
+    "number": "Session {number}",
+    "newTitle": "New session",
+    "sessionTitle": "Title (optional)",
+    "titleHint": "If left empty, the session is identified only by its number.",
+    "playedOn": "Date (optional)",
+    "summary": "Summary",
+    "noSummary": "No summary.",
+    "create": "Create the session",
+    "save": "Save",
+    "revealsTitle": "Revealed elements",
+    "revealsEmpty": "No reveal linked to this session.",
+    "kinds": {
+      "snippet": "a snippet",
+      "relation": "a relation",
+      "pin": "a pin",
+      "field": "a field"
+    },
+    "unknownUser": "Someone",
+    "eventsTitle": "Linked timeline events",
+    "eventsEmpty": "No event linked.",
+    "eventHidden": "Element not visible",
+    "unlinkEvent": "Unlink",
+    "eventTitleLabel": "Title of the snippet to link",
+    "linkEvent": "Link",
+    "noWorld": "This campaign is not linked to a world: there are no snippets to link as events.",
+    "dmNotesTitle": "DM notes",
+    "dmNotesHint": "Visible only to whoever manages the campaign (DM and co-DM).",
+    "playerNotesTitle": "Your notes",
+    "playerNotesHint": "Private: only you see them, not even the DM.",
+    "saveNotes": "Save the notes",
+    "deleteTitle": "Delete the session",
+    "deleteConfirm": "I confirm deleting the session",
+    "delete": "Delete",
+    "notices": {
+      "created": "Session created.",
+      "saved": "Session saved.",
+      "deleted": "Session deleted.",
+      "notes_saved": "Notes saved.",
+      "event_linked": "Event linked.",
+      "event_unlinked": "Event unlinked."
+    },
+    "errors": {
+      "forbidden": "You do not have permission for this action.",
+      "invalid_input": "Check the data you entered.",
+      "failed": "The operation failed.",
+      "not_found": "Session not found.",
+      "confirm_required": "Confirm the deletion to proceed.",
+      "event_not_found": "No snippet with this exact title, or more than one.",
+      "event_link_failed": "The event could not be linked."
+    }
+  },
+  "Chronicle": {
+    "title": "Campaign chronicle",
+    "intro": "The shared chronicle of the campaign: anyone who writes in the campaign can add an entry.",
+    "newEntry": "New entry",
+    "post": "Post",
+    "empty": "The chronicle is still empty.",
+    "delete": "Delete",
+    "unknownUser": "Someone",
+    "notices": {
+      "posted": "Entry posted.",
+      "deleted": "Entry deleted."
+    },
+    "errors": {
+      "forbidden": "Observers cannot write in the chronicle.",
+      "invalid_input": "The text cannot be empty (5000 characters at most).",
+      "failed": "The operation failed."
+    }
+  },
+  "Messages": {
+    "title": "Message board",
+    "newMessage": "New message",
+    "post": "Send",
+    "empty": "No messages.",
+    "delete": "Delete",
+    "unknownUser": "Someone",
+    "notices": {
+      "posted": "Message sent.",
+      "deleted": "Message deleted."
+    },
+    "errors": {
+      "forbidden": "Observers cannot write on the board.",
+      "invalid_input": "The message cannot be empty (5000 characters at most).",
+      "failed": "The operation failed."
     }
   }
 }

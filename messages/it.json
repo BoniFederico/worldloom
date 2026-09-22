@@ -1080,7 +1080,10 @@
       "already_member": "Fai già parte di questa campagna."
     },
     "characters": "Schede personaggio",
-    "stats": "Statistiche"
+    "stats": "Statistiche",
+    "sessions": "Sessioni",
+    "chronicle": "Diario",
+    "messages": "Bacheca"
   },
   "Visibility": {
     "title": "Visibilità e rivelazioni",
@@ -1296,6 +1299,95 @@
       "too_many": "Hai raggiunto il numero massimo di schede.",
       "invalid_owner": "Il proprietario deve essere un giocatore della campagna.",
       "confirm_required": "Conferma l’eliminazione per procedere."
+    }
+  },
+  "Sessions": {
+    "title": "Sessioni",
+    "empty": "Non ci sono ancora sessioni.",
+    "number": "Sessione {number}",
+    "newTitle": "Nuova sessione",
+    "sessionTitle": "Titolo (facoltativo)",
+    "titleHint": "Se vuoto, la sessione si identifica solo con il numero.",
+    "playedOn": "Data (facoltativa)",
+    "summary": "Riepilogo",
+    "noSummary": "Nessun riepilogo.",
+    "create": "Crea la sessione",
+    "save": "Salva",
+    "revealsTitle": "Elementi rivelati",
+    "revealsEmpty": "Nessuna rivelazione legata a questa sessione.",
+    "kinds": {
+      "snippet": "uno snippet",
+      "relation": "una relazione",
+      "pin": "un pin",
+      "field": "un campo"
+    },
+    "unknownUser": "Un utente",
+    "eventsTitle": "Eventi di timeline collegati",
+    "eventsEmpty": "Nessun evento collegato.",
+    "eventHidden": "Elemento non visibile",
+    "unlinkEvent": "Scollega",
+    "eventTitleLabel": "Titolo dello snippet da collegare",
+    "linkEvent": "Collega",
+    "noWorld": "Questa campagna non è collegata a un mondo: non ci sono snippet da collegare come eventi.",
+    "dmNotesTitle": "Note del DM",
+    "dmNotesHint": "Visibili solo a chi gestisce la campagna (DM e co-DM).",
+    "playerNotesTitle": "Le tue note",
+    "playerNotesHint": "Private: solo tu le vedi, nemmeno il DM.",
+    "saveNotes": "Salva le note",
+    "deleteTitle": "Elimina la sessione",
+    "deleteConfirm": "Confermo l’eliminazione della sessione",
+    "delete": "Elimina",
+    "notices": {
+      "created": "Sessione creata.",
+      "saved": "Sessione salvata.",
+      "deleted": "Sessione eliminata.",
+      "notes_saved": "Note salvate.",
+      "event_linked": "Evento collegato.",
+      "event_unlinked": "Evento scollegato."
+    },
+    "errors": {
+      "forbidden": "Non hai il permesso per questa azione.",
+      "invalid_input": "Controlla i dati inseriti.",
+      "failed": "Operazione non riuscita.",
+      "not_found": "Sessione non trovata.",
+      "confirm_required": "Conferma l’eliminazione per procedere.",
+      "event_not_found": "Nessuno snippet con questo titolo esatto, o più di uno.",
+      "event_link_failed": "Non è stato possibile collegare l’evento."
+    }
+  },
+  "Chronicle": {
+    "title": "Diario di campagna",
+    "intro": "La cronaca condivisa della campagna: chi scrive nella campagna può aggiungere una voce.",
+    "newEntry": "Nuova voce",
+    "post": "Pubblica",
+    "empty": "Il diario è ancora vuoto.",
+    "delete": "Elimina",
+    "unknownUser": "Un utente",
+    "notices": {
+      "posted": "Voce pubblicata.",
+      "deleted": "Voce eliminata."
+    },
+    "errors": {
+      "forbidden": "Gli osservatori non possono scrivere nel diario.",
+      "invalid_input": "Il testo non può essere vuoto (5000 caratteri al massimo).",
+      "failed": "Operazione non riuscita."
+    }
+  },
+  "Messages": {
+    "title": "Bacheca",
+    "newMessage": "Nuovo messaggio",
+    "post": "Invia",
+    "empty": "Nessun messaggio.",
+    "delete": "Elimina",
+    "unknownUser": "Un utente",
+    "notices": {
+      "posted": "Messaggio inviato.",
+      "deleted": "Messaggio eliminato."
+    },
+    "errors": {
+      "forbidden": "Gli osservatori non possono scrivere in bacheca.",
+      "invalid_input": "Il messaggio non può essere vuoto (5000 caratteri al massimo).",
+      "failed": "Operazione non riuscita."
     }
   }
 }

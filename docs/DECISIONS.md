@@ -592,3 +592,29 @@
   può leggere non esistono (il DM legge tutte); non c'è annullamento dopo l'applicazione (si può solo cambiare di nuovo lo schema); nessuna migrazione dei valori di un campo che cambia tipo di sezione oltre a
   spostarlo a mano; le schede non nell'export del mondo restano fuori.
 - Deciso da: agente
+
+### D-036: Sessioni, diario e bacheca di campagna
+
+- Data: 2026-09-22
+- Contesto: #36. Chiude anche il limite noto di D-032: `visibility_log.session_id` ora ha una chiave esterna verso `campaign_sessions`. Migrazione `20260923090000_sessions.sql`;
+  da applicare al cloud dopo il merge.
+- Sessione: `campaign_sessions` (numero progressivo per campagna, assegnato da un trigger che blocca la riga della campagna — mai dal client — titolo e data facoltativi,
+  riepilogo). La legge ogni membro; la scrive solo chi gestisce (DM e co-DM, come per le schede D-034).
+- Note: **due tabelle separate** per poter concedere il permesso per riga anziché per colonna: `session_dm_notes` (solo DM/co-DM) e `session_player_notes`
+  (una riga per giocatore, **mai letta da nessun altro, nemmeno dal DM** — SPEC: «nota private DM e note giocatori»). Entrambe con upsert dal client; il grant di
+  `update` deve includere anche la colonna chiave (`session_id` / `user_id`), non solo `notes`: PostgREST genera l'upsert come `insert ... on conflict do update`
+  che assegna `col = excluded.col` per ogni colonna del payload, chiave compresa, e Postgres controlla il privilegio colonna per colonna anche quando il valore non
+  cambia (scoperto in un test e2e prima del merge: senza il permesso su `session_id` l'upsert dava 403 anche per il DM proprietario).
+- Eventi di timeline collegati: `session_snippets` collega la sessione a uno snippet del mondo della campagna (se c'è). Solo chi gestisce collega o scollega; **la
+  lettura passa comunque dalla RLS dello snippet** (`exists (select 1 from snippets ...)` non `security definer`): un giocatore vede che un evento è collegato solo
+  se potrebbe leggere quello snippet comunque, altrimenti l'id non si vede nemmeno. Si collega cercando il titolo esatto (senza maiuscole/minuscole); un titolo
+  ambiguo o assente è un errore.
+- Elementi rivelati: nessuna tabella nuova. La pagina della sessione legge `visibility_log` filtrato per `session_id` (D-032): la RLS di quella tabella già
+  restringe a chi scrive nel mondo e ai destinatari di una rivelazione, quindi un giocatore vede solo le rivelazioni che lo riguardano.
+- Diario condiviso e bacheca: stessa tabella (`campaign_posts`, `kind` `chronicle`/`message`) per non duplicare permessi e migrazione. Le legge ogni membro; le
+  scrive chiunque non sia solo osservatore; una voce si elimina da chi l'ha scritta o da chi gestisce (moderazione); **nessuna modifica dopo l'invio** (niente grant
+  di `update`): un messaggio pubblicato non si corregge, si elimina e basta.
+- Limiti noti: niente modifica di un messaggio già inviato; niente paginazione di diario e bacheca (le ultime 200 voci); `session_snippets` cerca solo per titolo
+  esatto (nessuna ricerca parziale); le note del DM e dei giocatori non hanno una cronologia propria; nessuna notifica di nuova sessione, rivelazione o messaggio (#37);
+  un giocatore rimosso dalla campagna perde l'accesso alle proprie note (restano nel database, senza proprietario raggiungibile).
+- Deciso da: agente
