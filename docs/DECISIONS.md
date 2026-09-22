@@ -885,3 +885,21 @@ null)`: una categoria si vede solo se almeno uno snippet pubblico la usa, coeren
   caso in cui serva uno script manuale) — non si implementa nulla in questa issue. Criterio di accettazione volutamente non soddisfatto:
   #45 resta aperta con questo punto rimandato, invece di essere chiusa con un requisito mancante.
 - Deciso da: utente (tracciamento errori: solo Vercel; backup: rimandato), agente (dettagli implementativi)
+
+### D-046: Modelli di mondo condivisibili: stesso formato JSON, senza contenuto
+
+- Data: 2026-09-22
+- Contesto: completa #43 (l'import da Markdown/Obsidian/CSV era già fatto, D-043; mancava solo «modelli condivisibili» del
+  suo secondo criterio di accettazione, che rispecchia la riga SPEC «Modelli di mondo e di campagna condivisibili, e galleria
+  di preset di categorie e schemi di statistiche»). La «galleria di preset» era già completa (categorie: `src/lib/categories/
+presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — preset incorporati nell'app, non condivisibili
+  dagli utenti. Mancava solo la parte «condivisibile»: un utente che vuole distribuire la _propria_ struttura (non uno dei
+  preset fissi) ad altri.
+- **Nessun formato nuovo**: `GET /worlds/<id>/export?template=1` produce lo stesso export JSON v1 di #21/D-021, con
+  `snippets` e `relations` filtrati a vuoti prima di chiamare `buildExport` (categorie e tipi di relazione restano). Il file
+  si importa con lo stesso percorso JSON già esistente (`/worlds/import`, `planImport`/`importWorld`) senza alcuna modifica:
+  un modello è semplicemente un export senza contenuto, quindi «condivisibile» come un file qualsiasi (email, chat, repository).
+- **Nessun «modello di campagna» separato**: lo schema di statistiche di una campagna è già JSON leggibile/copiabile
+  dall'editor esistente (#33); condividerlo significa condividere quel testo. Aggiungere un formato/endpoint dedicato solo
+  per il download non era giustificato dallo scope («una PR, meno di un giorno») rispetto al valore aggiunto.
+- Deciso da: agente
