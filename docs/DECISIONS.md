@@ -892,8 +892,8 @@ null)`: una categoria si vede solo se almeno uno snippet pubblico la usa, coeren
 - Contesto: completa #43 (l'import da Markdown/Obsidian/CSV era già fatto, D-043; mancava solo «modelli condivisibili» del
   suo secondo criterio di accettazione, che rispecchia la riga SPEC «Modelli di mondo e di campagna condivisibili, e galleria
   di preset di categorie e schemi di statistiche»). La «galleria di preset» era già completa (categorie: `src/lib/categories/
-  presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — preset incorporati nell'app, non condivisibili
-  dagli utenti. Mancava solo la parte «condivisibile»: un utente che vuole distribuire la *propria* struttura (non uno dei
+presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — preset incorporati nell'app, non condivisibili
+  dagli utenti. Mancava solo la parte «condivisibile»: un utente che vuole distribuire la _propria_ struttura (non uno dei
   preset fissi) ad altri.
 - **Nessun formato nuovo**: `GET /worlds/<id>/export?template=1` produce lo stesso export JSON v1 di #21/D-021, con
   `snippets` e `relations` filtrati a vuoti prima di chiamare `buildExport` (categorie e tipi di relazione restano). Il file
