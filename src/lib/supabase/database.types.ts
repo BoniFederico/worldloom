@@ -1450,6 +1450,7 @@ export type Database = {
           owner_id: string;
           settings: Json;
           updated_at: string;
+          wiki_slug: string | null;
         };
         Insert: {
           created_at?: string;
@@ -1458,6 +1459,7 @@ export type Database = {
           owner_id: string;
           settings?: Json;
           updated_at?: string;
+          wiki_slug?: string | null;
         };
         Update: {
           created_at?: string;
@@ -1466,6 +1468,7 @@ export type Database = {
           owner_id?: string;
           settings?: Json;
           updated_at?: string;
+          wiki_slug?: string | null;
         };
         Relationships: [];
       };
@@ -1502,6 +1505,10 @@ export type Database = {
         Returns: string;
       };
       can_read_image: {
+        Args: { p_file: string; p_world: string };
+        Returns: boolean;
+      };
+      can_read_wiki_image: {
         Args: { p_file: string; p_world: string };
         Returns: boolean;
       };

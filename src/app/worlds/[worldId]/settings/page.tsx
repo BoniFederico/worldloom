@@ -4,7 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { Feedback } from '@/components/feedback';
 import { createClient } from '@/lib/supabase/server';
 import { uuidSchema } from '@/lib/worlds/schemas';
-import { deleteWorld, renameWorld } from '../../actions';
+import { deleteWorld, publishWiki, renameWorld, unpublishWiki } from '../../actions';
 
 type Props = {
   params: Promise<{ worldId: string }>;
@@ -19,7 +19,7 @@ export default async function WorldSettingsPage({ params, searchParams }: Props)
   const [t, { error, notice }, { data: world }] = await Promise.all([
     getTranslations('Worlds'),
     searchParams,
-    supabase.from('worlds').select('id, name, owner_id').eq('id', worldId).maybeSingle(),
+    supabase.from('worlds').select('id, name, owner_id, wiki_slug').eq('id', worldId).maybeSingle(),
   ]);
   const { data: auth } = await supabase.auth.getUser();
   // Solo il proprietario vede le impostazioni: per gli altri la pagina non esiste.
@@ -51,6 +51,44 @@ export default async function WorldSettingsPage({ params, searchParams }: Props)
             {t('rename')}
           </button>
         </form>
+
+        <h2>{t('wikiTitle')}</h2>
+        {world.wiki_slug ? (
+          <>
+            <p>
+              {t('wikiPublished')}{' '}
+              <Link href={`/w/${world.wiki_slug}`}>{`/w/${world.wiki_slug}`}</Link>
+            </p>
+            <form action={unpublishWiki} className="form-inline">
+              <input type="hidden" name="id" value={world.id} />
+              <button type="submit" className="btn">
+                {t('wikiUnpublish')}
+              </button>
+            </form>
+          </>
+        ) : (
+          <>
+            <p>{t('wikiExplain')}</p>
+            <form action={publishWiki} className="form form-inline">
+              <input type="hidden" name="id" value={world.id} />
+              <div className="field">
+                <label htmlFor="wikiSlug">{t('wikiSlug')}</label>
+                <input
+                  id="wikiSlug"
+                  name="wikiSlug"
+                  pattern="[a-z0-9]+(-[a-z0-9]+)*"
+                  minLength={3}
+                  maxLength={60}
+                  required
+                  autoComplete="off"
+                />
+              </div>
+              <button type="submit" className="btn btn-primary">
+                {t('wikiPublish')}
+              </button>
+            </form>
+          </>
+        )}
 
         <h2>{t('dangerTitle')}</h2>
         <form action={deleteWorld} className="form danger-zone">

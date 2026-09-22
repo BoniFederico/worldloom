@@ -91,13 +91,23 @@
       "renamed": "Nome aggiornato.",
       "deleted": "Mondo eliminato.",
       "left": "Hai lasciato il mondo.",
-      "imported": "Mondo importato."
+      "imported": "Mondo importato.",
+      "wiki_published": "Wiki pubblicata.",
+      "wiki_unpublished": "Wiki ritirata."
     },
     "errors": {
       "invalid_input": "Il nome deve avere da 1 a 120 caratteri.",
       "confirm_required": "Spunta la conferma per eliminare il mondo.",
-      "generic": "Operazione non riuscita. Riprova tra poco."
+      "generic": "Operazione non riuscita. Riprova tra poco.",
+      "invalid_slug": "L'indirizzo deve avere da 3 a 60 caratteri: minuscole, cifre e un trattino singolo tra le parole.",
+      "slug_taken": "Questo indirizzo è già usato da un altro mondo."
     },
+    "wikiTitle": "Wiki pubblica",
+    "wikiExplain": "Pubblica gli snippet con visibilità «pubblico» come wiki navigabile da chiunque, senza account.",
+    "wikiSlug": "Indirizzo (es. regno-di-aurelia)",
+    "wikiPublish": "Pubblica",
+    "wikiPublished": "La wiki è pubblica all'indirizzo",
+    "wikiUnpublish": "Ritira la wiki",
     "members": "Membri",
     "categories": "Categorie",
     "snippets": "Snippet",
@@ -726,6 +736,14 @@
     "empty": "Nessuno snippet corrisponde ai filtri.",
     "loadError": "Non è stato possibile caricare la tabella. Riprova.",
     "filtersOnly": "I filtri della tabella sono categoria, tag, stato, campo e archivio; la ricerca nel testo è nella pagina di ricerca."
+  },
+  "Wiki": {
+    "empty": "Questo mondo non ha ancora snippet pubblici.",
+    "notPublic": "Snippet non pubblico.",
+    "relations": "Relazioni",
+    "mentionedIn": "Menzionato in",
+    "categoryUncategorized": "Senza categoria",
+    "poweredBy": "Wiki pubblica generata da Worldloom."
   },
   "Coherence": {
     "title": "Controllo di coerenza",

@@ -4,7 +4,7 @@
 
 ## Stato
 
-- Fase: M1 completata (#15–#22); M2 in corso: #23–#30 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe, albero, kanban); M3: #31–#41 chiuse (campagne e inviti, visibilità e rivelazione, statistiche, schede, migrazione, sessioni/diario/bacheca, notifiche in-app, collaborazione in tempo reale, tiratore di dadi, tracker di iniziativa, controllo di coerenza); prossimo #42 (wiki pubblica del mondo).
+- Fase: M1 completata (#15–#22); M2 in corso: #23–#30 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe, albero, kanban); M3: #31–#41 chiuse (campagne e inviti, visibilità e rivelazione, statistiche, schede, migrazione, sessioni/diario/bacheca, notifiche in-app, collaborazione in tempo reale, tiratore di dadi, tracker di iniziativa, controllo di coerenza); M4 in corso: #42 chiusa (wiki pubblica del mondo); prossimo #43 (import da Markdown/Obsidian/CSV).
 
 ## Backlog (in ordine di esecuzione)
 
@@ -50,7 +50,7 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 39  | Tiratore di dadi                                                                | feat  | M1         | done  | notazione, vantaggio/svantaggio generico, formule (D-039) |
 | 40  | Tracker di iniziativa e modalità al tavolo                                      | feat  | M1         | done  | turni, condizioni, PF a scoppio dalla scheda (D-040)      |
 | 41  | Controllo di coerenza                                                           | feat  | M1         | done  | inverse mancanti, intervalli invertiti, orfani (D-041)    |
-| 42  | Wiki pubblica del mondo                                                         | feat  | M1         | todo  |                                                           |
+| 42  | Wiki pubblica del mondo                                                         | feat  | M1         | done  | slug del mondo, solo testo/relazioni pubblici (D-042)     |
 | 43  | Import da Markdown, Obsidian, CSV e modelli di mondo                            | feat  | M1         | todo  |                                                           |
 | 44  | GDPR: esportazione e cancellazione account, informativa e consenso              | feat  | M1         | todo  |                                                           |
 | 45  | Osservabilità, backup e ripristino                                              | chore | M1         | todo  |                                                           |

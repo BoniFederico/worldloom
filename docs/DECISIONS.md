@@ -749,3 +749,42 @@
 - Limiti noti: nessun controllo su relazioni tra coppie diverse di snippet che si accavallano nel tempo (richiederebbe sapere se le etichette sono
   "esclusive", informazione che l'app non ha); una relazione verso uno snippet cestinato non compare nel report (si esclude, non si segnala).
 - Deciso da: agente
+
+### D-042: Wiki pubblica: la pubblicazione è uno slug, la selezione è la visibilità «pubblico» già esistente
+
+- Data: 2026-09-28
+- Contesto: #42 chiede di pubblicare «un mondo o una selezione» come wiki navigabile, con URL leggibili e SEO. Migrazione `20260928090000_wiki.sql`.
+- Scoperta chiave: la RLS di `snippets`/`relations` (D-032) concede già la lettura di un elemento «pubblico» al ruolo `anon`, indipendentemente
+  da qualunque interruttore del mondo — un client con la sola chiave anonima può già leggere per `id` uno snippet pubblico. Il vero limite non è
+  nel database ma nell'app: ogni pagina di `/worlds/...` passa da `loadWorld`, che impone l'appartenenza al mondo, e `src/proxy.ts` blocca l'intero
+  prefisso `/worlds` a chi non ha sessione. "Pubblicare la wiki" quindi non introduce un nuovo livello di visibilità: la **selezione** è già ciò che
+  l'utente ha marcato «pubblico» elemento per elemento; questa issue aggiunge solo un modo di **navigare** quel contenuto senza account, con URL
+  leggibili — non tocca `snippets_read` né `relations_read`.
+- `worlds.wiki_slug` (univoco, nullable): assente = non pubblicato. Formato validato da un `check` (minuscole, cifre, un trattino singolo tra
+  parole, 3–60 caratteri) e da `wikiSlugSchema` lato app. Tre nuove policy RLS, tutte con `wiki_slug is not null` come condizione: mondo (nome),
+  categorie e il collegamento snippet-categoria per gli anonimi (un utente autenticato qualsiasi vedeva già quest'ultimo, indipendentemente dalla
+  wiki, per lo stesso motivo di cui sopra — verificato con un test). Nessuna di queste tocca la sicurezza esistente: sono tutte aggiuntive (le
+  policy RLS sono in OR) e gated sul flag esplicito.
+- **Categorie, corretto in review**: la prima versione della policy apriva _tutte_ le categorie di un mondo pubblicato, anche quelle usate solo da
+  snippet riservati (nome/icona non erano mai stati per-elemento come snippet e relazioni). `categories_public_read` ora richiede un
+  `exists (select 1 from snippet_categories ... join snippets ... where s.visibility = 'public' and s.deleted_at is null and w.wiki_slug is not
+null)`: una categoria si vede solo se almeno uno snippet pubblico la usa, coerente con l'invariante "si naviga solo ciò che è già pubblico".
+  Test di regressione in `db-tests/wiki.test.ts` (categoria usata solo da uno snippet «members» resta invisibile a mondo pubblicato).
+- Immagini: `can_read_wiki_image` (security invoker, come `can_read_image` di D-016) verifica che il file sia citato dal corpo o dai campi di uno
+  snippet **pubblico** di un mondo **pubblicato**; una nuova policy su `storage.objects` la usa per aprire il bucket (che resta privato) agli
+  anonimi solo per quei file. Rotta dedicata `GET /w/[worldSlug]/images/[file]`: a differenza della rotta autenticata (D-016) non chiama `loadWorld`
+  e non ha bisogno di richiamare la funzione in app — l'autorizzazione la fa la RLS dello storage al momento del download.
+- URL: `/w/<wiki_slug>` (indice, snippet raggruppati per categoria) e `/w/<wiki_slug>/<titolo-slug>-<uuid>` (pagina di uno snippet). L'id è sempre
+  l'ultimo segmento in formato UUID: il prefisso leggibile è puramente cosmetico (SEO, leggibilità) e non serve al lookup, quindi un titolo
+  cambiato dopo la pubblicazione di un link non rompe nulla (come i permalink di molti wiki/tracker: Notion, Trello). Nessuna colonna slug nuova
+  su `snippets`.
+- `RichText` (`src/components/rich-text.tsx`) accetta ora `linkBase`/`imageBase` opzionali per puntare menzioni e immagini alle rotte della wiki
+  invece che a quelle autenticate; senza questi prop il comportamento per l'app resta identico (nessuna modifica alle pagine esistenti).
+- Limiti noti: solo testo, tag, categorie e relazioni pubbliche (menzioni comprese); niente grafo, timeline, mappa, tabella o ricerca pubblici in
+  questa prima iterazione — restano SHOULD non coperte, valutabili in seguito riusando lo stesso schema (`wiki_slug` + filtro `visibility =
+'public'`). Indice limitato a 300 snippet (come il limite di ricerca, D-019), senza paginazione. Nessuna sitemap/robots dedicati: le pagine hanno
+  `<title>`/`<meta description>` (da `generateMetadata`) ma l'indicizzazione dipende dai motori di ricerca che le raggiungono dai link interni.
+  `worlds_public_read` è per riga, non per colonna: un mondo pubblicato espone anche `owner_id` e `settings` (non lette da nessuna pagina oggi, ma
+  la RLS non lo impedisce) a chi interroga direttamente la tabella con la chiave anonima — accettabile ora (nessun dato sensibile in quelle
+  colonne), da rivedere con una vista dedicata se `settings` inizia a contenere qualcosa di non destinato al pubblico.
+- Deciso da: agente
