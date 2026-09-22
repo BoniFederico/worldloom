@@ -56,7 +56,12 @@ export async function characterScope(
 ): Promise<Record<string, number>> {
   const [stats, { data: character }] = await Promise.all([
     loadStats(supabase, campaignId),
-    supabase.from('characters').select('sheet').eq('id', characterId).maybeSingle(),
+    supabase
+      .from('characters')
+      .select('sheet')
+      .eq('id', characterId)
+      .eq('campaign_id', campaignId)
+      .maybeSingle(),
   ]);
   if (!stats || !character) return {};
   const sheet = readSheet(character.sheet, stats.valid);

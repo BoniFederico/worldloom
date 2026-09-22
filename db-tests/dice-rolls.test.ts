@@ -115,6 +115,29 @@ describe('tiri di dado: storico condiviso e privati', () => {
     });
   });
 
+  it('un personaggio di un’altra campagna non si può usare, nemmeno da chi la gestisce entrambe', async () => {
+    await withTx(async (db) => {
+      const { dm, campaign } = await setup(db);
+      const { rows } = await actAs(db, dm, () =>
+        db.query(
+          `insert into campaigns (name, owner_id) values ('Altra campagna', $1) returning id`,
+          [dm],
+        ),
+      );
+      const otherCampaign = rows[0].id as string;
+      const elsewhere = await actAs(db, dm, () =>
+        db.query(
+          `insert into characters (campaign_id, kind, name, created_by) values ($1, 'npc', 'Straniero', $2) returning id`,
+          [otherCampaign, dm],
+        ),
+      ).then((r) => r.rows[0].id as string);
+
+      await expect(roll(db, dm, campaign, { characterId: elsewhere })).rejects.toThrow(
+        /row-level security/,
+      );
+    });
+  });
+
   it('nessuno modifica un tiro già registrato: non c’è alcun permesso di update', async () => {
     await withTx(async (db) => {
       const { dm, campaign } = await setup(db);
