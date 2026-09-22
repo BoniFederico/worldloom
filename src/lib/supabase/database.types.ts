@@ -942,6 +942,48 @@ export type Database = {
           },
         ];
       };
+      snippet_comments: {
+        Row: {
+          author: string | null;
+          body: string;
+          created_at: string;
+          id: string;
+          snippet_id: string;
+          world_id: string;
+        };
+        Insert: {
+          author?: string | null;
+          body: string;
+          created_at?: string;
+          id?: string;
+          snippet_id: string;
+          world_id: string;
+        };
+        Update: {
+          author?: string | null;
+          body?: string;
+          created_at?: string;
+          id?: string;
+          snippet_id?: string;
+          world_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'snippet_comments_world_id_fkey';
+            columns: ['world_id'];
+            isOneToOne: false;
+            referencedRelation: 'worlds';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'snippet_comments_world_id_snippet_id_fkey';
+            columns: ['world_id', 'snippet_id'];
+            isOneToOne: false;
+            referencedRelation: 'snippets';
+            referencedColumns: ['world_id', 'id'];
+          },
+        ];
+      };
       snippet_restricted_fields: {
         Row: {
           key: string;

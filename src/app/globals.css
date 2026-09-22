@@ -1059,6 +1059,22 @@ select {
   padding-left: var(--space-6);
 }
 
+.comments {
+  margin: 0 0 var(--space-6);
+  padding: 0;
+  list-style: none;
+}
+
+.comments > li {
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.presence-bar {
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
 .palette-trigger {
   display: flex;
   align-items: center;

@@ -469,6 +469,7 @@
     "filterReset": "Clear filters",
     "filters": "Filters",
     "mentionUnavailable": "snippet unavailable",
+    "unknownUser": "Someone",
     "historyLink": "Version history",
     "calendar": "Calendar",
     "era": "Era",
@@ -1413,5 +1414,24 @@
       "inviteReceived": "You were invited to “{name}” as {role}.",
       "inviteAccepted": "{who} joined “{name}” as {role}."
     }
+  },
+  "Comments": {
+    "title": "Comments",
+    "empty": "No comments.",
+    "newComment": "New comment",
+    "post": "Comment",
+    "delete": "Delete",
+    "unknownUser": "Someone",
+    "notices": {
+      "comment_posted": "Comment posted.",
+      "comment_deleted": "Comment deleted."
+    },
+    "errors": {
+      "comment_invalid_input": "The comment cannot be empty (2000 characters at most).",
+      "comment_failed": "The operation failed."
+    }
+  },
+  "Presence": {
+    "alsoHere": "Also here: {names}"
   }
 }
