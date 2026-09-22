@@ -1085,7 +1085,8 @@
     "stats": "Stats",
     "sessions": "Sessions",
     "chronicle": "Chronicle",
-    "messages": "Message board"
+    "messages": "Message board",
+    "dice": "Dice"
   },
   "Visibility": {
     "title": "Visibility and reveals",
@@ -1389,6 +1390,42 @@
     "errors": {
       "forbidden": "Observers cannot write on the board.",
       "invalid_input": "The message cannot be empty (5000 characters at most).",
+      "failed": "The operation failed."
+    }
+  },
+  "Dice": {
+    "title": "Dice",
+    "notation": "Notation",
+    "notationHint": "Standard notation, e.g. \"2d6+3\". You can use the chosen character's stats, e.g. \"1d20+str_mod\".",
+    "mode": "Mode",
+    "modes": {
+      "normal": "Normal",
+      "advantage": "Advantage",
+      "disadvantage": "Disadvantage"
+    },
+    "character": "Character",
+    "noCharacter": "None (dice only)",
+    "unknownCharacter": "A character",
+    "label": "Label (optional)",
+    "private": "Private roll (only campaign managers see it)",
+    "roll": "Roll",
+    "historyTitle": "History",
+    "empty": "No dice have been rolled yet.",
+    "unknownUser": "Someone",
+    "privateTag": "private",
+    "total": "Total",
+    "discarded": "Discarded",
+    "notices": {
+      "rolled": "Roll recorded."
+    },
+    "errors": {
+      "invalid_input": "Check the fields: the notation cannot be empty (200 characters at most).",
+      "roll_empty": "The notation cannot be empty.",
+      "roll_too_long": "The notation is too long (200 characters at most).",
+      "roll_no_dice": "The notation must contain at least one die (e.g. \"1d20\").",
+      "roll_invalid_sides": "A die must have 1 to 1000 sides.",
+      "roll_too_many_dice": "Too many dice in this notation (100 at most).",
+      "roll_formula_error": "The formula is not valid: check the syntax and the stats used.",
       "failed": "The operation failed."
     }
   },

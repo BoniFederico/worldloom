@@ -1085,7 +1085,8 @@
     "stats": "Statistiche",
     "sessions": "Sessioni",
     "chronicle": "Diario",
-    "messages": "Bacheca"
+    "messages": "Bacheca",
+    "dice": "Dadi"
   },
   "Visibility": {
     "title": "Visibilità e rivelazioni",
@@ -1389,6 +1390,42 @@
     "errors": {
       "forbidden": "Gli osservatori non possono scrivere in bacheca.",
       "invalid_input": "Il messaggio non può essere vuoto (5000 caratteri al massimo).",
+      "failed": "Operazione non riuscita."
+    }
+  },
+  "Dice": {
+    "title": "Dadi",
+    "notation": "Notazione",
+    "notationHint": "Notazione standard, es. «2d6+3». Puoi usare le statistiche del personaggio scelto, es. «1d20+str_mod».",
+    "mode": "Modalità",
+    "modes": {
+      "normal": "Normale",
+      "advantage": "Vantaggio",
+      "disadvantage": "Svantaggio"
+    },
+    "character": "Personaggio",
+    "noCharacter": "Nessuno (solo dadi)",
+    "unknownCharacter": "Un personaggio",
+    "label": "Etichetta (facoltativa)",
+    "private": "Tiro privato (solo chi gestisce la campagna lo vede)",
+    "roll": "Tira",
+    "historyTitle": "Storico",
+    "empty": "Non è ancora stato tirato nessun dado.",
+    "unknownUser": "Un utente",
+    "privateTag": "privato",
+    "total": "Totale",
+    "discarded": "Scartato",
+    "notices": {
+      "rolled": "Tiro registrato."
+    },
+    "errors": {
+      "invalid_input": "Controlla i campi: la notazione non può essere vuota (200 caratteri al massimo).",
+      "roll_empty": "La notazione non può essere vuota.",
+      "roll_too_long": "La notazione è troppo lunga (200 caratteri al massimo).",
+      "roll_no_dice": "La notazione deve contenere almeno un dado (es. «1d20»).",
+      "roll_invalid_sides": "Un dado deve avere da 1 a 1000 facce.",
+      "roll_too_many_dice": "Troppi dadi in questa notazione (100 al massimo).",
+      "roll_formula_error": "La formula non è valida: controlla la sintassi e le statistiche usate.",
       "failed": "Operazione non riuscita."
     }
   },

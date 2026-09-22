@@ -667,3 +667,30 @@
   annidate né modifica dopo l'invio (si elimina e basta, come il diario di campagna D-036); nessuna notifica per un nuovo commento (fuori scopo, non richiesto
   dalla SPEC per questa issue).
 - Deciso da: agente
+
+### D-039: Tiratore di dadi: notazione con estrazione dei termini, vantaggio/svantaggio generico, riuso dell'interprete di formule
+
+- Data: 2026-09-26
+- Contesto: #39 chiede notazione standard (`2d6+3`), vantaggio/svantaggio, formule con le statistiche, storico condiviso e tiri privati del DM.
+- Motore (`src/lib/dice/roll.ts`): niente parser nuovo per l'intera espressione. I termini `NdM` si estraggono con una regex, si tirano e si sostituiscono
+  inline con la loro somma tra parentesi; il resto (modificatori, variabili, funzioni come `floor`) passa così com'è nell'interprete di formule già scritto
+  per le statistiche (#33, `src/lib/stats/formula.ts`), che quindi valida ed esegue in sandbox anche la parte non-dado senza bisogno di una seconda
+  implementazione. Limiti (`DICE_LIMITS`): fino a 100 facce per dado, 100 dadi per termine, 100 dadi totali per tiro, notazione di 200 caratteri — protezione
+  da un input abnorme (`999999d999999`), non un vincolo di gioco.
+- Vantaggio/svantaggio **generico**, non specifico per i20: si tira l'intera espressione due volte e si tiene il totale più alto (vantaggio) o più basso
+  (svantaggio), mostrando comunque anche il tentativo scartato. Scelto perché SPEC impone che «il prodotto deve essere generico per costruzione»: un sistema
+  con dadi diversi da d20 (percentuale, pool) ha lo stesso concetto di vantaggio senza che sia legato a un dado specifico.
+- Formule con le statistiche: una formula può referenziare un personaggio (`character_id`, facoltativo) e usarne attributi e derivati come variabili (es.
+  `1d20+str_mod`), con lo stesso permesso delle schede (#34, `private.can_use_character`): il proprio PG, o qualunque personaggio se si gestisce la campagna.
+  Lo scope si costruisce a runtime da `computeSheet` (niente duplicazione della logica di calcolo).
+- Storico e permessi (`campaign_dice_rolls`): chiunque faccia parte della campagna può tirare, **anche un osservatore** (tirare i dadi non è "scrivere"
+  contenuti, a differenza di diario/bacheca D-036 dove l'osservatore è escluso). Un tiro è condiviso di default; solo chi gestisce la campagna (DM/co-DM) può
+  marcarlo privato, e in quel caso lo vede solo chi gestisce — la RLS di lettura richiede _sempre_ l'appartenenza alla campagna anche per i tiri condivisi
+  (un bug di questo tipo, mancanza del controllo di appartenenza sulla select, è stato trovato e corretto durante i test db prima del merge). Un tiro è un
+  fatto storico: nessun permesso di update né di delete, come le voci di diario e bacheca (#36).
+- Il risultato (totale, dadi tirati, tentativo scartato) si calcola e si salva già pronto dal server: il client non ricalcola né rilegge la formula, evita
+  discrepanze tra ciò che si è mostrato e ciò che resta nello storico.
+- Limiti noti: nessun aggiornamento in tempo reale dello storico (si vede al prossimo caricamento della pagina, come notifiche D-037 e diario/bacheca);
+  nessuna modifica o eliminazione di un tiro; il vantaggio/svantaggio raddoppia l'intero tiro (non solo un singolo dado in mezzo a un'espressione con più
+  termini, caso raro e fuori scopo).
+- Deciso da: agente

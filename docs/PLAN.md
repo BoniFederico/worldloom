@@ -4,7 +4,7 @@
 
 ## Stato
 
-- Fase: M1 completata (#15–#22); M2 in corso: #23–#30 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe, albero, kanban); M3: #31–#38 chiuse (campagne e inviti, visibilità e rivelazione, statistiche, schede, migrazione, sessioni/diario/bacheca, notifiche in-app, collaborazione in tempo reale); prossimo #39 (tiratore di dadi).
+- Fase: M1 completata (#15–#22); M2 in corso: #23–#30 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe, albero, kanban); M3: #31–#39 chiuse (campagne e inviti, visibilità e rivelazione, statistiche, schede, migrazione, sessioni/diario/bacheca, notifiche in-app, collaborazione in tempo reale, tiratore di dadi); prossimo #40 (tracker di iniziativa).
 
 ## Backlog (in ordine di esecuzione)
 
@@ -47,7 +47,7 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 36  | Sessioni, diario e bacheca messaggi                                             | feat  | 13         | done  | sessioni, diario e bacheca, session_id in D-032 (D-036)   |
 | 37  | Notifiche in-app                                                                | feat  | 13         | done  | rivelazioni, sessioni, menzioni, inviti (D-037)           |
 | 38  | Collaborazione in tempo reale su snippet                                        | feat  | M1         | done  | presenza e commenti via Realtime, D-015 invariato (D-038) |
-| 39  | Tiratore di dadi                                                                | feat  | M1         | todo  |                                                           |
+| 39  | Tiratore di dadi                                                                | feat  | M1         | done  | notazione, vantaggio/svantaggio generico, formule (D-039) |
 | 40  | Tracker di iniziativa e modalità al tavolo                                      | feat  | M1         | todo  |                                                           |
 | 41  | Controllo di coerenza                                                           | feat  | M1         | todo  |                                                           |
 | 42  | Wiki pubblica del mondo                                                         | feat  | M1         | todo  |                                                           |
