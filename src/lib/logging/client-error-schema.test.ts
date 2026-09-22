@@ -24,4 +24,23 @@ describe('clientErrorSchema', () => {
       clientErrorSchema.safeParse({ name: 'TypeError', path: '/'.padEnd(201, 'x') }).success,
     ).toBe(false);
   });
+
+  it('rifiuta un percorso che non ha la forma di un percorso dell’app', () => {
+    expect(
+      clientErrorSchema.safeParse({ name: 'TypeError', path: 'https://evil.test/x' }).success,
+    ).toBe(false);
+    expect(
+      clientErrorSchema.safeParse({ name: 'TypeError', path: 'testo qualsiasi con spazi' }).success,
+    ).toBe(false);
+    expect(clientErrorSchema.safeParse({ name: 'TypeError', path: 'worlds/abc' }).success).toBe(
+      false,
+    );
+  });
+
+  it('accetta percorsi tipici dell’app', () => {
+    expect(
+      clientErrorSchema.safeParse({ name: 'TypeError', path: '/worlds/abc-123/snippets/xyz' })
+        .success,
+    ).toBe(true);
+  });
 });

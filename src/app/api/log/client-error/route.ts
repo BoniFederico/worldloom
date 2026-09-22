@@ -18,6 +18,12 @@ export async function POST(request: Request) {
   const parsed = clientErrorSchema.safeParse(body);
   if (!parsed.success) return NextResponse.json({ error: 'invalid_body' }, { status: 400 });
 
-  logError('client_error', parsed.data);
+  // Chiave `errorName`, non `name`: quest'ultima è nella lista di redazione del logger (pensata per un nome
+  // visualizzato), che vanificherebbe l'utilità del log qui.
+  logError('client_error', {
+    errorName: parsed.data.name,
+    digest: parsed.data.digest,
+    path: parsed.data.path,
+  });
   return new NextResponse(null, { status: 204 });
 }
