@@ -94,6 +94,11 @@ export default async function WorldPage({ params, searchParams }: Props) {
           </Link>
         </p>
         <p>
+          <Link href={`/worlds/${world.id}/coherence`} className="btn">
+            {t('coherence')}
+          </Link>
+        </p>
+        <p>
           <Link href={`/worlds/${world.id}/categories`} className="btn">
             {t('categories')}
           </Link>
