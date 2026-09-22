@@ -42,6 +42,59 @@ export default async function ImportWorldPage({ searchParams }: Props) {
             {t('submit')}
           </button>
         </form>
+
+        <h2>{t('markdownTitle')}</h2>
+        <p>{t('markdownIntro')}</p>
+        <form
+          action="/api/worlds/import-markdown"
+          method="post"
+          encType="multipart/form-data"
+          className="form"
+        >
+          <div className="field">
+            <label htmlFor="md-name">{t('worldName')}</label>
+            <input id="md-name" name="name" maxLength={120} required autoComplete="off" />
+          </div>
+          <div className="field">
+            <label htmlFor="md-files">{t('markdownFiles')}</label>
+            <input
+              id="md-files"
+              name="files"
+              type="file"
+              accept=".md,.markdown,.txt"
+              multiple
+              required
+            />
+          </div>
+          <button type="submit" className="btn btn-primary">
+            {t('markdownSubmit')}
+          </button>
+        </form>
+
+        <h2>{t('csvTitle')}</h2>
+        <p>{t('csvIntro')}</p>
+        <form
+          action="/api/worlds/import-csv"
+          method="post"
+          encType="multipart/form-data"
+          className="form"
+        >
+          <div className="field">
+            <label htmlFor="csv-name">{t('worldName')}</label>
+            <input id="csv-name" name="name" maxLength={120} required autoComplete="off" />
+          </div>
+          <div className="field">
+            <label htmlFor="csv-category">{t('csvCategory')}</label>
+            <input id="csv-category" name="category" maxLength={80} autoComplete="off" />
+          </div>
+          <div className="field">
+            <label htmlFor="csv-file">{t('csvFile')}</label>
+            <input id="csv-file" name="file" type="file" accept=".csv,text/csv" required />
+          </div>
+          <button type="submit" className="btn btn-primary">
+            {t('csvSubmit')}
+          </button>
+        </form>
       </section>
     </main>
   );

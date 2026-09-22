@@ -788,3 +788,45 @@ null)`: una categoria si vede solo se almeno uno snippet pubblico la usa, coeren
   la RLS non lo impedisce) a chi interroga direttamente la tabella con la chiave anonima — accettabile ora (nessun dato sensibile in quelle
   colonne), da rivedere con una vista dedicata se `settings` inizia a contenere qualcosa di non destinato al pubblico.
 - Deciso da: agente
+
+### D-043: Import da Markdown/Obsidian/CSV senza dipendenze esterne; export Markdown separato
+
+- Data: 2026-09-28
+- Contesto: #43 chiede «Import da Markdown, Obsidian, CSV». D-021 (#21) aveva rimandato a questa issue anche l'**export** in Markdown con front
+  matter, citato come parte del MUST di import/export (SPEC riga 45): scelta dell'agente restringere #43 al suo titolo letterale (solo import) e
+  aprire una issue a parte per l'export Markdown a fedeltà piena, perché le due direzioni richiedono progettazioni diverse (l'export deve
+  ricostruire il mondo identico — un vincolo che l'app già soddisfa con l'export **JSON** di #21 — mentre l'import da formati altrui è
+  necessariamente best-effort). L'issue #43 resta quindi scoperta lato export finché non viene aperta quella nuova.
+- Nessuna libreria nuova: front matter (`src/lib/markdown/frontmatter.ts`, sottoinsieme YAML: `chiave: valore`, liste `[a, b]` o a righe con
+  `- `), conversione Markdown → documento ProseMirror (`src/lib/markdown/doc.ts`, sottoinsieme: titoli, paragrafi, liste, citazioni,
+  grassetto/corsivo/codice, link, wikilink) e un parser CSV (`src/lib/import/csv.ts`, sottoinsieme RFC 4180) sono scritti a mano: sono formati
+  abbastanza semplici da non giustificare una dipendenza (stesso criterio di D-033 per l'interprete di formule), e il risultato passa comunque da
+  `validateBody` prima di scrivere — il parser Markdown non è un confine di sicurezza, `sanitizeBody` lo è.
+- **Riuso di `importWorld`** (`src/lib/export/import.ts`, già scritto per l'import JSON di #21): i due nuovi percorsi (`planMarkdownImport`,
+  `planCsvImport` in `src/lib/import/`) producono lo stesso `ImportPlan` di `planImport` e vengono scritti con la stessa funzione — stessa
+  atomicità (compensazione con eliminazione del mondo se un passaggio fallisce), stessi limiti di dimensione, nessuna duplicazione.
+- **Markdown/Obsidian**: un file = uno snippet. Titolo dal front matter (`title`) o dal nome del file. `tags`/`aliases` dal front matter (lista o
+  stringa con virgole). Wikilink `[[Titolo]]`/`[[Titolo|alias]]` risolti per titolo (senza badare a maiuscole, primo corrispondente) **solo tra i
+  file dello stesso import**: un non risolto resta testo semplice (l'alias, se c'è, altrimenti il titolo cercato). Una menzione risolta produce
+  sia il nodo `mention` nel corpo sia la relazione esplicita («menziona»/«menzionato in», `from_mention: true`): l'importazione scrive le righe
+  direttamente e non passa da `save_snippet` (D-018), che di norma sincronizza le relazioni da sola — senza questo passo i backlink sarebbero
+  assenti anche se il testo mostra la menzione. Un wikilink verso sé stessi non produce né menzione né relazione (stesso comportamento
+  dell'editor). Nessuna categoria: Obsidian non ne ha un concetto diretto; l'utente le assegna dopo l'importazione.
+- **CSV**: prima riga = intestazioni. La colonna `title`/`titolo`/`nome`/`name` (senza badare a maiuscole; altrimenti la prima) diventa il titolo;
+  le altre colonne diventano campi di testo (`type: 'text'`) di un'unica categoria generata con il nome scelto nel modulo. Le chiavi dei campi
+  sono le intestazioni sanificate al formato richiesto (`^[a-z][a-z0-9_]{0,39}$`, con progressivo in caso di doppioni o intestazioni vuote). Una
+  riga senza titolo si scarta. Nessuna relazione: un CSV è una tabella piatta.
+- Limiti noti: nessuna gerarchia/cartelle di Obsidian (tutti i file diventano snippet di primo livello, nessun percorso conservato); i wikilink
+  non risolvono gli alias (solo il titolo esatto, a differenza delle menzioni `@` dell'editor); nessun tipo di campo dedotto dal CSV (sempre
+  testo, anche per numeri o date: l'utente può cambiare tipo dopo, D-013 garantisce che i valori non si perdano); niente immagini (Obsidian le
+  referenzia come allegati locali, fuori scopo qui); tetto di 2.000 file Markdown e 5.000 righe CSV, 500 KB per file Markdown, 4 MB in totale
+  (stessi ordini di grandezza dell'import JSON, D-021).
+- **Due tetti aggiunti in review**: un CSV con più di 60 colonne dati (oltre il titolo) è rifiutato, allineato al limite di `fieldsSchema`
+  (`src/lib/fields/fields.ts`) — sopra quel numero la categoria non si potrebbe più modificare dall'interfaccia e ogni lettura che valida lo
+  schema la tratterebbe come priva di campi, nascondendo i dati importati senza errore visibile. Le relazioni generate dai wikilink tra i file di
+  un import Markdown sono limitate a 5.000 in totale (oltre il tetto per singolo file di `MAX_MENTIONS`, 200, già imposto da `validateBody`):
+  senza un tetto complessivo, fino a 2.000 file × 200 menzioni ciascuno avrebbero potuto produrre centinaia di migliaia di righe, molte più di
+  quante l'import JSON stesso ammetta (`MAX_RELATIONS`), col rischio concreto che un'importazione così grande si interrompesse a metà (nessun
+  `maxDuration` sulla rotta) prima della compensazione che elimina il mondo. Messaggi d'errore delle due rotte separati da quello dell'import
+  JSON (`invalid_markdown`/`invalid_csv` invece di `invalid_file`, che parlava di «export di Worldloom» anche per un CSV sbagliato).
+- Deciso da: agente

@@ -79,7 +79,8 @@ Il file è prodotto da `GET /worlds/{id}/export` (pulsante «Esporta (JSON)» ne
 - **Non inclusi**: cestino, cronologia versioni, membri e ruoli, immagini (i nodi immagine sono presenti nell'export ma l'importazione li scarta, perché i file restano nel mondo di origine), campagne, viste salvate (arriveranno con i rispettivi task, che estenderanno il formato con una nuova `version`).
 - I calendari personalizzati (#26) non sono ancora nel formato: i campi di tipo `calendar_date` vengono esportati e reimportati com'erano, ma il loro
   `calendar` è l'id di un calendario del mondo di origine.
-- Export in Markdown con front matter e import da Markdown/Obsidian/CSV: vedi #43.
+- Import da Markdown/Obsidian/CSV: fatto in #43 (vedi D-043), rotte `POST /api/worlds/import-markdown` e
+  `POST /api/worlds/import-csv`. Export in Markdown con front matter: vedi #100.
 - **Campi riservati (#32)**: chi esporta trova nel file solo ciò che può leggere. Un campo segreto o condiviso che l'utente può leggere è in `fields` come gli altri e
   compare in `fieldVisibility` dello snippet (`{"debolezza": "secret"}`; chiave facoltativa, assente quando non serve). L'importazione lo rimette nella tabella dei campi
   riservati **come segreto del nuovo mondo** (i destinatari scelti non si esportano) e mai nella colonna pubblica. I livelli `shared` di snippet e relazioni restano `shared`
