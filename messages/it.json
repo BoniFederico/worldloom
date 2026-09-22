@@ -469,6 +469,7 @@
     "filterReset": "Azzera filtri",
     "filters": "Filtri",
     "mentionUnavailable": "snippet non disponibile",
+    "unknownUser": "Un utente",
     "historyLink": "Cronologia versioni",
     "calendar": "Calendario",
     "era": "Era",
@@ -1413,5 +1414,24 @@
       "inviteReceived": "Sei stato invitato a «{name}» come {role}.",
       "inviteAccepted": "{who} è entrato in «{name}» come {role}."
     }
+  },
+  "Comments": {
+    "title": "Commenti",
+    "empty": "Nessun commento.",
+    "newComment": "Nuovo commento",
+    "post": "Commenta",
+    "delete": "Elimina",
+    "unknownUser": "Un utente",
+    "notices": {
+      "comment_posted": "Commento pubblicato.",
+      "comment_deleted": "Commento eliminato."
+    },
+    "errors": {
+      "comment_invalid_input": "Il commento non può essere vuoto (2000 caratteri al massimo).",
+      "comment_failed": "Operazione non riuscita."
+    }
+  },
+  "Presence": {
+    "alsoHere": "Qui anche: {names}"
   }
 }

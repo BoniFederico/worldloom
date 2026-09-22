@@ -642,3 +642,28 @@
   invito a link (senza email) non notifica mai l'invitato prima che accetti, per costruzione (non esiste un destinatario noto prima di allora).
 - Deciso da: utente (le due ambiguità sopra), agente (il resto)
 - Deciso da: agente
+
+### D-038: Collaborazione in tempo reale sullo snippet: presenza e commenti via Realtime, niente CRDT
+
+- Data: 2026-09-25
+- Contesto: #38 chiede di far vedere "chi altro sta guardando" uno snippet e di aggiungere un commento veloce, in tempo reale. L'editor dello snippet ha già un
+  proprio meccanismo anti-perdita-dati (D-015: token `updated_at`, conflitto bloccante finché non si ricarica): riscriverlo con un CRDT per la co-editing
+  carattere-per-carattere sarebbe un lavoro enorme e fuori scopo per questa issue, che parla di presenza e commenti, non di editing simultaneo dello stesso campo.
+  Si mantiene quindi D-015 così com'è e si aggiungono due meccanismi Supabase Realtime distinti, scelti per la natura del dato:
+  - **Presenza** (`snippet-presence:<id>`, canale Presence, `channel.track()`): effimera, nessuna riga nel database, sparisce da sola alla disconnessione. Giusta
+    per "chi c'è ora", che non deve sopravvivere al refresh.
+  - **Commenti** (`snippet_comments`, tabella con RLS, canale Postgres Changes su `INSERT`): durevole, va storicizzata e filtrata per permesso di lettura come
+    ogni altro dato del mondo, quindi tabella vera con RLS invece di Broadcast (che non applica RLS).
+- Permessi commenti: li legge chiunque veda lo snippet (anche un lettore, RLS `snippet_comments_read` verifica solo l'esistenza dello snippet, la sua stessa RLS
+  filtra già a monte); li scrive chiunque sia membro del mondo; li elimina l'autore stesso o chi scrive nel mondo (moderazione, come per altri contenuti generati
+  dai giocatori).
+- Race di autenticazione Realtime: `createBrowserClient` risolve la sessione in modo asincrono, e se il canale `postgres_changes` si sottoscrive prima che il
+  token sia impostato sul socket, l'iscrizione parte come anonima e la RLS filtra tutto per uno snippet non pubblico. Fix: attendere `supabase.auth.getSession()`
+  prima di creare il canale.
+- Convenzione chiavi `notice`/`error` per scope: quando più `<Feedback scope="...">` compaiono sulla stessa pagina (qui `Snippets` e `Comments` sullo snippet),
+  condividono gli stessi query param `notice`/`error` — le chiavi vanno prefissate per scope (`comment_posted`, non `posted`) per non far comparire due messaggi
+  contemporaneamente o quello sbagliato, come già fatto per `Relations` (`relation_added`).
+- Limiti noti: la presenza non distingue chi sta scrivendo da chi sta solo leggendo; nessuna indicazione di digitazione in corso; i commenti non hanno risposte
+  annidate né modifica dopo l'invio (si elimina e basta, come il diario di campagna D-036); nessuna notifica per un nuovo commento (fuori scopo, non richiesto
+  dalla SPEC per questa issue).
+- Deciso da: agente

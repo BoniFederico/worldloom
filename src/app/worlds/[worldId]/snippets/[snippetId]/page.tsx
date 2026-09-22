@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { Feedback } from '@/components/feedback';
 import { BacklinksPanel } from '@/components/backlinks-panel';
+import { CommentsPanel } from '@/components/comments-panel';
+import { PresenceBar } from '@/components/presence-bar';
 import { RelationsPanel } from '@/components/relations-panel';
 import { RichText } from '@/components/rich-text';
 import { SnippetForm } from '@/components/snippet-form';
@@ -40,6 +42,11 @@ export default async function SnippetPage({ params, searchParams }: Props) {
   const { worldId, snippetId } = await params;
   if (!uuidSchema.safeParse(snippetId).success) notFound();
   const { supabase, world, canWrite } = await loadWorld(worldId);
+  const { data: auth } = await supabase.auth.getUser();
+  const userId = auth.user?.id ?? '';
+  const { data: viewerProfile } = userId
+    ? await supabase.from('profiles').select('display_name').eq('id', userId).maybeSingle()
+    : { data: null };
   const [t, tv, { error, notice }, { data: snippet }, { data: categories }] = await Promise.all([
     getTranslations('Snippets'),
     getTranslations('Visibility'),
@@ -142,6 +149,13 @@ export default async function SnippetPage({ params, searchParams }: Props) {
           <Link href={`/worlds/${world.id}/snippets`}>{t('title')}</Link>
         </p>
         <h1>{snippet.title}</h1>
+        {!trashed && userId ? (
+          <PresenceBar
+            snippetId={snippet.id}
+            userId={userId}
+            displayName={viewerProfile?.display_name || t('unknownUser')}
+          />
+        ) : null}
         {trashed ? <p className="message message-info">{t('inTrash')}</p> : null}
         {snippet.archived_at ? <p className="message message-info">{t('isArchived')}</p> : null}
         <Feedback scope="Snippets" notice={notice} error={error} />
@@ -217,6 +231,14 @@ export default async function SnippetPage({ params, searchParams }: Props) {
               snippetId={snippet.id}
               snippetTitle={snippet.title}
               canWrite={canWrite}
+            />
+            <Feedback scope="Comments" notice={notice} error={error} />
+            <CommentsPanel
+              supabase={supabase}
+              worldId={world.id}
+              snippetId={snippet.id}
+              userId={userId}
+              canModerate={canWrite}
             />
           </>
         ) : null}
