@@ -80,15 +80,26 @@ describe('wiki pubblica: mondo pubblicato', () => {
     });
   });
 
-  it('le categorie si vedono solo quando il mondo è pubblicato; i collegamenti anche agli anonimi', async () => {
+  it('una categoria si vede solo se usata da uno snippet pubblico; i collegamenti anche agli anonimi', async () => {
     await withTx(async (db) => {
-      const { world, category, snippet, stranger } = await setup(db);
+      const { world, snippet, stranger } = await setup(db);
+      // Una seconda categoria, usata solo da uno snippet riservato: non deve mai trapelare, nemmeno a mondo pubblicato.
+      const secretCategory = (
+        await db.query(
+          `insert into categories (world_id, name) values ($1, 'Trama segreta') returning id`,
+          [world],
+        )
+      ).rows[0].id as string;
       const membersOnly = await snippet('Solo membri', 'members');
+      await db.query(`update snippet_categories set category_id = $2 where snippet_id = $1`, [
+        membersOnly,
+        secretCategory,
+      ]);
       const pub = await snippet('Pubblico', 'public');
 
       const readCategories = () =>
         actAs(db, stranger, () =>
-          db.query(`select id from categories where world_id = $1`, [world]),
+          db.query(`select id from categories where world_id = $1 order by name`, [world]),
         );
       // Un utente autenticato qualunque vede già i collegamenti di uno snippet pubblico (RLS di `snippets`,
       // indipendente dalla wiki): il caso nuovo di questa migrazione è l'accesso anonimo.
@@ -101,11 +112,11 @@ describe('wiki pubblica: mondo pubblicato', () => {
       expect((await readLinksAnon(pub)).rows).toHaveLength(0);
 
       await db.query(`update worlds set wiki_slug = 'aurelia' where id = $1`, [world]);
+      // Solo la categoria del «Personaggio» (usata anche da uno snippet pubblico) diventa visibile, non «Trama segreta».
       expect((await readCategories()).rows).toHaveLength(1);
       // Lo snippet «members» resta leggibile solo dai membri: nessun collegamento categoria per l'anonimo.
       expect((await readLinksAnon(membersOnly)).rows).toHaveLength(0);
       expect((await readLinksAnon(pub)).rows).toHaveLength(1);
-      void category;
     });
   });
 });

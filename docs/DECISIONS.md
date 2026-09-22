@@ -762,9 +762,14 @@
   leggibili — non tocca `snippets_read` né `relations_read`.
 - `worlds.wiki_slug` (univoco, nullable): assente = non pubblicato. Formato validato da un `check` (minuscole, cifre, un trattino singolo tra
   parole, 3–60 caratteri) e da `wikiSlugSchema` lato app. Tre nuove policy RLS, tutte con `wiki_slug is not null` come condizione: mondo (nome),
-  categorie (nome/icona/colore) e il collegamento snippet-categoria per gli anonimi (un utente autenticato qualsiasi vedeva già quest'ultimo,
-  indipendentemente dalla wiki, per lo stesso motivo di cui sopra — verificato con un test). Nessuna di queste tocca la sicurezza esistente: sono
-  tutte aggiuntive (le policy RLS sono in OR) e gated sul flag esplicito.
+  categorie e il collegamento snippet-categoria per gli anonimi (un utente autenticato qualsiasi vedeva già quest'ultimo, indipendentemente dalla
+  wiki, per lo stesso motivo di cui sopra — verificato con un test). Nessuna di queste tocca la sicurezza esistente: sono tutte aggiuntive (le
+  policy RLS sono in OR) e gated sul flag esplicito.
+- **Categorie, corretto in review**: la prima versione della policy apriva _tutte_ le categorie di un mondo pubblicato, anche quelle usate solo da
+  snippet riservati (nome/icona non erano mai stati per-elemento come snippet e relazioni). `categories_public_read` ora richiede un
+  `exists (select 1 from snippet_categories ... join snippets ... where s.visibility = 'public' and s.deleted_at is null and w.wiki_slug is not
+null)`: una categoria si vede solo se almeno uno snippet pubblico la usa, coerente con l'invariante "si naviga solo ciò che è già pubblico".
+  Test di regressione in `db-tests/wiki.test.ts` (categoria usata solo da uno snippet «members» resta invisibile a mondo pubblicato).
 - Immagini: `can_read_wiki_image` (security invoker, come `can_read_image` di D-016) verifica che il file sia citato dal corpo o dai campi di uno
   snippet **pubblico** di un mondo **pubblicato**; una nuova policy su `storage.objects` la usa per aprire il bucket (che resta privato) agli
   anonimi solo per quei file. Rotta dedicata `GET /w/[worldSlug]/images/[file]`: a differenza della rotta autenticata (D-016) non chiama `loadWorld`
@@ -779,4 +784,7 @@
   questa prima iterazione — restano SHOULD non coperte, valutabili in seguito riusando lo stesso schema (`wiki_slug` + filtro `visibility =
 'public'`). Indice limitato a 300 snippet (come il limite di ricerca, D-019), senza paginazione. Nessuna sitemap/robots dedicati: le pagine hanno
   `<title>`/`<meta description>` (da `generateMetadata`) ma l'indicizzazione dipende dai motori di ricerca che le raggiungono dai link interni.
+  `worlds_public_read` è per riga, non per colonna: un mondo pubblicato espone anche `owner_id` e `settings` (non lette da nessuna pagina oggi, ma
+  la RLS non lo impedisce) a chi interroga direttamente la tabella con la chiave anonima — accettabile ora (nessun dato sensibile in quelle
+  colonne), da rivedere con una vista dedicata se `settings` inizia a contenere qualcosa di non destinato al pubblico.
 - Deciso da: agente

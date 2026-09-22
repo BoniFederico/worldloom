@@ -8,16 +8,23 @@ alter table public.worlds
   add constraint worlds_wiki_slug_format
     check (wiki_slug is null or (wiki_slug ~ '^[a-z0-9]+(-[a-z0-9]+)*$' and length(wiki_slug) between 3 and 60));
 
--- Indice: leggibile da chiunque (world_id nella policy dei mondi pubblici sotto).
-create index worlds_wiki_slug on public.worlds (wiki_slug) where wiki_slug is not null;
+-- Nessun indice dedicato: il vincolo `unique` sopra ne crea già uno, sufficiente per la lettura per slug.
 
 -- Un mondo pubblicato è leggibile anche da chi non è membro (policy aggiuntiva, si somma a `worlds_read`).
 create policy worlds_public_read on public.worlds for select to anon, authenticated
   using (wiki_slug is not null);
 
--- Le categorie di un mondo pubblicato servono a mostrare nome/icona/colore nella wiki.
+-- Le categorie di un mondo pubblicato servono a mostrare nome/icona/colore nella wiki, ma solo quelle usate da
+-- almeno uno snippet pubblico: una categoria usata solo da contenuto riservato non deve trapelare (nome, icona)
+-- solo perché il mondo ha una wiki pubblicata.
 create policy categories_public_read on public.categories for select to anon, authenticated using (
-  exists (select 1 from public.worlds w where w.id = world_id and w.wiki_slug is not null)
+  exists (
+    select 1 from public.snippet_categories sc
+    join public.snippets s on s.id = sc.snippet_id
+    join public.worlds w on w.id = sc.world_id
+    where sc.category_id = categories.id
+      and s.visibility = 'public' and s.deleted_at is null and w.wiki_slug is not null
+  )
 );
 
 -- Il collegamento snippet-categoria, solo per snippet effettivamente pubblici in un mondo pubblicato (uno snippet
