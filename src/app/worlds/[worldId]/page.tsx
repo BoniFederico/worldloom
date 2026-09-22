@@ -106,6 +106,9 @@ export default async function WorldPage({ params, searchParams }: Props) {
         <p>
           <a href={`/worlds/${world.id}/export`} className="btn" download>
             {t('exportJson')}
+          </a>{' '}
+          <a href={`/worlds/${world.id}/export?template=1`} className="btn" download>
+            {t('exportTemplate')}
           </a>
         </p>
         {membership?.role === 'owner' ? (

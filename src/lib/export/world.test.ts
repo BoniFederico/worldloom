@@ -377,6 +377,34 @@ describe('robustezza dell’importazione', () => {
   });
 });
 
+describe('esportazione come modello (#43): solo struttura, senza contenuto', () => {
+  // Stesso formato v1, con snippet e relazioni vuoti: il chiamante (la rotta di export) filtra i dati grezzi
+  // prima di chiamare buildExport — nessun codice nuovo qui, si verifica solo che il risultato resti valido.
+  const template = buildExport({ ...raw, snippets: [], relations: [] });
+
+  it('mantiene categorie e tipi di relazione, senza snippet né relazioni', () => {
+    expect(template.categories).toHaveLength(2);
+    expect(template.relationTypes).toHaveLength(1);
+    expect(template.snippets).toEqual([]);
+    expect(template.relations).toEqual([]);
+  });
+
+  it('si importa come un mondo nuovo con la struttura ma senza contenuto', () => {
+    const parsed = parseExport(template);
+    if (!parsed.ok) throw new Error(parsed.error);
+    let n = 0;
+    const plan = planImport(
+      parsed.data,
+      () => `00000000-0000-4000-8000-${String(++n).padStart(12, '0')}`,
+    );
+    if (!plan.ok) throw new Error(plan.error);
+    expect(plan.categories).toHaveLength(2);
+    expect(plan.relationTypes).toHaveLength(1);
+    expect(plan.snippets).toEqual([]);
+    expect(plan.relations).toEqual([]);
+  });
+});
+
 describe('campi riservati', () => {
   const withSecret: RawWorld = {
     ...raw,

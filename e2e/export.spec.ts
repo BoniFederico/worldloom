@@ -217,6 +217,43 @@ test.describe('import ed export del mondo', () => {
     await expect(page.locator('.message-error')).toContainText('Il file non è valido');
   });
 
+  test('esporta come modello (#43): struttura senza contenuto, importabile come mondo nuovo', async ({
+    browser,
+  }) => {
+    const { page } = await newUser(browser, 'Autrice');
+    const worldId = await createWorld(page, 'Aurelia');
+    await page.goto(`/worlds/${worldId}/categories`);
+    await page.getByLabel('Nome', { exact: true }).fill('Luogo');
+    await page.getByRole('button', { name: 'Crea categoria' }).click();
+    await expect(page.getByRole('status')).toHaveText('Categoria creata.');
+    await createSnippet(page, worldId, 'Elara');
+
+    const template = await page.request.get(`/worlds/${worldId}/export?template=1`);
+    expect(template.status()).toBe(200);
+    expect(template.headers()['content-disposition']).toContain('aurelia.template.worldloom.json');
+    const templateText = await template.text();
+    const parsed = JSON.parse(templateText);
+    expect(parsed.categories.map((c: { name: string }) => c.name)).toEqual(['Luogo']);
+    expect(parsed.snippets).toEqual([]);
+    expect(parsed.relations).toEqual([]);
+
+    await page.goto('/worlds/import');
+    await page.getByLabel('File JSON').setInputFiles({
+      name: 'aurelia.template.worldloom.json',
+      mimeType: 'application/json',
+      buffer: Buffer.from(templateText),
+    });
+    await page.getByRole('button', { name: 'Importa', exact: true }).click();
+    await expect(page.getByRole('status')).toHaveText('Mondo importato.');
+    const newId = new URL(page.url()).pathname.split('/')[2] as string;
+    expect(newId).not.toBe(worldId);
+
+    await page.goto(`/worlds/${newId}/categories`);
+    await expect(page.getByRole('link', { name: 'Luogo' })).toBeVisible();
+    await page.goto(`/worlds/${newId}/snippets`);
+    await expect(page.getByRole('link', { name: 'Elara' })).toHaveCount(0);
+  });
+
   test('chi non è membro non può esportare; un lettore esporta solo ciò che può leggere', async ({
     browser,
   }) => {

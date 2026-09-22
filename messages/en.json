@@ -132,6 +132,7 @@
     "search": "Search",
     "importLink": "Import a world",
     "exportJson": "Export (JSON)",
+    "exportTemplate": "Export as template (no content)",
     "views": "Views",
     "graph": "Graph",
     "calendars": "Calendars",

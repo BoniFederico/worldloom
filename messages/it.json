@@ -132,6 +132,7 @@
     "search": "Ricerca",
     "importLink": "Importa un mondo",
     "exportJson": "Esporta (JSON)",
+    "exportTemplate": "Esporta come modello (senza contenuto)",
     "views": "Viste",
     "graph": "Grafo",
     "calendars": "Calendari",

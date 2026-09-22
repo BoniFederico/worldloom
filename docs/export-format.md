@@ -81,6 +81,9 @@ Il file è prodotto da `GET /worlds/{id}/export` (pulsante «Esporta (JSON)» ne
   `calendar` è l'id di un calendario del mondo di origine.
 - Import da Markdown/Obsidian/CSV: fatto in #43 (vedi D-043), rotte `POST /api/worlds/import-markdown` e
   `POST /api/worlds/import-csv`. Export in Markdown con front matter: vedi #100.
+- **Modelli condivisibili (#43)**: `GET /worlds/<id>/export?template=1` produce lo stesso formato con `snippets` e `relations`
+  vuoti — solo categorie (con i loro campi) e tipi di relazione. Nessuna versione o campo nuovo: il file si importa con lo
+  stesso percorso JSON già esistente, senza modifiche, e crea un mondo nuovo con la struttura pronta ma senza contenuto.
 - **Campi riservati (#32)**: chi esporta trova nel file solo ciò che può leggere. Un campo segreto o condiviso che l'utente può leggere è in `fields` come gli altri e
   compare in `fieldVisibility` dello snippet (`{"debolezza": "secret"}`; chiave facoltativa, assente quando non serve). L'importazione lo rimette nella tabella dei campi
   riservati **come segreto del nuovo mondo** (i destinatari scelti non si esportano) e mai nella colonna pubblica. I livelli `shared` di snippet e relazioni restano `shared`
