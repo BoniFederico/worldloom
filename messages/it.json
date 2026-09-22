@@ -11,7 +11,8 @@
     "themeDark": "Scuro",
     "login": "Accedi",
     "account": "Account",
-    "campaigns": "Campagne"
+    "campaigns": "Campagne",
+    "notifications": "Notifiche"
   },
   "Home": {
     "title": "Worldloom",
@@ -1388,6 +1389,27 @@
       "forbidden": "Gli osservatori non possono scrivere in bacheca.",
       "invalid_input": "Il messaggio non può essere vuoto (5000 caratteri al massimo).",
       "failed": "Operazione non riuscita."
+    }
+  },
+  "Notifications": {
+    "title": "Notifiche",
+    "empty": "Non ci sono ancora notifiche.",
+    "markAllRead": "Segna tutte come lette",
+    "markRead": "Segna come letta",
+    "unreadBadge": "Nuova",
+    "kinds": {
+      "snippet": "uno snippet",
+      "relation": "una relazione",
+      "pin": "un pin",
+      "field": "un campo"
+    },
+    "items": {
+      "reveal": "È stato rivelato «{title}» ({level}).",
+      "revealItem": "È stato rivelato {kind} ({level}).",
+      "session": "Nuova sessione: {number}.",
+      "mention": "«{title}» ha citato uno dei tuoi snippet.",
+      "inviteReceived": "Sei stato invitato a «{name}» come {role}.",
+      "inviteAccepted": "{who} è entrato in «{name}» come {role}."
     }
   }
 }

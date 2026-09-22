@@ -584,6 +584,54 @@ export type Database = {
           },
         ];
       };
+      notifications: {
+        Row: {
+          campaign_id: string | null;
+          created_at: string;
+          data: Json;
+          id: string;
+          kind: string;
+          read_at: string | null;
+          user_id: string;
+          world_id: string | null;
+        };
+        Insert: {
+          campaign_id?: string | null;
+          created_at?: string;
+          data?: Json;
+          id?: string;
+          kind: string;
+          read_at?: string | null;
+          user_id: string;
+          world_id?: string | null;
+        };
+        Update: {
+          campaign_id?: string | null;
+          created_at?: string;
+          data?: Json;
+          id?: string;
+          kind?: string;
+          read_at?: string | null;
+          user_id?: string;
+          world_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notifications_campaign_id_fkey';
+            columns: ['campaign_id'];
+            isOneToOne: false;
+            referencedRelation: 'campaigns';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'notifications_world_id_fkey';
+            columns: ['world_id'];
+            isOneToOne: false;
+            referencedRelation: 'worlds';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       profiles: {
         Row: {
           created_at: string;
