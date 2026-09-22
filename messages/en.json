@@ -11,7 +11,8 @@
     "themeDark": "Dark",
     "login": "Sign in",
     "account": "Account",
-    "campaigns": "Campaigns"
+    "campaigns": "Campaigns",
+    "notifications": "Notifications"
   },
   "Home": {
     "title": "Worldloom",
@@ -1388,6 +1389,29 @@
       "forbidden": "Observers cannot write on the board.",
       "invalid_input": "The message cannot be empty (5000 characters at most).",
       "failed": "The operation failed."
+    }
+  },
+  "Notifications": {
+    "title": "Notifications",
+    "empty": "There are no notifications yet.",
+    "markAllRead": "Mark all as read",
+    "markRead": "Mark as read",
+    "unreadBadge": "New",
+    "kinds": {
+      "snippet": "a snippet",
+      "relation": "a relation",
+      "pin": "a pin",
+      "field": "a field"
+    },
+    "items": {
+      "reveal": "“{title}” was revealed ({level}).",
+      "revealUnknown": "A snippet you can no longer reach was revealed ({level}).",
+      "revealItem": "{kind} was revealed ({level}).",
+      "session": "New session: {number}.",
+      "mention": "“{title}” mentioned one of your snippets.",
+      "mentionUnknown": "A snippet you can no longer reach mentioned one of yours.",
+      "inviteReceived": "You were invited to “{name}” as {role}.",
+      "inviteAccepted": "{who} joined “{name}” as {role}."
     }
   }
 }

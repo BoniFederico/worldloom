@@ -617,4 +617,28 @@
 - Limiti noti: niente modifica di un messaggio già inviato; niente paginazione di diario e bacheca (le ultime 200 voci); `session_snippets` cerca solo per titolo
   esatto (nessuna ricerca parziale); le note del DM e dei giocatori non hanno una cronologia propria; nessuna notifica di nuova sessione, rivelazione o messaggio (#37);
   un giocatore rimosso dalla campagna perde l'accesso alle proprie note (restano nel database, senza proprietario raggiungibile).
+
+### D-037: Notifiche in-app: menzioni come snippet, inviti solo se già registrati
+
+- Data: 2026-09-22
+- Contesto: #37. La SPEC chiede notifiche per rivelazioni, nuove sessioni, menzioni e inviti. Due criteri erano ambigui col modello dati esistente e sono stati
+  chiesti all'utente (`AskUserQuestion`), risposta scelta tra parentesi.
+- Menzioni (**notifica l'autore dello snippet menzionato**): le menzioni (D-018/#18) collegano solo snippet a snippet, mai persone. Notificare "una @menzione di un
+  membro" avrebbe richiesto ampliare quel meccanismo, fuori scopo per questa issue; si notifica invece l'autore (`created_by`) dello snippet bersaglio quando una
+  nuova relazione `from_mention` lo raggiunge.
+- Inviti (**DM notificato all'accettazione, invitato subito se l'email corrisponde a un account esistente**): un invito (D-031/#31) può essere un link senza
+  destinatario noto, o legato a un'email che non è detto corrisponda a un account. Non c'è modo di notificare proattivamente un'email sconosciuta (l'app non manda
+  email, D-031); alla creazione dell'invito si cerca subito un account con quell'email confermata e, se esiste, lo si notifica. L'accettazione notifica sempre chi
+  ha creato l'invito, token o email che sia.
+- Meccanismo: `notifications` (`user_id`, `kind`, `world_id` o `campaign_id` a seconda del tipo, `data` jsonb, `read_at`), scritta solo da `private.notify`
+  (`security definer`), mai da un insert diretto del client (nessun grant di insert). `private.notify` salta in silenzio chi notifica sé stesso. Agganciata a:
+  `set_visibility` (rivelazioni: «shared» ai destinatari scelti, «members»/«public» a tutti i membri del mondo), un trigger su `campaign_sessions` (tutti i membri
+  della campagna), `private.sync_mentions` (l'autore dello snippet citato) e due punti sugli inviti (trigger alla creazione, `accept_campaign_invite` all'accettazione).
+- L'invito ricevuto porta il nome della campagna già dentro la notifica (`data.campaignName`): chi lo riceve non è ancora membro, quindi la sua RLS non gli
+  lascia leggere la riga di `campaigns` per mostrarlo altrimenti.
+- Nessun Supabase Realtime (il resto dell'app non lo usa, D-002 non lo richiedeva): la campanella nell'intestazione mostra il conteggio non letti a ogni
+  caricamento di pagina (server component), coerente con il modello «tutto via redirect» già in uso.
+- Limiti noti: nessun aggiornamento in tempo reale del contatore senza ricaricare pagina; nessuna eliminazione delle notifiche (solo segnare come lette); un
+  invito a link (senza email) non notifica mai l'invitato prima che accetti, per costruzione (non esiste un destinatario noto prima di allora).
+- Deciso da: utente (le due ambiguità sopra), agente (il resto)
 - Deciso da: agente

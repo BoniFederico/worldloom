@@ -2,7 +2,7 @@ import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 import { getSupabaseEnv } from '@/lib/supabase/env';
 
-const PROTECTED = ['/account', '/worlds', '/campaigns', '/invite'];
+const PROTECTED = ['/account', '/worlds', '/campaigns', '/invite', '/notifications'];
 
 /** Rinnova la sessione Supabase a ogni richiesta e protegge le pagine riservate. */
 export async function proxy(request: NextRequest) {

@@ -5,6 +5,7 @@ import { getLocale, getTranslations } from 'next-intl/server';
 import { setLocale, setTheme } from '@/app/actions';
 import { THEME_COOKIE, resolveTheme } from '@/i18n/preferences';
 import { createClient } from '@/lib/supabase/server';
+import { NotificationBell } from './notification-bell';
 import { PreferenceGroup } from './preference-group';
 
 export async function AppHeader() {
@@ -24,6 +25,7 @@ export async function AppHeader() {
         <Link href="/worlds">{t('worlds')}</Link>
         <Link href="/campaigns">{t('campaigns')}</Link>
       </nav>
+      {signedIn ? <NotificationBell supabase={supabase} /> : null}
       <Link href={signedIn ? '/account' : '/login'} className="app-nav-link">
         {signedIn ? t('account') : t('login')}
       </Link>
