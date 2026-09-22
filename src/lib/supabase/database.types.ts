@@ -66,6 +66,66 @@ export type Database = {
           },
         ];
       };
+      campaign_dice_rolls: {
+        Row: {
+          campaign_id: string;
+          character_id: string | null;
+          created_at: string;
+          groups: Json;
+          id: string;
+          is_private: boolean;
+          label: string;
+          mode: string;
+          notation: string;
+          other: Json | null;
+          roller_id: string | null;
+          total: number;
+        };
+        Insert: {
+          campaign_id: string;
+          character_id?: string | null;
+          created_at?: string;
+          groups: Json;
+          id?: string;
+          is_private?: boolean;
+          label?: string;
+          mode?: string;
+          notation: string;
+          other?: Json | null;
+          roller_id?: string | null;
+          total: number;
+        };
+        Update: {
+          campaign_id?: string;
+          character_id?: string | null;
+          created_at?: string;
+          groups?: Json;
+          id?: string;
+          is_private?: boolean;
+          label?: string;
+          mode?: string;
+          notation?: string;
+          other?: Json | null;
+          roller_id?: string | null;
+          total?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'campaign_dice_rolls_campaign_id_fkey';
+            columns: ['campaign_id'];
+            isOneToOne: false;
+            referencedRelation: 'campaigns';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'campaign_dice_rolls_character_id_fkey';
+            columns: ['character_id'];
+            isOneToOne: false;
+            referencedRelation: 'characters';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       campaign_invites: {
         Row: {
           campaign_id: string;
