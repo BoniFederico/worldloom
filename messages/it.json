@@ -802,6 +802,12 @@
       "body": "Per domande sui tuoi dati o per esercitare un diritto non coperto da questa pagina, scrivi a chi gestisce questa installazione di Worldloom."
     }
   },
+  "ErrorPage": {
+    "title": "Qualcosa è andato storto",
+    "body": "Si è verificato un errore imprevisto. Puoi riprovare o tornare alla pagina iniziale.",
+    "retry": "Riprova",
+    "home": "Torna alla pagina iniziale"
+  },
   "Coherence": {
     "title": "Controllo di coerenza",
     "intro": "Anomalie che vale la pena controllare: non bloccano nulla, sono solo segnalazioni.",

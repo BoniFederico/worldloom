@@ -802,6 +802,12 @@
       "body": "For questions about your data, or to exercise a right not covered by this page, write to whoever runs this Worldloom installation."
     }
   },
+  "ErrorPage": {
+    "title": "Something went wrong",
+    "body": "An unexpected error occurred. You can try again or go back to the home page.",
+    "retry": "Try again",
+    "home": "Go to the home page"
+  },
   "Coherence": {
     "title": "Coherence check",
     "intro": "Anomalies worth a look: nothing is blocked, these are just flags.",

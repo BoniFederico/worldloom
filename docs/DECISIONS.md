@@ -868,3 +868,20 @@ null)`: una categoria si vede solo se almeno uno snippet pubblico la usa, coeren
   senza inventare un indirizzo reale) — chi porta il prodotto in produzione deve completarla con i propri dati legali prima di affidarcisi;
   nessun log di controllo su chi ha esercitato un diritto GDPR; nessun consenso registrato per gli accessi OAuth.
 - Deciso da: utente (anonimizzare vs cancellare vs bloccare), agente (il resto)
+
+### D-045: Osservabilità: solo log strutturati su Vercel, niente backup automatico per ora
+
+- Data: 2026-09-22
+- Contesto: #45 chiede log strutturati senza dati personali, tracciamento errori, backup giornalieri con procedura di ripristino.
+  Due decisioni poste all'utente (`AskUserQuestion`) perché coinvolgono un servizio esterno/a pagamento.
+- **Tracciamento errori**: due opzioni proposte — un servizio dedicato (es. Sentry, richiede che l'utente crei un account e fornisca una
+  chiave) oppure log strutturati raccolti dalla dashboard log già disponibile su Vercel (nessun account nuovo). Scelta dall'utente: solo
+  Vercel. Implementato con `src/lib/logger.ts` (JSON strutturato, livello/evento/orario, redazione automatica delle chiavi che nella
+  base di codice tendono a contenere PII — email, nome, testo libero), `src/instrumentation.ts` (`onRequestError`, errori server non gestiti:
+  solo percorso/metodo/tipo di errore/digest, mai il messaggio) e `src/app/error.tsx` + `src/app/global-error.tsx` (confini errore React che
+  segnalano al server via `POST /api/log/client-error`, payload validato con uno schema che accetta solo nome dell'errore, digest opaco di
+  Next e percorso).
+- **Backup e ripristino**: l'utente ha scelto di **non configurarli per ora** (non è né il piano Supabase con backup gestiti inclusi, né il
+  caso in cui serva uno script manuale) — non si implementa nulla in questa issue. Criterio di accettazione volutamente non soddisfatto:
+  #45 resta aperta con questo punto rimandato, invece di essere chiusa con un requisito mancante.
+- Deciso da: utente (tracciamento errori: solo Vercel; backup: rimandato), agente (dettagli implementativi)

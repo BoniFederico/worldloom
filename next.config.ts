@@ -11,6 +11,9 @@ const securityHeaders = [
 
 const config: NextConfig = {
   poweredByHeader: false,
+  // `next dev` altrimenti riscrive CLAUDE.md a ogni avvio (vedi generate-agent-files.js): qui le regole per
+  // gli agenti sono già in CLAUDE.md, mantenuto a mano.
+  agentRules: false,
   async headers() {
     return [{ source: '/:path*', headers: securityHeaders }];
   },
