@@ -145,6 +145,85 @@ export type Database = {
           },
         ];
       };
+      campaign_posts: {
+        Row: {
+          author: string | null;
+          body: string;
+          campaign_id: string;
+          created_at: string;
+          id: string;
+          kind: string;
+        };
+        Insert: {
+          author?: string | null;
+          body: string;
+          campaign_id: string;
+          created_at?: string;
+          id?: string;
+          kind: string;
+        };
+        Update: {
+          author?: string | null;
+          body?: string;
+          campaign_id?: string;
+          created_at?: string;
+          id?: string;
+          kind?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'campaign_posts_campaign_id_fkey';
+            columns: ['campaign_id'];
+            isOneToOne: false;
+            referencedRelation: 'campaigns';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      campaign_sessions: {
+        Row: {
+          campaign_id: string;
+          created_at: string;
+          created_by: string | null;
+          id: string;
+          number: number;
+          played_on: string | null;
+          summary: string;
+          title: string;
+          updated_at: string;
+        };
+        Insert: {
+          campaign_id: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          number: number;
+          played_on?: string | null;
+          summary?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Update: {
+          campaign_id?: string;
+          created_at?: string;
+          created_by?: string | null;
+          id?: string;
+          number?: number;
+          played_on?: string | null;
+          summary?: string;
+          title?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'campaign_sessions_campaign_id_fkey';
+            columns: ['campaign_id'];
+            isOneToOne: false;
+            referencedRelation: 'campaigns';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       campaign_stats: {
         Row: {
           campaign_id: string;
@@ -701,6 +780,87 @@ export type Database = {
           },
         ];
       };
+      session_dm_notes: {
+        Row: {
+          notes: string;
+          session_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          notes?: string;
+          session_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          notes?: string;
+          session_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'session_dm_notes_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: true;
+            referencedRelation: 'campaign_sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      session_player_notes: {
+        Row: {
+          notes: string;
+          session_id: string;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          notes?: string;
+          session_id: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          notes?: string;
+          session_id?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'session_player_notes_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: false;
+            referencedRelation: 'campaign_sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      session_snippets: {
+        Row: {
+          created_at: string;
+          session_id: string;
+          snippet_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          session_id: string;
+          snippet_id: string;
+        };
+        Update: {
+          created_at?: string;
+          session_id?: string;
+          snippet_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'session_snippets_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: false;
+            referencedRelation: 'campaign_sessions';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       snippet_categories: {
         Row: {
           category_id: string;
@@ -934,6 +1094,13 @@ export type Database = {
           world_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: 'visibility_log_session_id_fkey';
+            columns: ['session_id'];
+            isOneToOne: false;
+            referencedRelation: 'campaign_sessions';
+            referencedColumns: ['id'];
+          },
           {
             foreignKeyName: 'visibility_log_world_id_fkey';
             columns: ['world_id'];

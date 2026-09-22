@@ -2,7 +2,7 @@
 
 SaaS per scrittori, worldbuilder e dungeon master: scrivi snippet con categoria, collegali con relazioni dal nome libero e
 guarda lo stesso mondo come timeline, mappa, grafo, albero genealogico, bacheca kanban o tabella. Sopra il nucleo, un livello campagne con
-visibilità per elemento e schede personaggio configurabili.
+visibilità per elemento, schede personaggio configurabili, sessioni, diario e bacheca.
 
 Specifica: [SPEC.md](SPEC.md) · Piano: [docs/PLAN.md](docs/PLAN.md) · Architettura: [docs/architecture.md](docs/architecture.md) ·
 Decisioni: [docs/DECISIONS.md](docs/DECISIONS.md) · Formato export: [docs/export-format.md](docs/export-format.md) · Schema di statistiche: [docs/stats-schema.md](docs/stats-schema.md)

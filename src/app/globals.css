@@ -1840,3 +1840,30 @@ p.mention-none {
   border: 1px solid var(--border, currentColor);
   border-radius: 8px;
 }
+
+/* Sessioni, diario e bacheca di campagna (#36) */
+.sessions-list,
+.sessions-events {
+  padding-left: var(--space-5);
+}
+.sessions-list li,
+.sessions-events li {
+  margin-bottom: var(--space-2);
+}
+.sessions-events li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3, 0.75rem);
+}
+.chronicle-list {
+  list-style: none;
+  margin: var(--space-4, 1rem) 0 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-4, 1rem);
+}
+.chronicle-list > li {
+  padding: var(--space-3, 0.75rem);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
