@@ -37,15 +37,17 @@ describe('describeNotification: rivelazioni', () => {
     });
   });
 
-  it('uno snippet non più raggiungibile mostra comunque un link, senza titolo', () => {
+  it('uno snippet non più raggiungibile mostra comunque un link, con un testo generico invece di un titolo vuoto', () => {
     const row = {
       ...base,
       world_id: 'w1',
       data: { itemKind: 'snippet', itemId: 's1', toLevel: 'public' },
     };
-    const d = describeNotification(row, emptyContext);
-    expect(d.href).toBe('/worlds/w1/snippets/s1');
-    expect(d.params.title).toBe('');
+    expect(describeNotification(row, emptyContext)).toEqual({
+      href: '/worlds/w1/snippets/s1',
+      key: 'revealUnknown',
+      params: { level: 'public' },
+    });
   });
 
   it('una relazione o un pin rivelati non hanno una pagina propria: si linka al mondo', () => {
@@ -98,6 +100,20 @@ describe('describeNotification: menzioni', () => {
       href: '/worlds/w1/snippets/src',
       key: 'mention',
       params: { title: 'Cronaca' },
+    });
+  });
+
+  it('lo snippet che ha citato non è più raggiungibile: link generico dal mondo, testo generico', () => {
+    const row = {
+      ...base,
+      kind: 'mention',
+      world_id: 'w1',
+      data: { sourceSnippetId: 'src', targetSnippetId: 't1' },
+    } as const;
+    expect(describeNotification(row, emptyContext)).toEqual({
+      href: '/worlds/w1/snippets/src',
+      key: 'mentionUnknown',
+      params: {},
     });
   });
 });

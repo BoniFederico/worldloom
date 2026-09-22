@@ -210,6 +210,64 @@ describe('notifiche: menzioni', () => {
       expect(await notificationsFor(db, autore)).toEqual([]);
     });
   });
+
+  // Un editore o proprietario legge comunque qualunque livello (`private.can_read`): per osservare il filtro serve un
+  // autore che, dopo aver scritto il proprio snippet, sia stato retrocesso a un ruolo che non vede più il segreto.
+  const demote = (db: Db, world: string, user: string, role: string) =>
+    db.query('update world_members set role = $1 where world_id = $2 and user_id = $3', [
+      role,
+      world,
+      user,
+    ]);
+
+  it('uno snippet segreto che ne menziona un altro non notifica: rivelerebbe che esiste prima del tempo', async () => {
+    await withTx(async (db) => {
+      const [dm, exEditor] = [await createUser(db, 'dm'), await createUser(db, 'exEditor')];
+      const world = await createWorld(db, dm);
+      await addWorldMember(db, world, exEditor, 'editor');
+      const target = await createSnippet(db, world, exEditor, 'Bersaglio');
+      await demote(db, world, exEditor, 'reader');
+      const source = await createSnippet(db, world, dm, 'Trama segreta', 'secret');
+      await actAs(db, dm, () =>
+        db.query(
+          `select save_snippet($1, updated_at, title, status, body, fields, '{}', tags, aliases, $2)
+             from snippets where id = $1`,
+          [source, [target]],
+        ),
+      );
+      expect(await notificationsFor(db, exEditor)).toEqual([]);
+    });
+  });
+
+  it('uno snippet «giocatori scelti» che ne menziona un altro notifica solo chi è tra i destinatari', async () => {
+    await withTx(async (db) => {
+      const [dm, destinataria, altra] = [
+        await createUser(db, 'dm'),
+        await createUser(db, 'destinataria'),
+        await createUser(db, 'altra'),
+      ];
+      const world = await createWorld(db, dm);
+      await addWorldMember(db, world, destinataria, 'editor');
+      await addWorldMember(db, world, altra, 'editor');
+      const targetDestinataria = await createSnippet(db, world, destinataria, 'Bersaglio 1');
+      const targetAltra = await createSnippet(db, world, altra, 'Bersaglio 2');
+      await demote(db, world, destinataria, 'reader');
+      await demote(db, world, altra, 'reader');
+      const source = await createSnippet(db, world, dm, 'Trama riservata', 'secret');
+      await setVisibility(db, dm, 'snippet', source, 'shared', { users: [destinataria] });
+      await actAs(db, dm, () =>
+        db.query(
+          `select save_snippet($1, updated_at, title, status, body, fields, '{}', tags, aliases, $2)
+             from snippets where id = $1`,
+          [source, [targetDestinataria, targetAltra]],
+        ),
+      );
+      // La condivisione appena fatta è già una rivelazione (D-032): la destinataria ha quella notifica più la menzione.
+      const forDestinataria = await notificationsFor(db, destinataria);
+      expect(forDestinataria.map((n) => n.kind).sort()).toEqual(['mention', 'reveal']);
+      expect(await notificationsFor(db, altra)).toEqual([]);
+    });
+  });
 });
 
 describe('notifiche: inviti', () => {

@@ -216,10 +216,14 @@ revoke all on function private.notify_new_session() from public, anon, authentic
 -- Menzioni (#18) -------------------------------------------------------------------------------------
 
 -- Uguale a `private.sync_mentions` della migrazione di #18, con la notifica all'autore di ogni snippet nuovamente citato.
+-- La notifica parte solo se l'autore del bersaglio potrebbe già leggere lo snippet che lo cita: altrimenti rivelerebbe
+-- che esiste un contenuto a lui nascosto (es. uno snippet «segreto» del DM), prima ancora che venga rivelato (D-032).
 create or replace function private.sync_mentions(p_snippet uuid, p_mentions uuid[]) returns void
 language plpgsql security invoker set search_path = '' as $$
 declare
   v_world uuid;
+  v_source_visibility text;
+  v_author uuid;
   r record;
 begin
   p_mentions := coalesce(array_remove(p_mentions, null), '{}');
@@ -227,7 +231,7 @@ begin
     raise exception 'too_many_mentions' using errcode = 'P0001';
   end if;
 
-  select world_id into v_world from public.snippets where id = p_snippet;
+  select world_id, visibility::text into v_world, v_source_visibility from public.snippets where id = p_snippet;
   if v_world is null then
     return;
   end if;
@@ -243,11 +247,26 @@ begin
       on conflict do nothing
       returning target_id
   loop
-    perform private.notify(
-      s.created_by, 'mention', v_world, null,
-      jsonb_build_object('sourceSnippetId', p_snippet, 'targetSnippetId', r.target_id)
-    )
-    from public.snippets s where s.id = r.target_id;
+    select created_by into v_author from public.snippets where id = r.target_id;
+    if v_author is not null and (
+      v_source_visibility = 'public'
+      or (
+        v_source_visibility = 'members'
+        and exists (select 1 from public.world_members m where m.world_id = v_world and m.user_id = v_author)
+      )
+      or (
+        v_source_visibility = 'shared'
+        and exists (
+          select 1 from public.visibility_shares s
+           where s.kind = 'snippet' and s.item_id = p_snippet and s.user_id = v_author
+        )
+      )
+    ) then
+      perform private.notify(
+        v_author, 'mention', v_world, null,
+        jsonb_build_object('sourceSnippetId', p_snippet, 'targetSnippetId', r.target_id)
+      );
+    end if;
   end loop;
 end;
 $$;

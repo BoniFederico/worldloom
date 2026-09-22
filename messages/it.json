@@ -1405,9 +1405,11 @@
     },
     "items": {
       "reveal": "È stato rivelato «{title}» ({level}).",
+      "revealUnknown": "È stato rivelato uno snippet non più raggiungibile ({level}).",
       "revealItem": "È stato rivelato {kind} ({level}).",
       "session": "Nuova sessione: {number}.",
       "mention": "«{title}» ha citato uno dei tuoi snippet.",
+      "mentionUnknown": "Uno snippet non più raggiungibile ha citato uno dei tuoi snippet.",
       "inviteReceived": "Sei stato invitato a «{name}» come {role}.",
       "inviteAccepted": "{who} è entrato in «{name}» come {role}."
     }

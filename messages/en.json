@@ -1405,9 +1405,11 @@
     },
     "items": {
       "reveal": "“{title}” was revealed ({level}).",
+      "revealUnknown": "A snippet you can no longer reach was revealed ({level}).",
       "revealItem": "{kind} was revealed ({level}).",
       "session": "New session: {number}.",
       "mention": "“{title}” mentioned one of your snippets.",
+      "mentionUnknown": "A snippet you can no longer reach mentioned one of yours.",
       "inviteReceived": "You were invited to “{name}” as {role}.",
       "inviteAccepted": "{who} joined “{name}” as {role}."
     }

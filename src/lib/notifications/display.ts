@@ -2,7 +2,15 @@ import type { NotificationContext, NotificationRow } from './load';
 
 export type NotificationDisplay = {
   href: string | null;
-  key: 'reveal' | 'revealItem' | 'session' | 'mention' | 'inviteReceived' | 'inviteAccepted';
+  key:
+    | 'reveal'
+    | 'revealUnknown'
+    | 'revealItem'
+    | 'session'
+    | 'mention'
+    | 'mentionUnknown'
+    | 'inviteReceived'
+    | 'inviteAccepted';
   params: Record<string, string | number>;
 };
 
@@ -21,11 +29,11 @@ export function describeNotification(
       if (itemKind === 'snippet' || itemKind === 'field') {
         const snippet = ctx.snippets.get(itemId);
         const worldId = snippet?.world_id ?? row.world_id;
-        return {
-          href: worldId && itemId ? `/worlds/${worldId}/snippets/${itemId}` : null,
-          key: 'reveal',
-          params: { title: snippet?.title ?? '', level },
-        };
+        const href = worldId && itemId ? `/worlds/${worldId}/snippets/${itemId}` : null;
+        // Chi non ha più accesso allo snippet (rimosso dal mondo, rivelazione poi ritirata) non vede il suo titolo:
+        // niente virgolette vuote, un testo generico.
+        if (!snippet) return { href, key: 'revealUnknown', params: { level } };
+        return { href, key: 'reveal', params: { title: snippet.title, level } };
       }
       return {
         href: row.world_id ? `/worlds/${row.world_id}` : null,
@@ -45,11 +53,10 @@ export function describeNotification(
     case 'mention': {
       const sourceId = str(row.data.sourceSnippetId);
       const source = ctx.snippets.get(sourceId);
-      return {
-        href: source ? `/worlds/${source.world_id}/snippets/${sourceId}` : null,
-        key: 'mention',
-        params: { title: source?.title ?? '' },
-      };
+      const worldId = source?.world_id ?? row.world_id;
+      const href = worldId && sourceId ? `/worlds/${worldId}/snippets/${sourceId}` : null;
+      if (!source) return { href, key: 'mentionUnknown', params: {} };
+      return { href, key: 'mention', params: { title: source.title } };
     }
     case 'invite_received': {
       const role = str(row.data.role);
