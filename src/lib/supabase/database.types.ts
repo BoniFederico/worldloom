@@ -802,16 +802,19 @@ export type Database = {
           created_at: string;
           display_name: string;
           id: string;
+          privacy_accepted_at: string | null;
         };
         Insert: {
           created_at?: string;
           display_name?: string;
           id: string;
+          privacy_accepted_at?: string | null;
         };
         Update: {
           created_at?: string;
           display_name?: string;
           id?: string;
+          privacy_accepted_at?: string | null;
         };
         Relationships: [];
       };
@@ -1512,6 +1515,7 @@ export type Database = {
         Args: { p_file: string; p_world: string };
         Returns: boolean;
       };
+      delete_own_account: { Args: never; Returns: undefined };
       graph_data: {
         Args: {
           p_category: string;

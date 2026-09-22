@@ -22,13 +22,17 @@ export async function signUp(formData: FormData) {
     displayName: field(formData, 'displayName'),
   });
   if (!parsed.success) return failure('/signup', 'invalid_input');
+  if (field(formData, 'privacyAccepted') !== 'on') return failure('/signup', 'privacy_required');
 
   const supabase = await createClient();
   const { error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      data: { display_name: parsed.data.displayName },
+      data: {
+        display_name: parsed.data.displayName,
+        privacy_accepted_at: new Date().toISOString(),
+      },
       emailRedirectTo: `${resolveSiteUrl()}/auth/callback`,
     },
   });
@@ -70,6 +74,19 @@ export async function signOut() {
   const supabase = await createClient();
   await supabase.auth.signOut();
   redirect('/login');
+}
+
+export async function deleteAccount(formData: FormData) {
+  if (field(formData, 'confirm') !== 'on') return failure('/account', 'confirm_required');
+
+  const supabase = await createClient();
+  const { error } = await supabase.rpc('delete_own_account');
+  if (error?.message.includes('owns_worlds')) return failure('/account', 'owns_worlds');
+  if (error?.message.includes('owns_campaigns')) return failure('/account', 'owns_campaigns');
+  if (error) return failure('/account', 'generic');
+
+  await supabase.auth.signOut();
+  redirect('/login?notice=account_deleted');
 }
 
 export async function requestPasswordReset(formData: FormData) {

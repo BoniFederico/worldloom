@@ -20,6 +20,10 @@ export default async function SignupPage({ searchParams }: Props) {
           autoComplete="new-password"
           hint={t('passwordHint')}
         />
+        <label className="check">
+          <input type="checkbox" name="privacyAccepted" required />
+          {t('signup.privacyLabel')} <Link href="/privacy">{t('signup.privacyLink')}</Link>
+        </label>
         <button type="submit" className="btn btn-primary">
           {t('signup.submit')}
         </button>
