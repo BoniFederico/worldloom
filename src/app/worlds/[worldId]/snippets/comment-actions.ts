@@ -39,6 +39,8 @@ export async function deleteComment(formData: FormData) {
     .from('snippet_comments')
     .delete()
     .eq('id', id.data)
+    .eq('world_id', world.data)
+    .eq('snippet_id', snippet.data)
     .select('id');
   redirect(
     `${back}?${error || !data?.length ? 'error=comment_failed' : 'notice=comment_deleted'}#comments`,
