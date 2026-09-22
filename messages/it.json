@@ -1086,7 +1086,8 @@
     "sessions": "Sessioni",
     "chronicle": "Diario",
     "messages": "Bacheca",
-    "dice": "Dadi"
+    "dice": "Dadi",
+    "encounters": "Scontri"
   },
   "Visibility": {
     "title": "Visibilità e rivelazioni",
@@ -1426,6 +1427,49 @@
       "roll_invalid_sides": "Un dado deve avere da 1 a 1000 facce.",
       "roll_too_many_dice": "Troppi dadi in questa notazione (100 al massimo).",
       "roll_formula_error": "La formula non è valida: controlla la sintassi e le statistiche usate.",
+      "failed": "Operazione non riuscita."
+    }
+  },
+  "Encounters": {
+    "title": "Scontri",
+    "unnamed": "Scontro senza nome",
+    "empty": "Non c’è ancora nessuno scontro.",
+    "roundOf": "round {round}",
+    "newTitle": "Nuovo scontro",
+    "name": "Nome (facoltativo)",
+    "participantName": "Nome",
+    "create": "Crea",
+    "roundTurn": "Round {round}",
+    "nextTurn": "Prossimo turno",
+    "noParticipants": "Nessun partecipante: aggiungine uno per iniziare.",
+    "yourTurn": "Turno di:",
+    "initiativeOf": "iniziativa {value}",
+    "initiative": "Iniziativa",
+    "hp": "Punti ferita",
+    "hpCurrent": "PF attuali",
+    "hpMax": "PF massimi",
+    "resourceLabel": "Etichetta (facoltativa)",
+    "conditions": "Condizioni",
+    "save": "Salva",
+    "remove": "Rimuovi",
+    "addTitle": "Aggiungi partecipante",
+    "character": "Personaggio (facoltativo)",
+    "noCharacter": "Nessuno (comparsa senza scheda)",
+    "add": "Aggiungi",
+    "deleteTitle": "Elimina scontro",
+    "delete": "Elimina",
+    "confirmDelete": "Confermo di voler eliminare questo scontro.",
+    "notices": {
+      "created": "Scontro creato.",
+      "added": "Partecipante aggiunto.",
+      "saved": "Partecipante aggiornato.",
+      "removed": "Partecipante rimosso.",
+      "deleted": "Scontro eliminato."
+    },
+    "errors": {
+      "forbidden": "Solo chi gestisce la campagna può farlo.",
+      "invalid_input": "Controlla i campi inseriti.",
+      "confirm_required": "Spunta la conferma per eliminare lo scontro.",
       "failed": "Operazione non riuscita."
     }
   },

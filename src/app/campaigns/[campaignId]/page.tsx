@@ -105,6 +105,7 @@ export default async function CampaignPage({ params, searchParams }: Props) {
           <Link href={`/campaigns/${campaign.id}/chronicle`}>{t('chronicle')}</Link>
           <Link href={`/campaigns/${campaign.id}/messages`}>{t('messages')}</Link>
           <Link href={`/campaigns/${campaign.id}/dice`}>{t('dice')}</Link>
+          <Link href={`/campaigns/${campaign.id}/encounters`}>{t('encounters')}</Link>
         </p>
 
         <h2>{t('membersTitle')}</h2>
