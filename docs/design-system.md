@@ -172,11 +172,13 @@ Sostituisce l'attuale riga di controlli non curata (incluso il selettore testual
 - Altezza 48px, sfondo `--surface`, `border-bottom: 1px solid --border`. Nessuna ombra.
 - Sinistra: wordmark (testo, non icona — il prodotto non ha ancora un logo) + un breadcrumb minimo (nome del
   mondo corrente › sezione), non l'intera gerarchia di navigazione (quella vive nella barra di schede, sotto).
-- Destra: **solo icone**, mai testo esposto permanentemente. Ogni controllo è un bottone quadrato 36×36px con
-  un'icona Lucide 20px, `title`/`aria-label` esplicito, tooltip nativo al hover/focus. Ordine fisso: ricerca
-  (Ctrl/Cmd+K, icona lente), tema (icona che cambia fra sole/luna/monitor a seconda dello stato — un solo bottone
-  che cicla sistema→chiaro→scuro→sistema, non un menu a tendina con tre voci scritte), lingua (icona globo, apre
-  un menu con le due opzioni), account (avatar circolare 28px con iniziale, apre il menu utente).
+- Destra: **solo icone**, mai testo esposto permanentemente — eccetto lo stato disconnesso, dove non c'è ancora
+  un account su cui ancorare un'icona: lì resta un link testuale ("Accedi"/"Sign in"), stato raro e non oggetto
+  della lamentela originale sui controlli. Ogni controllo è un bottone quadrato 36×36px con un'icona Lucide 20px,
+  `title`/`aria-label` esplicito, tooltip nativo al hover/focus. Ordine fisso: ricerca (Ctrl/Cmd+K, icona lente),
+  tema (icona che cambia fra sole/luna/monitor a seconda dello stato — un solo bottone che cicla
+  sistema→chiaro→scuro→sistema, non un menu a tendina con tre voci scritte), lingua (icona globo, apre un menu
+  con le due opzioni), account (avatar circolare 28px con iniziale, apre il menu utente).
 - Spaziatura fra i controlli di destra: 4px; padding orizzontale della barra: 16px.
 - Il selettore tema esistente (oggi testuale "Sistema/Chiaro/Scuro" sempre visibile) va sostituito da questo unico
   bottone ciclico: il verdetto (quale dei tre stati è attivo) si comunica con l'icona stessa, non col testo.
