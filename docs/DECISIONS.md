@@ -1088,5 +1088,14 @@ presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — pr
 - **e2e**: `e2e/shell.spec.ts` riscritto per il nuovo modello di interazione (click singolo che cicla il tema
   invece di tre bottoni radio; apertura del menu lingua prima di cliccare IT/EN). Tutti gli altri e2e che
   referenziano l'header (auth, demo) restano verdi senza modifiche, perché le stringhe accessibili (aria-label)
-  sono rimaste identiche anche dove il testo visibile è cambiato.
+  sono rimaste identiche anche dove il testo visibile è cambiato. Aggiunto anche un test dedicato all'apertura
+  del menu lingua da tastiera (Tab + Invio), non coperto dal test generico di navigazione da tastiera.
+- **Correzioni dalla review**: ordine dei controlli scambiato per rispettare "tema poi lingua" (la spec lo
+  definisce fisso); `nextTheme()` esportata da `theme-toggle.tsx` e riusata nell'header invece di duplicare
+  l'array degli stati in due punti; `aria-label` del bottone tema ora comunica stato attuale **e** prossimo
+  ("Sistema → Chiaro"), non solo lo stato attuale nel `title` (il `title` non è affidabile per gli screen
+  reader); `.menu` ha ora `position: relative` esplicito invece di affidarsi alla "static position" implicita
+  del browser per il popover lingua; l'area toccabile a 44px sui controlli icona/avatar ora si ottiene con uno
+  pseudo-elemento invisibile (`::after` con `inset` negativo) invece di ingrandire il box visivo, come richiesto
+  da `design-system.md`; il documento ora menziona esplicitamente l'eccezione del link testuale da disconnesso.
 - Deciso da: agente

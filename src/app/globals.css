@@ -244,8 +244,10 @@ body {
   gap: 4px;
 }
 
-/* Controlli icona della barra superiore (D-052): 36px visivi, area toccabile estesa a 44px su touch. */
+/* Controlli icona della barra superiore (D-052): 36px visivi, area toccabile estesa a 44px su touch via
+   un ::after invisibile (non ridimensiona il box visivo, come chiesto dalla sezione "Layout e responsive"). */
 .icon-btn {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -265,13 +267,18 @@ body {
 }
 
 @media (pointer: coarse) {
-  .icon-btn {
-    width: 44px;
-    height: 44px;
+  .icon-btn::after {
+    content: '';
+    position: absolute;
+    inset: -4px;
   }
 }
 
 /* Menu lingua: <details>/<summary> nativo, funziona anche senza JavaScript. */
+.menu {
+  position: relative;
+}
+
 .menu > summary {
   list-style: none;
 }
@@ -315,8 +322,9 @@ body {
   color: var(--primary-contrast);
 }
 
-/* Avatar account: sostituisce il link testuale "Account" (D-052). */
+/* Avatar account: sostituisce il link testuale "Account" (D-052). Area toccabile estesa via ::after, come .icon-btn. */
 .avatar {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -332,9 +340,10 @@ body {
 }
 
 @media (pointer: coarse) {
-  .avatar {
-    width: 32px;
-    height: 32px;
+  .avatar::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
   }
 }
 

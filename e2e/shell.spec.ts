@@ -38,6 +38,17 @@ test.describe('shell applicativa', () => {
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   });
 
+  test('il menu lingua si apre e si usa da tastiera', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('button', { name: 'Lingua' }).focus();
+    await page.keyboard.press('Enter');
+    const itOption = page.getByRole('button', { name: 'IT', exact: true });
+    await expect(itOption).toBeVisible();
+    await itOption.focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('html')).toHaveAttribute('lang', 'it');
+  });
+
   test('senza preferenze il tema segue il sistema', async ({ page }) => {
     await page.emulateMedia({ colorScheme: 'dark' });
     await page.goto('/');
