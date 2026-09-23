@@ -1119,8 +1119,8 @@ presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — pr
   Next.js App Router (streaming + Suspense committano l'header di stato prima che l'errore possa alterarlo), non
   un bug di questo codice. Interessa ogni pagina che controlla i permessi con `notFound()`/`redirect()` **dopo**
   l'inizio del rendering, cioè praticamente ogni pagina di un mondo in questa app.
-- **Scope ridotto**: rimossi tutti i `loading.tsx`/skeleton aggiunti (mantenuti solo i componenti `Skeleton*`
-  nessuno — anch'essi rimossi, non hanno uso senza `loading.tsx`). Il pattern "spinner inline nei bottoni"
+- **Scope ridotto**: rimossi tutti i `loading.tsx` aggiunti e i componenti `Skeleton`/`PageSkeleton`/
+  `ListSkeleton`/`LoadingStatus`, inutilizzabili senza `loading.tsx`. Il pattern "spinner inline nei bottoni"
   (`SubmitButton`, `useFormStatus()` di React, nessuna relazione con lo streaming delle route) non ha questo
   problema ed è stato mantenuto, applicato alla creazione di snippet e categorie. La barra di avanzamento di
   navigazione globale è anch'essa rimandata: richiederebbe di intercettare la navigazione client-side in modo
