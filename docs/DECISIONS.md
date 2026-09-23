@@ -929,3 +929,30 @@ presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — pr
 - I singoli file `.md` dell'archivio restano comunque compatibili, uno per uno, con l'import Markdown già esistente
   (D-043, best-effort) — utile per chi vuole importare solo una parte del mondo invece dell'intero archivio.
 - Deciso da: agente
+
+### D-048: CSP con nonce per richiesta; budget LCP verificato sulla prova di carico
+
+- Data: 2026-09-23
+- Contesto: #46 chiede una Content-Security-Policy, un budget LCP < 2,5 s verificato con dati sintetici, e un audit.
+- **CSP**: calcolata a ogni richiesta nel middleware (`src/proxy.ts`, `src/lib/security/csp.ts`), non in `next.config.ts`,
+  perché serve un nonce nuovo per gli script che Next.js stesso inietta per l'hydration (`script-src 'self'
+'nonce-<n>' 'strict-dynamic'`, ricetta documentata da Next.js). Verificato che l'app non ha bisogno di altro:
+  nessuno script esterno, nessun `next/script`, nessun `dangerouslySetInnerHTML`, font auto-ospitati da
+  `next/font/google` (D-010, nessuna richiesta a Google Fonts a runtime), immagini servite solo dalla stessa
+  origine (`/worlds/<id>/images/<file>`, mai da Supabase Storage direttamente). `style-src` include
+  `'unsafe-inline'` (gli attributi `style` di React non hanno un nonce applicabile; stesso compromesso della
+  guida CSP ufficiale di Next.js). `connect-src` include l'host Supabase in `http(s)` e `ws(s)` (fetch REST e
+  websocket di Realtime, D-038); `upgrade-insecure-requests` solo quando l'URL di Supabase è già `https`, per non
+  rompere lo sviluppo locale (Supabase locale gira su `http://127.0.0.1`, senza TLS). `frame-ancestors 'none'` e
+  `object-src 'none'` chiudono il resto.
+- **Budget LCP**: nuovo test e2e (`e2e/performance.spec.ts`) che misura il Largest Contentful Paint (via
+  `PerformanceObserver`, iniettato prima della navigazione) sull'elenco snippet del mondo «Prova di carico» di
+  `supabase/seed.sql` (5.000 snippet, D-022) — non su un mondo vuoto: un budget verificato solo con dati
+  sintetici realistici è l'unico che dice qualcosa di utile, come chiesto dal criterio di accettazione. LCP
+  misurato sotto 2,5 s in locale (build di produzione, come già fa `playwright.config.ts` per tutti gli e2e).
+- **Audit**: nessuno strumento nuovo aggiunto (es. Lighthouse CI): il progetto non ha un budget di traffico reale
+  da monitorare in continuo (nessun pubblico ancora), e gli audit di accessibilità (axe) già coprono ogni pagina
+  toccata da un e2e (D-010 in poi). Il criterio «audit» è quindi soddisfatto dalla combinazione esistente
+  (a11y via axe + il nuovo budget LCP), non da un report Lighthouse separato — rivalutare se il traffico reale lo
+  giustificherà.
+- Deciso da: agente

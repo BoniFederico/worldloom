@@ -4,7 +4,7 @@
 
 ## Stato
 
-- Fase: M1 completata (#15–#22); M2 in corso: #23–#30 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe, albero, kanban); M3: #31–#41 chiuse (campagne e inviti, visibilità e rivelazione, statistiche, schede, migrazione, sessioni/diario/bacheca, notifiche in-app, collaborazione in tempo reale, tiratore di dadi, tracker di iniziativa, controllo di coerenza); M4 in corso: #42 chiusa (wiki pubblica del mondo); #43 chiusa (import da Markdown/Obsidian/CSV, D-043; modelli condivisibili, D-046); #44 chiusa (GDPR); #45 parziale (log strutturati e tracciamento errori fatti, D-045; backup rimandato per scelta dell'utente); #100 chiusa (export Markdown come archivio ZIP, D-047); prossimo #46, #47.
+- Fase: M1 completata (#15–#22); M2 in corso: #23–#30 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe, albero, kanban); M3: #31–#41 chiuse (campagne e inviti, visibilità e rivelazione, statistiche, schede, migrazione, sessioni/diario/bacheca, notifiche in-app, collaborazione in tempo reale, tiratore di dadi, tracker di iniziativa, controllo di coerenza); M4 in corso: #42 chiusa (wiki pubblica del mondo); #43 chiusa (import da Markdown/Obsidian/CSV, D-043; modelli condivisibili, D-046); #44 chiusa (GDPR); #45 parziale (log strutturati e tracciamento errori fatti, D-045; backup rimandato per scelta dell'utente); #100 chiusa (export Markdown come archivio ZIP, D-047); #46 chiusa (CSP, budget LCP, D-048); prossimo #47.
 
 ## Backlog (in ordine di esecuzione)
 
@@ -55,7 +55,7 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 100 | Export del mondo in Markdown con front matter                                   | feat  | 21         | done     | archivio ZIP, JSON incluso per la fedeltà (D-047)                      |
 | 44  | GDPR: esportazione e cancellazione account, informativa e consenso              | feat  | M1         | done     | anonimizzazione dei contributi altrove, no service role (D-044)        |
 | 45  | Osservabilità, backup e ripristino                                              | chore | M1         | parziale | log strutturati e tracciamento errori fatti; backup rimandato (D-045)  |
-| 46  | Performance e sicurezza: CSP, audit, budget LCP                                 | chore | M1         | todo     |                                                                        |
+| 46  | Performance e sicurezza: CSP, audit, budget LCP                                 | chore | M1         | done     | CSP con nonce, budget LCP su dati sintetici (D-048)                    |
 | 47  | Guida utente, documentazione export/import e schema statistiche                 | docs  | M1         | todo     |                                                                        |
 | 57  | Login con OAuth (GitHub)                                                        | feat  | 12         | done     | PR #62                                                                 |
 | 59  | Collegare Supabase cloud e Vercel (env, migrazioni, redirect URL)               | chore | 12         | done     | verificato su worldloom-lemon.vercel.app                               |
