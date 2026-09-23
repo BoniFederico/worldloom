@@ -65,6 +65,7 @@ test.describe('categorie', () => {
 
   test('i preset in inglese hanno etichette inglesi', async ({ browser }) => {
     const { page } = await newUser(browser, 'Author');
+    await page.getByRole('button', { name: 'Lingua' }).click();
     await page.getByRole('button', { name: 'EN' }).click();
     const worldId = await createWorld(page, 'English');
     await page.goto(`/worlds/${worldId}/categories`);
