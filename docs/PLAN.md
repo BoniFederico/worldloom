@@ -4,7 +4,7 @@
 
 ## Stato
 
-- Fase: M1 completata (#15–#22); M2 in corso: #23–#30 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe, albero, kanban); M3: #31–#41 chiuse (campagne e inviti, visibilità e rivelazione, statistiche, schede, migrazione, sessioni/diario/bacheca, notifiche in-app, collaborazione in tempo reale, tiratore di dadi, tracker di iniziativa, controllo di coerenza); M4 in corso: #42 chiusa (wiki pubblica del mondo); #43 chiusa (import da Markdown/Obsidian/CSV, D-043; modelli condivisibili, D-046); #44 chiusa (GDPR); #45 parziale (log strutturati e tracciamento errori fatti, D-045; backup rimandato per scelta dell'utente); #100 chiusa (export Markdown come archivio ZIP, D-047); #46 chiusa (CSP, budget LCP, D-048); #47 chiusa (guida utente, primo rilascio v1.0.0, D-049). Backlog M1–M5 esaurito salvo #45 (backup, rimandato) e #94 (needs-human).
+- Fase: M1 completata (#15–#22); M2 in corso: #23–#30 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe, albero, kanban); M3: #31–#41 chiuse (campagne e inviti, visibilità e rivelazione, statistiche, schede, migrazione, sessioni/diario/bacheca, notifiche in-app, collaborazione in tempo reale, tiratore di dadi, tracker di iniziativa, controllo di coerenza); M4 in corso: #42 chiusa (wiki pubblica del mondo); #43 chiusa (import da Markdown/Obsidian/CSV, D-043; modelli condivisibili, D-046); #44 chiusa (GDPR); #45 parziale (log strutturati e tracciamento errori fatti, D-045; backup rimandato per scelta dell'utente); #100 chiusa (export Markdown come archivio ZIP, D-047); #46 chiusa (CSP, budget LCP, D-048); #47 chiusa (guida utente, primo rilascio v1.0.0, D-049). Backlog M1–M5 esaurito salvo #45 (backup, rimandato) e #94 (needs-human). M6 aperto: restyling front-end (#108–#113, D-050), richiesto dall'utente dopo v1.0.0.
 
 ## Backlog (in ordine di esecuzione)
 
@@ -60,6 +60,12 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 57  | Login con OAuth (GitHub)                                                        | feat  | 12         | done     | PR #62                                                                 |
 | 59  | Collegare Supabase cloud e Vercel (env, migrazioni, redirect URL)               | chore | 12         | done     | verificato su worldloom-lemon.vercel.app                               |
 | 60  | Membri del mondo: inviti, ruoli, uscita, trasferimento                          | feat  | 13         | done     | PR #63                                                                 |
+| 108 | Restyling: profilare la lentezza percepita ai click                             | chore | M1         | todo     | performance reale vs feedback visivo (D-050)                           |
+| 109 | Restyling: fondamenta del design system                                         | docs  | -          | todo     | densità, font-size, menu, caricamento, transizioni (D-050)             |
+| 110 | Restyling: menu superiore e navigazione globale                                 | feat  | 109        | todo     | tema, lingua, contesto del mondo (D-050)                               |
+| 111 | Restyling: stati di caricamento e percezione di velocità                        | feat  | 108, 109   | todo     | skeleton/spinner, esito della profilazione #108 (D-050)                |
+| 112 | Restyling: navigazione a schede (tab in stile IDE)                              | feat  | 109        | todo     | schede aperte persistite, stile VS Code/browser (D-050)                |
+| 113 | Restyling: passata finale schermata per schermata                               | feat  | 109–112    | todo     | coerenza su tutte le viste (D-050)                                     |
 
 ## Bloccato in attesa dell'utente (`needs-human`)
 

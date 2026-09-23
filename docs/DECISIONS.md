@@ -974,3 +974,28 @@ presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — pr
   impostazioni Actions del repository richiedono un'approvazione per le PR aperte da `github-actions[bot]`).
   Prodotti tag `v1.0.0`, release GitHub e `CHANGELOG.md` alla radice del repo.
 - Deciso da: agente
+
+### D-050: Restyling del front-end — navigazione a schede, fondamenta di design prima, sei issue indipendenti
+
+- Data: 2026-09-23
+- Contesto: dopo il primo rilascio (v1.0.0), l'utente ha segnalato che il front-end non è ancora "usabile, serio,
+  moderno e bello": lentezza percepita ai click, assenza di stati di caricamento e di micro-animazioni coerenti,
+  navigazione frammentata (ogni sezione isolata, difficile spostarsi fra viste diverse), font-size forse troppo
+  grande, menu superiore poco curato (es. il selettore Sistema/Chiaro/Scuro). Richieste chiarite con l'utente via
+  `AskUserQuestion` prima di aprire le issue, per evitare di costruire nella direzione sbagliata:
+  - **Navigazione**: non una sidebar né un semplice breadcrumb, ma una vera barra di **schede in stile IDE**
+    (VS Code/browser): più sezioni del mondo aperte insieme (uno snippet, una vista, il pannello relazioni),
+    senza perdere il contesto precedente, persistite nella sessione.
+  - **Direzione visiva**: prima si aggiorna `docs/design-system.md` (densità, font-size, stile bottoni/menu,
+    stati di caricamento, transizioni) con la skill `frontend-design`, come riferimento scritto; solo dopo si
+    applica schermata per schermata. Evita di ridisegnare due volte la stessa cosa.
+  - **Scope**: sei issue indipendenti (#108–#113) invece di un'unica issue grande, per PR piccole e merge
+    frequenti: profilazione delle performance (#108), fondamenta del design system (#109), menu superiore
+    (#110), stati di caricamento (#111), navigazione a schede (#112), passata finale schermata per schermata
+    (#113). Ordine di esecuzione: #108 e #109 prima (indipendenti fra loro, ma #109 è la base per #110–#113);
+    #110–#112 possono procedere in parallelo concettualmente ma vengono eseguite in sequenza; #113 chiude.
+  - **Performance percepita vs reale**: l'utente non sa se la lentezza sia dovuta a query/bundle lenti o solo a
+    mancanza di feedback visivo — da qui #108, un'issue di profilazione dedicata (Lighthouse/timing su
+    navigazioni chiave, demo e prova di carico) il cui esito guida #111 (se emergono colli di bottiglia reali,
+    vanno risolti lì, non solo mascherati con uno skeleton).
+- Deciso da: utente (risposte via `AskUserQuestion`), issue aperte e pianificate dall'agente
