@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import { CategoryBadge } from '@/components/category-icon';
 import { Feedback } from '@/components/feedback';
+import { SubmitButton } from '@/components/submit-button';
 import { parseTags } from '@/lib/snippets/labels';
 import { loadWorld } from '@/lib/worlds/context';
 import { createSnippet, deleteSnippetForever, restoreSnippet } from './actions';
@@ -225,9 +226,7 @@ export default async function SnippetsPage({ params, searchParams }: Props) {
                   ))}
                 </select>
               </div>
-              <button type="submit" className="btn btn-primary">
-                {t('create')}
-              </button>
+              <SubmitButton className="btn btn-primary">{t('create')}</SubmitButton>
             </form>
           </>
         ) : null}

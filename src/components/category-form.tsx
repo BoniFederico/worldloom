@@ -1,4 +1,5 @@
 import { getTranslations } from 'next-intl/server';
+import { SubmitButton } from '@/components/submit-button';
 import { CATEGORY_COLORS, CATEGORY_ICONS } from '@/lib/categories/catalog';
 
 type Props = {
@@ -48,9 +49,7 @@ export async function CategoryForm({ action, worldId, categoryId, values, submit
           </label>
         ))}
       </fieldset>
-      <button type="submit" className="btn btn-primary">
-        {submitLabel}
-      </button>
+      <SubmitButton className="btn btn-primary">{submitLabel}</SubmitButton>
     </form>
   );
 }
