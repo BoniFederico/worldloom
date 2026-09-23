@@ -46,7 +46,9 @@ Vuoto, caricamento (skeleton o indicatore coerente), errore (con azione di recup
 
 ## Layout e responsive
 
-Mobile-first. Breakpoint definiti una volta sola. Nessuno scroll orizzontale. Target touch ≥ 44px. Larghezza di lettura dei testi ≤ 70 caratteri.
+Mobile-first. Breakpoint definiti una volta sola. Nessuno scroll orizzontale. Target touch ≥ 44px come **area cliccabile/toccabile**
+(via padding, non necessariamente la dimensione visiva del controllo — vedi i bottoni icona 36px della barra superiore, D-052, il
+cui hit-target su touch va esteso a 44px con padding invisibile). Larghezza di lettura dei testi ≤ 70 caratteri.
 
 ## Verifica
 
@@ -85,7 +87,9 @@ Il tema segue `prefers-color-scheme` e può essere forzato con `data-theme="ligh
 
 - **Source Serif 4**: contenuto degli snippet e testo lungo (line-height 1.65, misura ≤ 68ch).
 - **Schibsted Grotesk**: interfaccia, viste, etichette (pesi 400/500/600).
-- Scala: 12 / 14 / 16 / 20 / 24 / 32 / 48. Titoli in sentence case. Niente maiuscoletto per le etichette.
+- Scala per il contenuto (serif): 12 / 14 / 16 / 20 / 24 / 32 / 48. Per l'interfaccia (Schibsted Grotesk) vale invece
+  la scala compatta più sotto ("Scala tipografica compatta per l'interfaccia", D-052) — le due scale coesistono,
+  non sono la stessa cosa. Titoli in sentence case. Niente maiuscoletto per le etichette.
 - Font self-hosted tramite `next/font`.
 
 ### Icone
@@ -97,3 +101,120 @@ Lucide (`lucide-react`), 1.5px di tratto, 16/20/24 px. Mai emoji.
 Raggi 4 / 8 / 999. Un solo livello di ombra sottile per popover e menu; le superfici si distinguono con bordo, non con ombra.
 Breakpoint: 640 / 1024 / 1440. Editor: colonna di lettura centrata, pannelli laterali (collegamenti, relazioni) comprimibili.
 Viste: massima densità, allineamento a sinistra, dati tabellari con cifre tabulari.
+
+### Scala tipografica compatta per l'interfaccia (D-052)
+
+La scala 12/14/16/20/24/32/48 resta per il **contenuto** (testo serif degli snippet, dove la leggibilità di lettura
+prolungata conta più della densità). Per l'**interfaccia** (etichette, controlli, tabelle, menu — Schibsted Grotesk)
+la base scende da 16 a 14px: la densità percepita conta più della leggibilità di un testo lungo, e 14px con
+line-height 1.5 resta ben sopra la soglia di accessibilità (nessun testo sotto i 12px).
+
+| Ruolo                          | Prima | Ora              |
+| ------------------------------ | ----- | ---------------- |
+| Corpo UI (default)             | 16px  | 14px             |
+| Etichette, meta, celle tabella | 14px  | 12px             |
+| Titolo di sezione (h2/h3 UI)   | 20px  | 18px             |
+| Titolo di pagina (h1 UI)       | 24px  | 22px             |
+| Contenuto snippet (serif)      | 16px  | 16px (invariato) |
+
+Nessun valore sotto i 12px. La riduzione è sul testo, non sui bersagli interattivi: i controlli restano 36px di lato
+visivi, con l'area cliccabile/toccabile estesa a 44px via padding sui touch target (vedi "Layout e responsive").
+
+### Stati di caricamento (D-052)
+
+Tre pattern, scelti in base alla durata e alla superficie coinvolta — mai un'attesa senza feedback:
+
+1. **Barra di avanzamento di navigazione** (cambio pagina/route): striscia di 2px in `--primary` in cima alla
+   finestra, indeterminata (scorre da sinistra), compare solo se la navigazione supera 150ms (nessun lampo su
+   risposte già veloci) e scompare con un fade di 150ms al termine. Rispetta `prefers-reduced-motion`: se attivo,
+   niente scorrimento, solo comparsa/scomparsa statica.
+2. **Skeleton screen** (contenuto che sta per apparire in un'area nota: liste, tabelle, pannello snippet): forme
+   piatte `--surface-2` che ricalcano la sagoma reale del contenuto (righe di testo, celle, avatar), **non** un
+   riquadro generico. Aggiunge/toglie solo opacità in loop lento (1.5s) se `prefers-reduced-motion` non è attivo;
+   altrimenti statico. Usato per liste ampie della vista tabella/grafo/elenco snippet (D-051: qui il ritardo può
+   essere reale, non solo percepito).
+3. **Spinner inline** (azione puntuale: submit di un form, bottone "Salva"): icona Lucide `loader-circle` animata,
+   16px, dentro il bottone stesso al posto dell'icona o accanto al testo; il bottone passa a `disabled` e il testo
+   resta invariato (mai sostituito da "Caricamento…", per non spostare il layout).
+
+Implementazione: `loading.tsx`/`Suspense` per ogni route segment che fa query server-side non banali (oggi assenti
+in tutto `src/app`, causa principale della lentezza percepita secondo D-051); la barra di navigazione è un
+componente globale nello shell applicativo, non per-pagina.
+
+### Interazioni hover e focus (D-052)
+
+Oggi mancano quasi ovunque: le regole cambiano da "assenti" a "sempre presenti ma discrete", mai decorative.
+
+- **Bottoni e controlli**: hover sposta il colore di sfondo di un solo passo verso `--surface-2`/`--border`
+  (mai un'ombra, mai un ingrandimento/scale). Transizione 150ms, `ease-out`.
+- **Righe di tabella e liste**: hover aggiunge `--surface-2` come sfondo dell'intera riga, nessun bordo o ombra
+  aggiuntivi.
+- **Link testuali**: sottolineatura sempre presente ma con `text-decoration-color` più tenue (`--text-muted`) a
+  riposo, che si scurisce in `--text` all'hover — mai un cambio di colore del testo stesso.
+- **Focus**: `outline` 2px `--primary`, offset 2px, sempre visibile con `:focus-visible` (mai `outline: none` senza
+  sostituto). Nessun anello di focus attenuato o solo sul bordo inferiore: deve restare leggibile a chi naviga da
+  tastiera.
+- Vietate le animazioni di hover che non rispondono a un'azione (nessun "respiro", nessun tilt, nessun bordo che
+  ruota): la lista sopra è esaustiva, non un punto di partenza.
+
+### Barra di navigazione superiore (D-052, per #110)
+
+Sostituisce l'attuale riga di controlli non curata (incluso il selettore testuale "Sistema / Chiaro / Scuro").
+
+```
+┌─────────────────────────────────────────────────────────────────────┐
+│ [Worldloom]   Nome del mondo ›  Sezione            🔍  🌓  🌐  ⚉    │  48px
+└─────────────────────────────────────────────────────────────────────┘
+```
+
+(i simboli sopra sono un segnaposto schematico per le icone Lucide descritte sotto — mai emoji reali nell'interfaccia.)
+
+- Altezza 48px, sfondo `--surface`, `border-bottom: 1px solid --border`. Nessuna ombra.
+- Sinistra: wordmark (testo, non icona — il prodotto non ha ancora un logo) + un breadcrumb minimo (nome del
+  mondo corrente › sezione), non l'intera gerarchia di navigazione (quella vive nella barra di schede, sotto).
+- Destra: **solo icone**, mai testo esposto permanentemente. Ogni controllo è un bottone quadrato 36×36px con
+  un'icona Lucide 20px, `title`/`aria-label` esplicito, tooltip nativo al hover/focus. Ordine fisso: ricerca
+  (Ctrl/Cmd+K, icona lente), tema (icona che cambia fra sole/luna/monitor a seconda dello stato — un solo bottone
+  che cicla sistema→chiaro→scuro→sistema, non un menu a tendina con tre voci scritte), lingua (icona globo, apre
+  un menu con le due opzioni), account (avatar circolare 28px con iniziale, apre il menu utente).
+- Spaziatura fra i controlli di destra: 4px; padding orizzontale della barra: 16px.
+- Il selettore tema esistente (oggi testuale "Sistema/Chiaro/Scuro" sempre visibile) va sostituito da questo unico
+  bottone ciclico: il verdetto (quale dei tre stati è attivo) si comunica con l'icona stessa, non col testo.
+- Sotto il breakpoint 640px (mobile): il breadcrumb si riduce alla sola sezione corrente (senza il nome del
+  mondo, già visibile nella barra di schede sotto); ricerca e lingua restano bottoni icona invariati (non
+  collassano in un menu "altro": la barra ha spazio, sono solo 4 bottoni da 36px).
+
+### Barra di schede persistente (D-052, per #112)
+
+Sotto la barra superiore, sempre visibile quando almeno un mondo è aperto. Sostituisce la navigazione oggi isolata
+per sezione: permette di avere più sezioni di uno stesso mondo aperte insieme (uno snippet, una vista, il pannello
+relazioni) senza perdere il contesto precedente.
+
+```
+┌──────────────┬──────────────────┬───────────────┬──┐
+│ 📄 Elara  ×  │ ▦ Tabella      × │ 🕸 Grafo    ×│ +│  36px
+└──────────────┴──────────────────┴───────────────┴──┘
+```
+
+(idem: segnaposto schematico per icone Lucide, non emoji.)
+
+- Altezza 36px, sfondo `--bg` (un livello sotto la barra superiore in `--surface`, per leggere lo stacking).
+- Ogni scheda: icona 14px del tipo di sezione (snippet, categoria, vista tabella/grafo/timeline/mappa/albero/
+  kanban, relazioni, sessione...), etichetta troncata a ~20 caratteri con ellissi, bottone di chiusura (×). Per
+  non affollare la barra a riposo compare al hover del mouse sulla scheda, ma resta **sempre visibile** quando la
+  scheda ha il focus da tastiera o su viewport touch (dove l'hover non esiste) — coerente con la regola "focus
+  sempre visibile" della sezione precedente.
+- Scheda attiva: sfondo `--surface`, bordo superiore 2px `--primary` (unico accento cromatico della barra — niente
+  colore sulle schede inattive). Schede inattive: sfondo trasparente, testo `--text-muted`.
+- Overflow orizzontale con scroll (mai wrap su più righe); un bottone `+` fisso a destra per la ricerca rapida
+  (stessa palette comandi di Ctrl/Cmd+K) invece che una scheda "nuova".
+- Persistenza: le schede aperte si salvano per mondo in `localStorage` (solo lato client, per-dispositivo — non è
+  stato condiviso, coerente con l'uso già fatto di `localStorage` per il tema); si ripristinano riaprendo il
+  mondo, non si sincronizzano fra dispositivi.
+- Chiusura: click sulla ×, tasto centrale del mouse, o tasto `Canc`/`Delete` quando la scheda ha il focus da
+  tastiera. **Non** `Ctrl/Cmd+W`: è riservato dal browser per chiudere la scheda del browser stesso e non è
+  intercettabile via JavaScript — usarlo qui non funzionerebbe. Niente scheda "fissata" in questa prima versione
+  (fuori scope, valutare se emerge il bisogno).
+- Sotto il breakpoint 640px (mobile): la barra resta a scorrimento orizzontale invariata (già pensata per
+  l'overflow); l'unica differenza è che il bottone di chiusura è sempre visibile su tutte le schede (niente
+  hover su touch, vedi sopra), non solo su quella attiva/focalizzata.

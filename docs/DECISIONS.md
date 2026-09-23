@@ -1037,3 +1037,29 @@ presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — pr
   pesanti, valutare paginazione/streaming dei dati invece di un semplice skeleton, dato che lì il ritardo è
   reale e supera il secondo).
 - Deciso da: agente
+
+### D-052: Fondamenta del design system per il restyling (#109)
+
+- Data: 2026-09-23
+- Contesto: #109 chiede di aggiornare `docs/design-system.md` (skill `frontend-design`) come riferimento scritto
+  per le issue di implementazione del restyling (#110-#113), senza toccare codice qui. La direzione visiva
+  esistente (palette Cartografo, D-001) resta invariata: si estende con le parti mancanti segnalate dall'utente.
+- **Scala tipografica**: solo l'interfaccia (Schibsted Grotesk) scende di densità (corpo 16→14px, titoli -2px);
+  il contenuto degli snippet (Source Serif 4, lettura prolungata) resta invariato. Nessun valore sotto i 12px,
+  target touch dei controlli invariato a ≥36px: si riduce il testo, non i bersagli interattivi.
+- **Stati di caricamento**: tre pattern distinti per durata/superficie — barra di avanzamento globale per i cambi
+  di pagina (compare solo oltre 150ms, evita il lampo su risposte già veloci), skeleton a forma reale per liste/
+  tabelle ampie (dove D-051 ha misurato un ritardo reale, non solo percepito), spinner inline nei bottoni per le
+  azioni puntuali. Tutti rispettano `prefers-reduced-motion`.
+- **Hover/focus**: oggi quasi assenti, la regola diventa "sempre presenti ma discreti" — spostamento di un solo
+  passo di superficie per l'hover (mai ombra/scala), focus ring sempre visibile via `:focus-visible`. Elenco
+  esaustivo nel documento, per evitare la deriva verso animazioni decorative vietate dai "divieti espliciti"
+  già in `design-system.md`.
+- **Menu superiore**: sostituisce l'attuale selettore testuale "Sistema/Chiaro/Scuro" (la lamentela esplicita
+  dell'utente) con un'icona sola che cicla i tre stati, in una barra di soli controlli icona-più-tooltip (ricerca,
+  tema, lingua, account) — niente testo esposto permanentemente.
+- **Barra di schede**: specifica visiva minima (schema ASCII, dimensioni, stato attivo/inattivo, persistenza in
+  `localStorage` per mondo, chiusura) per #112, coerente con lo stile "atlante" (bordo invece di ombra, un solo
+  accento cromatico sulla scheda attiva).
+- Nessuna implementazione in questa issue: il documento è la base per #110-#113.
+- Deciso da: agente (skill `frontend-design`)
