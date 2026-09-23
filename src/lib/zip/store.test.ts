@@ -28,4 +28,22 @@ describe('zip (store)', () => {
     const zip = buildZip([{ name: 'x.txt', data: text('x') }]);
     expect(Array.from(zip.slice(0, 4))).toEqual([0x50, 0x4b, 0x03, 0x04]);
   });
+
+  it('non lancia mai, anche con offset o dimensioni fuori dai limiti nella central directory', () => {
+    const zip = buildZip([{ name: 'x.txt', data: text('x') }]);
+    // Corrompe l'offset del local file header nella central directory con un valore enorme: senza il
+    // try/catch in readZip, DataView.getUint32 lancerebbe un RangeError invece di restituire null.
+    const corrupted = new Uint8Array(zip);
+    const view = new DataView(corrupted.buffer);
+    const centralDirOffset = view.getUint32(corrupted.length - 22 + 16, true);
+    view.setUint32(centralDirOffset + 42, 0xffffffff, true); // campo "local header offset"
+    expect(() => readZip(corrupted)).not.toThrow();
+    expect(readZip(corrupted)).toBeNull();
+
+    // Numero di ingressi dichiarato molto più alto di quanti ce ne siano davvero.
+    const badCount = new Uint8Array(zip);
+    new DataView(badCount.buffer).setUint16(badCount.length - 22 + 10, 0xffff, true);
+    expect(() => readZip(badCount)).not.toThrow();
+    expect(readZip(badCount)).toBeNull();
+  });
 });

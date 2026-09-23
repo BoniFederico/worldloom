@@ -123,43 +123,53 @@ function u32(r: Reader): number {
   return v;
 }
 
-/** Legge un archivio ZIP costruito da `buildZip` (solo STORE). Restituisce `null` se non è un archivio valido. */
+/**
+ * Legge un archivio ZIP costruito da `buildZip` (solo STORE). Restituisce `null` se non è un archivio valido
+ * — mai un'eccezione: questa funzione riceve anche byte caricati da un utente autenticato ma non fidato
+ * (`POST /api/worlds/import-zip`), e un offset o una lunghezza fuori dai limiti nella central directory
+ * farebbero altrimenti lanciare `DataView` (`RangeError`), trasformando un file malformato in un errore 500
+ * invece del normale redirect con `invalid_zip` che ogni altra rotta di import restituisce per input non valido.
+ */
 export function readZip(data: Uint8Array): ZipEntry[] | null {
-  // Cerca il record di fine central directory dalla coda (nessun commento nei file che scriviamo: è nei
-  // 22 byte finali).
-  if (data.length < 22) return null;
-  const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
-  const endOffset = data.length - 22;
-  if (view.getUint32(endOffset, true) !== END_SIG) return null;
-  const count = view.getUint16(endOffset + 10, true);
-  const centralStart = view.getUint32(endOffset + 16, true);
+  try {
+    // Cerca il record di fine central directory dalla coda (nessun commento nei file che scriviamo: è nei
+    // 22 byte finali).
+    if (data.length < 22) return null;
+    const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
+    const endOffset = data.length - 22;
+    if (view.getUint32(endOffset, true) !== END_SIG) return null;
+    const count = view.getUint16(endOffset + 10, true);
+    const centralStart = view.getUint32(endOffset + 16, true);
 
-  const decoder = new TextDecoder();
-  const r: Reader = { view, bytes: data, pos: centralStart };
-  const entries: ZipEntry[] = [];
-  for (let i = 0; i < count; i++) {
-    if (u32(r) !== CENTRAL_SIG) return null;
-    r.pos += 24; // versioni, flag, metodo, orario, crc, dimensioni (non servono: si rilegge dal local header)
-    const nameLen = u16(r);
-    const extraLen = u16(r);
-    const commentLen = u16(r);
-    r.pos += 8; // disco, attributi interni/esterni
-    const localOffset = u32(r);
-    const name = decoder.decode(data.subarray(r.pos, r.pos + nameLen));
-    r.pos += nameLen + extraLen + commentLen;
+    const decoder = new TextDecoder();
+    const r: Reader = { view, bytes: data, pos: centralStart };
+    const entries: ZipEntry[] = [];
+    for (let i = 0; i < count; i++) {
+      if (u32(r) !== CENTRAL_SIG) return null;
+      r.pos += 24; // versioni, flag, metodo, orario, crc, dimensioni (non servono: si rilegge dal local header)
+      const nameLen = u16(r);
+      const extraLen = u16(r);
+      const commentLen = u16(r);
+      r.pos += 8; // disco, attributi interni/esterni
+      const localOffset = u32(r);
+      const name = decoder.decode(data.subarray(r.pos, r.pos + nameLen));
+      r.pos += nameLen + extraLen + commentLen;
 
-    const lr: Reader = { view, bytes: data, pos: localOffset };
-    if (u32(lr) !== LOCAL_SIG) return null;
-    lr.pos += 4; // versione, flag
-    const method = u16(lr);
-    if (method !== 0) return null; // solo STORE
-    lr.pos += 8; // orario, crc (già verificato in scrittura, non ci si fida comunque del contenuto qui)
-    const compSize = u32(lr);
-    lr.pos += 4; // dimensione non compressa (uguale, essendo STORE)
-    const localNameLen = u16(lr);
-    const localExtraLen = u16(lr);
-    lr.pos += localNameLen + localExtraLen;
-    entries.push({ name, data: data.subarray(lr.pos, lr.pos + compSize) });
+      const lr: Reader = { view, bytes: data, pos: localOffset };
+      if (u32(lr) !== LOCAL_SIG) return null;
+      lr.pos += 4; // versione, flag
+      const method = u16(lr);
+      if (method !== 0) return null; // solo STORE
+      lr.pos += 8; // orario, crc (già verificato in scrittura, non ci si fida comunque del contenuto qui)
+      const compSize = u32(lr);
+      lr.pos += 4; // dimensione non compressa (uguale, essendo STORE)
+      const localNameLen = u16(lr);
+      const localExtraLen = u16(lr);
+      lr.pos += localNameLen + localExtraLen;
+      entries.push({ name, data: data.subarray(lr.pos, lr.pos + compSize) });
+    }
+    return entries;
+  } catch {
+    return null;
   }
-  return entries;
 }
