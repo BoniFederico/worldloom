@@ -5,7 +5,8 @@ guarda lo stesso mondo come timeline, mappa, grafo, albero genealogico, bacheca 
 visibilità per elemento, schede personaggio configurabili, sessioni, diario e bacheca.
 
 Specifica: [SPEC.md](SPEC.md) · Piano: [docs/PLAN.md](docs/PLAN.md) · Architettura: [docs/architecture.md](docs/architecture.md) ·
-Decisioni: [docs/DECISIONS.md](docs/DECISIONS.md) · Formato export: [docs/export-format.md](docs/export-format.md) · Schema di statistiche: [docs/stats-schema.md](docs/stats-schema.md)
+Decisioni: [docs/DECISIONS.md](docs/DECISIONS.md) · Guida utente: [docs/user-guide.md](docs/user-guide.md) ·
+Formato export: [docs/export-format.md](docs/export-format.md) · Schema di statistiche: [docs/stats-schema.md](docs/stats-schema.md)
 
 ## Requisiti
 
