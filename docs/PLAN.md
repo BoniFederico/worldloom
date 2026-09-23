@@ -61,7 +61,7 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 59  | Collegare Supabase cloud e Vercel (env, migrazioni, redirect URL)               | chore | 12         | done     | verificato su worldloom-lemon.vercel.app                                |
 | 60  | Membri del mondo: inviti, ruoli, uscita, trasferimento                          | feat  | 13         | done     | PR #63                                                                  |
 | 108 | Restyling: profilare la lentezza percepita ai click                             | chore | M1         | done     | soprattutto percezione, niente loading.tsx; viste pesanti reali (D-051) |
-| 109 | Restyling: fondamenta del design system                                         | docs  | -          | todo     | densità, font-size, menu, caricamento, transizioni (D-050)              |
+| 109 | Restyling: fondamenta del design system                                         | docs  | -          | done     | densità, font-size, menu, caricamento, schede, hover/focus (D-052)      |
 | 110 | Restyling: menu superiore e navigazione globale                                 | feat  | 109        | todo     | tema, lingua, contesto del mondo (D-050)                                |
 | 111 | Restyling: stati di caricamento e percezione di velocità                        | feat  | 108, 109   | todo     | skeleton/spinner, esito della profilazione #108 (D-050)                 |
 | 112 | Restyling: navigazione a schede (tab in stile IDE)                              | feat  | 109        | todo     | schede aperte persistite, stile VS Code/browser (D-050)                 |
