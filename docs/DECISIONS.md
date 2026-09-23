@@ -999,3 +999,41 @@ presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — pr
     navigazioni chiave, demo e prova di carico) il cui esito guida #111 (se emergono colli di bottiglia reali,
     vanno risolti lì, non solo mascherati con uno skeleton).
 - Deciso da: utente (risposte via `AskUserQuestion`), issue aperte e pianificate dall'agente
+
+### D-051: Profilazione della lentezza percepita (#108) — quasi tutta percezione, un bottleneck reale sui mondi grandi
+
+- Data: 2026-09-23
+- Contesto: #108 chiede di capire se «ogni click è lento» sia un problema di backend reale o di sola percezione
+  (nessun feedback visivo), per guidare #111.
+- **Metodo**: build di produzione (`next build` + `next start`) contro Supabase locale con il seed standard
+  (`npm run db:reset`); script Playwright una tantum (non incluso nel repo) che misura `performance.timing`
+  (TTFB, DOMContentLoaded, load) su otto navigazioni chiave, sia sul mondo demo «Aurelia» (piccolo, la
+  dimensione tipica di un utente reale) sia sulla «Prova di carico» (5.000 snippet, D-022).
+- **Audit statico del codice** (lettura di `src/app/worlds/[worldId]/**` e delle funzioni dati in `src/lib/`):
+  - Nessun file `loading.tsx` né `Suspense` in tutto `src/app`: ogni navigazione mostra una pagina bianca per
+    l'intera durata del rendering server, indipendentemente da quanto sia realmente veloce.
+  - Waterfall evitabili (await sequenziali invece di `Promise.all`) in
+    `src/app/worlds/[worldId]/snippets/[snippetId]/page.tsx` (fino a 6 round trip DB indipendenti in sequenza,
+    incluso un `supabase.auth.getUser()` duplicato rispetto a quello già fatto in `loadWorld`) e in
+    `src/app/worlds/[worldId]/table/page.tsx` + `src/lib/views/table-data.ts` (`loadTableRows` non incluso nel
+    `Promise.all` della pagina, e al suo interno un'ulteriore query sequenziale evitabile per i campi
+    riservati).
+  - Nessun problema trovato nella dashboard del mondo, in vista grafo/timeline, nelle server action di
+    salvataggio (già con `Promise.all` dove serve) e nessun pattern N+1 nelle query.
+- **Misure reali** (wall time = tempo totale della navigazione lato browser):
+  - Mondo demo (piccolo, caso comune): dashboard 209 ms, elenco snippet 204 ms, tabella 241 ms, dettaglio
+    snippet 412 ms — tutto ben sotto la soglia di percezione di lentezza (~1 s), il backend qui non è il
+    problema.
+  - «Prova di carico» (5.000 snippet, caso limite): dashboard 654 ms (accettabile), **elenco snippet 2,28 s**,
+    **tabella 1,58 s**, grafo 932 ms — bottleneck reale e misurabile su liste non paginate/filtrate lato
+    server per mondi grandi. Il dettaglio di uno snippet resta veloce (271 ms) anche lì: la waterfall trovata
+    nell'audit statico esiste ma pesa meno del previsto in pratica (poche decine di ms per round trip su
+    Postgres locale), non è la causa principale della lentezza percepita.
+- **Conclusione**: la causa dominante di «ogni click è lento» è la mancanza di `loading.tsx`/streaming (schermo
+  bianco anche quando il backend risponde in 200 ms, la dimensione tipica di un mondo reale) — coerente con la
+  richiesta originale dell'utente di aggiungere «caricamenti» visibili. Esiste anche un bottleneck reale ma
+  circoscritto: le viste non paginate (elenco snippet, tabella, grafo) su mondi con migliaia di elementi. Non
+  correggo qui: entrambi vanno risolti in #111 (stati di caricamento come intervento primario; per le viste
+  pesanti, valutare paginazione/streaming dei dati invece di un semplice skeleton, dato che lì il ritardo è
+  reale e supera il secondo).
+- Deciso da: agente
