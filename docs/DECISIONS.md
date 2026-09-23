@@ -903,3 +903,29 @@ presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — pr
   dall'editor esistente (#33); condividerlo significa condividere quel testo. Aggiungere un formato/endpoint dedicato solo
   per il download non era giustificato dallo scope («una PR, meno di un giorno») rispetto al valore aggiunto.
 - Deciso da: agente
+
+### D-047: Export Markdown come archivio ZIP con l'export JSON incluso
+
+- Data: 2026-09-23
+- Contesto: #100 completa il MUST di import/export rimandato da D-021/D-043 («Import ed export completo del mondo (JSON
+  documentato e Markdown con front matter). L'export deve ricreare il mondo identico.»). D-043 aveva già anticipato la
+  progettazione necessaria: «un file .md per snippet con front matter (metadati) più un formato per portare relazioni,
+  tipi di relazione e categorie (che Markdown puro non ha), mantenendo la fedeltà di round trip».
+- **Niente formato Markdown "puro" per la fedeltà**: relazioni con etichetta/note/date/visibilità, tipi di relazione e
+  campi delle categorie non hanno una rappresentazione naturale in Markdown+front matter senza reinventare un formato
+  ad hoc (rischio di bug propri, difficile da mantenere fedele quanto l'export JSON già testato). Scelta: `GET
+/worlds/<id>/export/markdown` produce un **archivio ZIP** con un file `.md` per snippet (front matter + corpo — la
+  parte "leggibile", anche apribile in Obsidian) più `_worldloom.json`, che è **esattamente** lo stesso export JSON
+  di D-021 — stesso schema, stessa `version`, stesso codice (`buildExport`). La fedeltà del round trip viene da
+  quel file, non dai `.md`: `POST /api/worlds/import-zip` legge solo `_worldloom.json` e lo importa con lo stesso
+  `parseExport`/`planImport`/`importWorld` dell'import JSON diretto — zero nuova logica di importazione.
+- **ZIP scritto a mano (solo STORE, senza compressione)**: stesso criterio di D-033/D-043 per altri formati — un
+  formato binario semplice e ben specificato (niente Zip64, cifratura o deflate) non giustifica una dipendenza. CRC-32
+  e il writer/reader (`src/lib/zip/`) sono coperti da test (vettore di test CRC-32 noto, round trip scrittura/lettura).
+- **Corpo Markdown dei singoli `.md`**: `docToMarkdown` (`src/lib/markdown/render.ts`) è l'inverso (non completo,
+  stesso sottoinsieme) di `markdownToDoc` (D-043): titoli, paragrafi, liste, citazioni, marcature semplici, menzioni
+  come wikilink. Tabelle e immagini non vengono rese (restano solo in `_worldloom.json`): non è un confine di fedeltà,
+  solo la rappresentazione leggibile.
+- I singoli file `.md` dell'archivio restano comunque compatibili, uno per uno, con l'import Markdown già esistente
+  (D-043, best-effort) — utile per chi vuole importare solo una parte del mondo invece dell'intero archivio.
+- Deciso da: agente
