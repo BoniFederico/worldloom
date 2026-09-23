@@ -46,7 +46,9 @@ Vuoto, caricamento (skeleton o indicatore coerente), errore (con azione di recup
 
 ## Layout e responsive
 
-Mobile-first. Breakpoint definiti una volta sola. Nessuno scroll orizzontale. Target touch ≥ 44px. Larghezza di lettura dei testi ≤ 70 caratteri.
+Mobile-first. Breakpoint definiti una volta sola. Nessuno scroll orizzontale. Target touch ≥ 44px come **area cliccabile/toccabile**
+(via padding, non necessariamente la dimensione visiva del controllo — vedi i bottoni icona 36px della barra superiore, D-052, il
+cui hit-target su touch va esteso a 44px con padding invisibile). Larghezza di lettura dei testi ≤ 70 caratteri.
 
 ## Verifica
 
@@ -85,7 +87,9 @@ Il tema segue `prefers-color-scheme` e può essere forzato con `data-theme="ligh
 
 - **Source Serif 4**: contenuto degli snippet e testo lungo (line-height 1.65, misura ≤ 68ch).
 - **Schibsted Grotesk**: interfaccia, viste, etichette (pesi 400/500/600).
-- Scala: 12 / 14 / 16 / 20 / 24 / 32 / 48. Titoli in sentence case. Niente maiuscoletto per le etichette.
+- Scala per il contenuto (serif): 12 / 14 / 16 / 20 / 24 / 32 / 48. Per l'interfaccia (Schibsted Grotesk) vale invece
+  la scala compatta più sotto ("Scala tipografica compatta per l'interfaccia", D-052) — le due scale coesistono,
+  non sono la stessa cosa. Titoli in sentence case. Niente maiuscoletto per le etichette.
 - Font self-hosted tramite `next/font`.
 
 ### Icone
@@ -113,8 +117,8 @@ line-height 1.5 resta ben sopra la soglia di accessibilità (nessun testo sotto 
 | Titolo di pagina (h1 UI)       | 24px  | 22px             |
 | Contenuto snippet (serif)      | 16px  | 16px (invariato) |
 
-Nessun valore sotto i 12px. Verificare comunque il contrasto e il target touch (44px) restano validi: la riduzione
-è sul testo, non sui bersagli interattivi (bottoni/icone restano ≥ 36px di lato, vedi sotto).
+Nessun valore sotto i 12px. La riduzione è sul testo, non sui bersagli interattivi: i controlli restano 36px di lato
+visivi, con l'area cliccabile/toccabile estesa a 44px via padding sui touch target (vedi "Layout e responsive").
 
 ### Stati di caricamento (D-052)
 
@@ -176,6 +180,9 @@ Sostituisce l'attuale riga di controlli non curata (incluso il selettore testual
 - Spaziatura fra i controlli di destra: 4px; padding orizzontale della barra: 16px.
 - Il selettore tema esistente (oggi testuale "Sistema/Chiaro/Scuro" sempre visibile) va sostituito da questo unico
   bottone ciclico: il verdetto (quale dei tre stati è attivo) si comunica con l'icona stessa, non col testo.
+- Sotto il breakpoint 640px (mobile): il breadcrumb si riduce alla sola sezione corrente (senza il nome del
+  mondo, già visibile nella barra di schede sotto); ricerca e lingua restano bottoni icona invariati (non
+  collassano in un menu "altro": la barra ha spazio, sono solo 4 bottoni da 36px).
 
 ### Barra di schede persistente (D-052, per #112)
 
@@ -193,8 +200,10 @@ relazioni) senza perdere il contesto precedente.
 
 - Altezza 36px, sfondo `--bg` (un livello sotto la barra superiore in `--surface`, per leggere lo stacking).
 - Ogni scheda: icona 14px del tipo di sezione (snippet, categoria, vista tabella/grafo/timeline/mappa/albero/
-  kanban, relazioni, sessione...), etichetta troncata a ~20 caratteri con ellissi, bottone di chiusura (×) che
-  appare solo al hover della scheda (per non affollare la barra a riposo).
+  kanban, relazioni, sessione...), etichetta troncata a ~20 caratteri con ellissi, bottone di chiusura (×). Per
+  non affollare la barra a riposo compare al hover del mouse sulla scheda, ma resta **sempre visibile** quando la
+  scheda ha il focus da tastiera o su viewport touch (dove l'hover non esiste) — coerente con la regola "focus
+  sempre visibile" della sezione precedente.
 - Scheda attiva: sfondo `--surface`, bordo superiore 2px `--primary` (unico accento cromatico della barra — niente
   colore sulle schede inattive). Schede inattive: sfondo trasparente, testo `--text-muted`.
 - Overflow orizzontale con scroll (mai wrap su più righe); un bottone `+` fisso a destra per la ricerca rapida
@@ -202,5 +211,10 @@ relazioni) senza perdere il contesto precedente.
 - Persistenza: le schede aperte si salvano per mondo in `localStorage` (solo lato client, per-dispositivo — non è
   stato condiviso, coerente con l'uso già fatto di `localStorage` per il tema); si ripristinano riaprendo il
   mondo, non si sincronizzano fra dispositivi.
-- Chiusura: click sulla ×, tasto centrale del mouse, o `Ctrl/Cmd+W` sulla scheda attiva. Niente scheda "fissata"
-  in questa prima versione (fuori scope, valutare se emerge il bisogno).
+- Chiusura: click sulla ×, tasto centrale del mouse, o tasto `Canc`/`Delete` quando la scheda ha il focus da
+  tastiera. **Non** `Ctrl/Cmd+W`: è riservato dal browser per chiudere la scheda del browser stesso e non è
+  intercettabile via JavaScript — usarlo qui non funzionerebbe. Niente scheda "fissata" in questa prima versione
+  (fuori scope, valutare se emerge il bisogno).
+- Sotto il breakpoint 640px (mobile): la barra resta a scorrimento orizzontale invariata (già pensata per
+  l'overflow); l'unica differenza è che il bottone di chiusura è sempre visibile su tutte le schede (niente
+  hover su touch, vedi sopra), non solo su quella attiva/focalizzata.
