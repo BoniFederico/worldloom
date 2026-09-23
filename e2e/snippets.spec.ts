@@ -101,17 +101,20 @@ test.describe('snippet', () => {
   test('duplica, archivia, cestina e ripristina', async ({ browser }) => {
     const { page, worldId } = await worldWithCategory(browser);
     await createSnippet(page, worldId, 'Originale', 'Personaggio');
+    // Nel contenuto principale, non nell'intera pagina: la barra di schede (#112) può mostrare un link con lo
+    // stesso nome verso una pagina visitata in precedenza in questo stesso test.
+    const main = page.getByRole('main');
 
     await page.getByRole('button', { name: 'Duplica' }).click();
     await expect(page.getByRole('heading', { level: 1, name: 'Originale (copia)' })).toBeVisible();
 
     await page.getByRole('button', { name: 'Archivia' }).click();
     await expect(page.getByRole('status')).toHaveText('Snippet archiviato.');
-    await expect(page.getByRole('link', { name: /Originale \(copia\)/ })).toHaveCount(0);
+    await expect(main.getByRole('link', { name: /Originale \(copia\)/ })).toHaveCount(0);
     await page.getByRole('link', { name: 'Archiviati' }).click();
-    await expect(page.getByRole('link', { name: /Originale \(copia\)/ })).toBeVisible();
+    await expect(main.getByRole('link', { name: /Originale \(copia\)/ })).toBeVisible();
 
-    await page.getByRole('link', { name: 'Originale (copia)' }).click();
+    await main.getByRole('link', { name: 'Originale (copia)' }).click();
     await page.getByRole('button', { name: 'Sposta nel cestino' }).click();
     await expect(page.getByRole('status')).toHaveText('Snippet spostato nel cestino.');
 
@@ -135,7 +138,9 @@ test.describe('snippet', () => {
     await page.getByLabel(/^Confermo/).check();
     await page.getByRole('button', { name: /^Elimina definitivamente/ }).click();
     await expect(page.getByRole('status')).toHaveText('Snippet eliminato definitivamente.');
-    await expect(page.getByText('Da eliminare')).toHaveCount(0);
+    // Nel contenuto principale: la barra di schede (#112) può ancora mostrare la scheda dello snippet appena
+    // eliminato finché non si chiude esplicitamente.
+    await expect(page.getByRole('main').getByText('Da eliminare')).toHaveCount(0);
   });
 
   test('due schede: la seconda modifica non sovrascrive la prima', async ({ browser }) => {
@@ -304,12 +309,15 @@ test.describe('snippet', () => {
     await expect(page.getByRole('status')).toHaveText('Snippet salvato.');
 
     await page.goto(`/worlds/${worldId}/snippets`);
-    await expect(page.getByRole('link', { name: 'Elara' })).toBeVisible();
+    // Nel contenuto principale: la barra di schede (#112) mostra ancora i link agli snippet visitati sopra,
+    // con lo stesso nome.
+    const main = page.getByRole('main');
+    await expect(main.getByRole('link', { name: 'Elara' })).toBeVisible();
     await expect(page.getByText('#magia #draghi')).toBeVisible();
     await page.getByLabel('Tag', { exact: true }).fill('Magia');
     await page.getByRole('button', { name: 'Filtra' }).click();
-    await expect(page.getByRole('link', { name: 'Elara' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Balrog' })).toHaveCount(0);
+    await expect(main.getByRole('link', { name: 'Elara' })).toBeVisible();
+    await expect(main.getByRole('link', { name: 'Balrog' })).toHaveCount(0);
     await page.getByRole('link', { name: 'Azzera filtri' }).click();
     await expect(page.getByRole('link', { name: 'Balrog' })).toBeVisible();
   });
@@ -323,16 +331,18 @@ test.describe('snippet', () => {
     await page.getByRole('button', { name: 'Salva' }).click();
     await expect(page.getByRole('status')).toHaveText('Snippet salvato.');
 
+    // Nel contenuto principale: la barra di schede (#112) mostra ancora il link allo snippet appena creato.
+    const main = page.getByRole('main');
     const base = `/worlds/${worldId}/snippets`;
     await page.goto(`${base}?status=final`);
-    await expect(page.getByRole('link', { name: 'Bozza uno' })).toHaveCount(0);
+    await expect(main.getByRole('link', { name: 'Bozza uno' })).toHaveCount(0);
     await page.goto(`${base}?status=draft`);
-    await expect(page.getByRole('link', { name: 'Bozza uno' })).toBeVisible();
+    await expect(main.getByRole('link', { name: 'Bozza uno' })).toBeVisible();
 
     // Parametro ripetuto: nessun errore 500, si usa il primo valore.
     const repeated = await page.goto(`${base}?tag=alfa&tag=beta&status=draft&status=final`);
     expect(repeated?.status()).toBe(200);
-    await expect(page.getByRole('link', { name: 'Bozza uno' })).toBeVisible();
+    await expect(main.getByRole('link', { name: 'Bozza uno' })).toBeVisible();
 
     // Caratteri con un significato nei filtri: rifiutati con un messaggio, mai un elenco vuoto muto.
     for (const bad of ['a{b', 'a"b', 'a}b']) {

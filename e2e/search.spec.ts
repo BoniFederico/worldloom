@@ -159,8 +159,11 @@ test.describe('ricerca', () => {
     await page.goto(`/worlds/${worldId}/search?q=mappa`);
     await expect(page.getByText('Nessun risultato')).toBeVisible();
     await page.goto(`/worlds/${worldId}/search?q=mappa&archived=1`);
-    await expect(page.getByRole('link', { name: 'Mappa vecchia' })).toBeVisible();
-    await expect(page.getByRole('link', { name: 'Mappa buttata' })).toHaveCount(0);
+    // Cercati nel contenuto principale, non nell'intera pagina: la barra di schede (#112) può mostrare un link
+    // con lo stesso nome verso uno snippet visitato in precedenza in questo stesso test.
+    const main = page.getByRole('main');
+    await expect(main.getByRole('link', { name: 'Mappa vecchia' })).toBeVisible();
+    await expect(main.getByRole('link', { name: 'Mappa buttata' })).toHaveCount(0);
   });
 
   test('parametri ripetuti o strani non rompono la pagina; un estraneo non vede il mondo', async ({

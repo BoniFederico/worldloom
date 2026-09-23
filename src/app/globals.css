@@ -2022,3 +2022,103 @@ p.mention-none {
     transform: rotate(360deg);
   }
 }
+
+/* Barra di schede persistente in stile IDE (D-052, #112). */
+.tab-bar {
+  display: flex;
+  align-items: stretch;
+  height: 36px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+}
+
+.tab-bar-list {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  min-width: 0;
+}
+
+.tab {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  flex-shrink: 0;
+  max-width: 200px;
+  border-top: 2px solid transparent;
+}
+
+.tab-active {
+  background: var(--surface);
+  border-top-color: var(--primary);
+}
+
+.tab-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: 0 var(--space-2) 0 var(--space-3);
+  color: var(--text-muted);
+  text-decoration: none;
+  font-size: var(--text-sm, 0.875rem);
+}
+
+.tab-active .tab-link {
+  color: var(--text);
+}
+
+.tab-label {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.tab-close {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin: auto var(--space-2) auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.tab-close:hover {
+  background: var(--surface-2);
+}
+
+.tab:hover .tab-close,
+.tab:focus-within .tab-close {
+  display: inline-flex;
+}
+
+/* Su touch non esiste l'hover: la chiusura resta sempre visibile, come da design-system.md. */
+@media (pointer: coarse) {
+  .tab-close {
+    display: inline-flex;
+  }
+}
+
+.tab-new {
+  flex-shrink: 0;
+  width: 36px;
+  border: 0;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: var(--text-lg, 1.25rem);
+  line-height: 1;
+  cursor: pointer;
+}
+
+.tab-new:hover {
+  background: var(--surface-2);
+  color: var(--text);
+}

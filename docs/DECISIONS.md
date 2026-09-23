@@ -1131,3 +1131,37 @@ presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — pr
   tocca ~20 file di pagina e va fatto con attenzione dedicata, non di sfuggita dentro #111. Aggiunta una nota in
   "Note utili per riprendere il lavoro" di `docs/PLAN.md`.
 - Deciso da: agente
+
+### D-055: Barra di schede persistente (#112)
+
+- Data: 2026-09-23
+- Contesto: #112 implementa la specifica D-052 — una barra di schede in stile IDE sotto il menu superiore, che
+  sostituisce la navigazione a pagina singola fra le sezioni di un mondo.
+- **Architettura**: `src/components/tab-bar/` — `tab-store.ts` (piccolo store esterno a React, `localStorage`
+  per mondo, non `setState` dentro un effetto: letto con `useSyncExternalStore` per rispettare la regola lint
+  `react-hooks/set-state-in-effect`), `tab-bar-context.tsx` (`TabBarProvider`, monta nel `layout.tsx` di
+  `[worldId]`), `route-tabs.ts` (mappa percorso → tipo di scheda/icona Lucide, `tabKeyFor`, testata in isolamento
+  con un test unitario puro), `tab-bar.tsx` (il componente visivo), `tab-label.tsx` (da rendere in una pagina per
+  dare alla sua scheda un'etichetta specifica invece di quella generica — usato nel dettaglio snippet, che mostra
+  il titolo reale, come nell'esempio della specifica).
+- **Corsa fra effetti**: `TabLabel` (nella pagina, discendente) e `TabBarProvider` (nel layout, antenato) possono
+  registrare la stessa scheda in un ordine qualunque — React esegue prima gli effetti dei discendenti. `setTabLabel`
+  quindi fa un upsert (crea la scheda se non esiste ancora) invece di assumere che `ensureOpen` sia già passato.
+- **Ricerca in barra**: il bottone "+" apre la stessa ricerca rapida di Ctrl/Cmd+K (`command-palette.tsx`, D-019)
+  simulandone la scorciatoia via `KeyboardEvent`, senza toccare quel componente.
+- **Chiusura**: click, tasto centrale del mouse (con `preventDefault` per non aprire una scheda del browser),
+  `Canc`/`Backspace` da tastiera — non `Ctrl/Cmd+W`, riservato dal browser (D-052 lo aveva già escluso).
+- **Collisioni scoperte con la suite e2e esistente**: la barra mostra il titolo reale delle pagine visitate (es.
+  il titolo di uno snippet) come testo di un link, sempre presente nella pagina finché la scheda resta aperta.
+  Diversi test e2e preesistenti verificavano assenza/unicità di un link con `page.getByRole('link', {name: ...})`
+  **non delimitato al contenuto principale**, assumendo implicitamente che quel testo comparisse una sola volta
+  nella pagina — un'assunzione ragionevole finché non esisteva una navigazione persistente con etichette reali.
+  Scoperte ed eseguendo l'intera suite e2e più volte (non deducibili dal solo diff): `e2e/search.spec.ts`,
+  `e2e/snippets.spec.ts` (tre punti), `e2e/views.spec.ts` (due punti) — tutte corrette delimitando la ricerca a
+  `page.getByRole('main')`. Non è stato possibile riverificare l'intera suite (~400 test) un numero di volte
+  sufficiente a escludere con certezza altre collisioni residue in test non toccati da #112 (il tempo di
+  esecuzione e l'instabilità del server locale dopo molte esecuzioni consecutive lo hanno reso proibitivo): se in
+  futuro un test esistente fallisce con "strict mode violation... aka getByRole('navigation', { name: 'Schede
+  aperte' })", la correzione è la stessa (delimitare a `getByRole('main')`), non un problema della barra di
+  schede in sé.
+- Deciso da: agente

@@ -43,12 +43,15 @@ test.describe('viste salvate', () => {
     const url = await saveView(owner.page, worldId, 'Elara', 'Le sagge', true);
     expect(url).toMatch(/\/worlds\/[0-9a-f-]{36}\/views\/[0-9a-f-]{36}$/);
     await expect(owner.page.getByRole('heading', { level: 1, name: 'Le sagge' })).toBeVisible();
-    await expect(owner.page.getByRole('link', { name: 'Elara la Saggia' })).toBeVisible();
-    await expect(owner.page.getByRole('link', { name: 'Borin il Nano' })).toHaveCount(0);
+    // Nel contenuto principale: la barra di schede (#112) mostra ancora i link agli snippet visitati prima di
+    // salvare la vista, con lo stesso nome.
+    const main = owner.page.getByRole('main');
+    await expect(main.getByRole('link', { name: 'Elara la Saggia' })).toBeVisible();
+    await expect(main.getByRole('link', { name: 'Borin il Nano' })).toHaveCount(0);
 
     // Persistenza: dopo un ricaricamento la vista c'è ancora, e compare nell'elenco.
     await owner.page.reload();
-    await expect(owner.page.getByRole('link', { name: 'Elara la Saggia' })).toBeVisible();
+    await expect(main.getByRole('link', { name: 'Elara la Saggia' })).toBeVisible();
     await owner.page.goto(`/worlds/${worldId}/views`);
     await expect(owner.page.getByRole('link', { name: 'Le sagge' })).toBeVisible();
 
