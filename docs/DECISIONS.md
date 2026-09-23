@@ -956,3 +956,21 @@ presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — pr
   (a11y via axe + il nuovo budget LCP), non da un report Lighthouse separato — rivalutare se il traffico reale lo
   giustificherà.
 - Deciso da: agente
+
+### D-049: Guida utente separata da GUIDA.md; primo rilascio (release-please) sbloccato
+
+- Data: 2026-09-23
+- Contesto: #47 chiede una guida utente breve, la documentazione dei formati (già completa: `export-format.md`
+  #21/#43/#100, `stats-schema.md` #33) e un primo rilascio con CHANGELOG, come da SPEC («Definition of finito»).
+- **Nuovo `docs/user-guide.md`**, non `GUIDA.md`: quest'ultimo è la guida del template/scaffold per impostare lo
+  sviluppo autonomo con Claude Code (pubblico: chi riusa il kit), non ha nulla a che fare con chi usa l'app
+  Worldloom finita — pubblici diversi, file diversi. `docs/user-guide.md` copre in breve i percorsi principali
+  (mondo, categorie e snippet, relazioni e menzioni, viste, campagne, import/export, wiki, account) con link ai
+  due documenti di formato già esistenti.
+- **Primo rilascio**: `release-please` aveva già una PR pronta («chore(main): release 1.0.0», aperta e aggiornata
+  a ogni push su `main` da settimane) ma mai mergiata — nessun tag, nessuna release, nessun `CHANGELOG.md` esisteva
+  ancora. Mergiata ora (dopo aver approvato manualmente l'esecuzione del workflow CI su quella PR, bloccata su
+  «action required»: `gh api -X POST repos/<owner>/<repo>/actions/runs/<id>/approve`, verosimilmente perché le
+  impostazioni Actions del repository richiedono un'approvazione per le PR aperte da `github-actions[bot]`).
+  Prodotti tag `v1.0.0`, release GitHub e `CHANGELOG.md` alla radice del repo.
+- Deciso da: agente
