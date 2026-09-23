@@ -1099,3 +1099,35 @@ presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — pr
   pseudo-elemento invisibile (`::after` con `inset` negativo) invece di ingrandire il box visivo, come richiesto
   da `design-system.md`; il documento ora menziona esplicitamente l'eccezione del link testuale da disconnesso.
 - Deciso da: agente
+
+### D-054: `loading.tsx` rompe i codici di stato HTTP di `notFound()`/`redirect()` — spinner inline sì, skeleton di navigazione no
+
+- Data: 2026-09-23
+- Contesto: #111 implementava i tre pattern di caricamento di D-052 (barra di navigazione, skeleton, spinner
+  inline). Durante l'implementazione dello skeleton (`loading.tsx` per route segment, il fix principale indicato
+  da D-051 per la lentezza percepita) è emerso un problema reale, non teorico: `e2e/categories.spec.ts` ("un
+  estraneo non accede alle categorie di un altro mondo", che verifica `res.status() === 404`) e
+  `e2e/snippets.spec.ts` ("senza JavaScript il testo si modifica...") hanno iniziato a fallire.
+- **Causa, verificata per eliminazione** (rimuovendo un `loading.tsx` alla volta e ripetendo il test con un
+  server Next.js fresco, non riusato fra un tentativo e l'altro — il primo giro di test era stato inquinato
+  proprio dal riuso del server di `playwright.config.ts`, `reuseExistingServer` in locale, portando a un falso
+  negativo iniziale): un `loading.tsx` in un segmento (o in un suo antenato, es. `src/app/worlds/loading.tsx`
+  sopra `[worldId]/categories`) crea un confine Suspense attorno a quel segmento. Se la pagina chiama
+  `notFound()` (qui: sempre, tramite `loadWorld()` in `src/lib/worlds/context.ts`, per verificare l'appartenenza
+  al mondo) Next.js ha già iniziato lo streaming della risposta con stato 200 per mostrare lo skeleton di
+  fallback, e non può più cambiarlo a 404 quando `notFound()` viene poi chiamato — comportamento documentato di
+  Next.js App Router (streaming + Suspense committano l'header di stato prima che l'errore possa alterarlo), non
+  un bug di questo codice. Interessa ogni pagina che controlla i permessi con `notFound()`/`redirect()` **dopo**
+  l'inizio del rendering, cioè praticamente ogni pagina di un mondo in questa app.
+- **Scope ridotto**: rimossi tutti i `loading.tsx` aggiunti e i componenti `Skeleton`/`PageSkeleton`/
+  `ListSkeleton`/`LoadingStatus`, inutilizzabili senza `loading.tsx`. Il pattern "spinner inline nei bottoni"
+  (`SubmitButton`, `useFormStatus()` di React, nessuna relazione con lo streaming delle route) non ha questo
+  problema ed è stato mantenuto, applicato alla creazione di snippet e categorie. La barra di avanzamento di
+  navigazione globale è anch'essa rimandata: richiederebbe di intercettare la navigazione client-side in modo
+  simile (`useLinkStatus()`, Next 15+) e merita la stessa cautela prima di essere estesa a tutta l'app.
+- **Correzione reale rimandata**: per riavere lo skeleton in sicurezza servirebbe spostare il controllo di
+  `loadWorld()` dal `page.tsx` di ogni singola pagina al `layout.tsx` del segmento `[worldId]` (oggi il commento
+  in quel file dice esplicitamente "le pagine verificano da sole l'accesso") — un refresh architetturale che
+  tocca ~20 file di pagina e va fatto con attenzione dedicata, non di sfuggita dentro #111. Aggiunta una nota in
+  "Note utili per riprendere il lavoro" di `docs/PLAN.md`.
+- Deciso da: agente
