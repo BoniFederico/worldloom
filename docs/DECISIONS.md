@@ -1063,3 +1063,30 @@ presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — pr
   accento cromatico sulla scheda attiva).
 - Nessuna implementazione in questa issue: il documento è la base per #110-#113.
 - Deciso da: agente (skill `frontend-design`)
+
+### D-053: Menu superiore ridisegnato (#110)
+
+- Data: 2026-09-23
+- Contesto: #110 implementa la specifica D-052 (tema ciclico a icona sola, menu lingua a icona, account come
+  avatar), sostituendo `PreferenceGroup` (gruppo di bottoni testuali, la lamentela esplicita dell'utente).
+- **Tema**: `src/components/theme-toggle.tsx`, un solo bottone che invia `nextTheme(current)` come form submit
+  (progressive enhancement invariato: nessun JavaScript client richiesto), icona Lucide (`Monitor`/`Sun`/`Moon`)
+  che riflette lo stato attuale, `aria-label` = nome dello stato corrente (stesse stringhe tradotte di prima:
+  «Sistema»/«Chiaro»/«Scuro»), `title` = nome dello stato successivo (anteprima del click).
+- **Lingua**: `src/components/language-menu.tsx`, `<details>/<summary>` nativo (funziona senza JavaScript) con
+  icona globo; il `<summary>` ha `role="button"` esplicito perché il ruolo ARIA implicito di `<summary>` non è
+  "button" nei browser (scoperto durante la verifica e2e: `getByRole('button', ...)` non lo trovava). Dentro, la
+  stessa form a due bottoni (IT/EN) di prima.
+- **Account**: `src/components/account-menu.tsx`, avatar circolare 28px con l'iniziale dell'email (da
+  `supabase.auth.getClaims()`, nessuna query aggiuntiva al DB — coerente con D-051 sull'evitare round trip
+  superflui), `aria-label` invariato ("Account") per compatibilità con gli e2e esistenti che cercano quel testo.
+  Da disconnesso resta un link testuale "Accedi", non un'icona (stato raro, non nella lamentela dell'utente).
+- **Fuori scope, rimandato**: il bottone di ricerca nella barra superiore e il breadcrumb del mondo/sezione. La
+  ricerca (Ctrl/Cmd+K) è oggi montata solo nelle pagine di un mondo (`command-palette.tsx`, D-019) ed è più
+  naturale integrarla insieme alla barra di schede (#112), che introduce comunque un contesto di navigazione
+  per-mondo; il breadcrumb richiede lo stesso contesto. Implementarli qui avrebbe anticipato lavoro di #112.
+- **e2e**: `e2e/shell.spec.ts` riscritto per il nuovo modello di interazione (click singolo che cicla il tema
+  invece di tre bottoni radio; apertura del menu lingua prima di cliccare IT/EN). Tutti gli altri e2e che
+  referenziano l'header (auth, demo) restano verdi senza modifiche, perché le stringhe accessibili (aria-label)
+  sono rimaste identiche anche dove il testo visibile è cambiato.
+- Deciso da: agente

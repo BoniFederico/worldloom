@@ -9,6 +9,7 @@ test.describe('shell applicativa', () => {
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
     await expect(page.getByRole('link', { name: 'Skip to content' })).toBeAttached();
 
+    await page.getByRole('button', { name: 'Language' }).click();
     await page.getByRole('button', { name: 'IT' }).click();
     await expect(page.locator('html')).toHaveAttribute('lang', 'it');
     await expect(page.getByRole('navigation', { name: 'Navigazione principale' })).toBeVisible();
@@ -18,14 +19,21 @@ test.describe('shell applicativa', () => {
     await context.close();
   });
 
-  test('il tema scuro si imposta e persiste', async ({ page }) => {
+  test('il tema è un unico bottone che cicla sistema → chiaro → scuro e persiste', async ({
+    page,
+  }) => {
     await page.goto('/');
-    await page.getByRole('button', { name: 'Scuro' }).click();
+    const toggle = page.getByRole('button', { name: 'Sistema' });
+    await expect(toggle).toBeVisible();
+
+    await toggle.click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+    await expect(page.getByRole('button', { name: 'Chiaro' })).toBeVisible();
+
+    await page.getByRole('button', { name: 'Chiaro' }).click();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
-    await expect(page.getByRole('button', { name: 'Scuro' })).toHaveAttribute(
-      'aria-pressed',
-      'true',
-    );
+    await expect(page.getByRole('button', { name: 'Scuro' })).toBeVisible();
+
     await page.reload();
     await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   });
