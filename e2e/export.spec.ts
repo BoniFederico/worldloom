@@ -254,6 +254,46 @@ test.describe('import ed export del mondo', () => {
     await expect(page.getByRole('link', { name: 'Elara' })).toHaveCount(0);
   });
 
+  test('esporta in Markdown (#100): archivio ZIP, reimportabile con la stessa fedeltà del JSON', async ({
+    browser,
+  }) => {
+    const { page } = await newUser(browser, 'Autrice');
+    const worldId = await createWorld(page, 'Aurelia');
+    await page.goto(`/worlds/${worldId}/categories`);
+    await page.getByLabel('Nome', { exact: true }).fill('Luogo');
+    await page.getByRole('button', { name: 'Crea categoria' }).click();
+    await expect(page.getByRole('status')).toHaveText('Categoria creata.');
+    await createSnippet(page, worldId, 'Elara');
+    await createSnippet(page, worldId, 'Porto Verde');
+
+    const zip = await page.request.get(`/worlds/${worldId}/export/markdown`);
+    expect(zip.status()).toBe(200);
+    expect(zip.headers()['content-type']).toBe('application/zip');
+    expect(zip.headers()['content-disposition']).toContain('aurelia.worldloom.zip');
+    const buffer = await zip.body();
+    expect(buffer.subarray(0, 4)).toEqual(Buffer.from([0x50, 0x4b, 0x03, 0x04]));
+
+    await page.goto('/worlds/import');
+    await page.getByLabel('Archivio .zip').setInputFiles({
+      name: 'aurelia.worldloom.zip',
+      mimeType: 'application/zip',
+      buffer,
+    });
+    await page.getByRole('button', { name: 'Importa da .zip' }).click();
+    await expect(page.getByRole('status')).toHaveText('Mondo importato.');
+    const newId = new URL(page.url()).pathname.split('/')[2] as string;
+    expect(newId).not.toBe(worldId);
+
+    const original = await (await page.request.get(`/worlds/${worldId}/export`)).json();
+    const reimported = await (await page.request.get(`/worlds/${newId}/export`)).json();
+    expect(reimported.categories.map((c: { name: string }) => c.name)).toEqual(
+      original.categories.map((c: { name: string }) => c.name),
+    );
+    expect(reimported.snippets.map((s: { title: string }) => s.title)).toEqual(
+      original.snippets.map((s: { title: string }) => s.title),
+    );
+  });
+
   test('chi non è membro non può esportare; un lettore esporta solo ciò che può leggere', async ({
     browser,
   }) => {

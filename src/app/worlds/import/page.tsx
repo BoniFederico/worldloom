@@ -43,6 +43,23 @@ export default async function ImportWorldPage({ searchParams }: Props) {
           </button>
         </form>
 
+        <h2>{t('zipTitle')}</h2>
+        <p>{t('zipIntro')}</p>
+        <form
+          action="/api/worlds/import-zip"
+          method="post"
+          encType="multipart/form-data"
+          className="form"
+        >
+          <div className="field">
+            <label htmlFor="zip-file">{t('zipFile')}</label>
+            <input id="zip-file" name="file" type="file" accept=".zip,application/zip" required />
+          </div>
+          <button type="submit" className="btn btn-primary">
+            {t('zipSubmit')}
+          </button>
+        </form>
+
         <h2>{t('markdownTitle')}</h2>
         <p>{t('markdownIntro')}</p>
         <form

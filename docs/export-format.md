@@ -80,7 +80,7 @@ Il file è prodotto da `GET /worlds/{id}/export` (pulsante «Esporta (JSON)» ne
 - I calendari personalizzati (#26) non sono ancora nel formato: i campi di tipo `calendar_date` vengono esportati e reimportati com'erano, ma il loro
   `calendar` è l'id di un calendario del mondo di origine.
 - Import da Markdown/Obsidian/CSV: fatto in #43 (vedi D-043), rotte `POST /api/worlds/import-markdown` e
-  `POST /api/worlds/import-csv`. Export in Markdown con front matter: vedi #100.
+  `POST /api/worlds/import-csv`.
 - **Modelli condivisibili (#43)**: `GET /worlds/<id>/export?template=1` produce lo stesso formato con `snippets` e `relations`
   vuoti — solo categorie (con i loro campi) e tipi di relazione. Nessuna versione o campo nuovo: il file si importa con lo
   stesso percorso JSON già esistente, senza modifiche, e crea un mondo nuovo con la struttura pronta ma senza contenuto.
@@ -88,3 +88,21 @@ Il file è prodotto da `GET /worlds/{id}/export` (pulsante «Esporta (JSON)» ne
   compare in `fieldVisibility` dello snippet (`{"debolezza": "secret"}`; chiave facoltativa, assente quando non serve). L'importazione lo rimette nella tabella dei campi
   riservati **come segreto del nuovo mondo** (i destinatari scelti non si esportano) e mai nella colonna pubblica. I livelli `shared` di snippet e relazioni restano `shared`
   senza destinatari, cioè visibili solo a chi scrive.
+
+## Esportazione in Markdown (#100)
+
+`GET /worlds/<id>/export/markdown` produce un archivio ZIP (`application/zip`, solo metodo STORE, nessuna
+compressione), pensato anche per essere aperto direttamente in Obsidian:
+
+- `_worldloom.json`: esattamente il documento descritto sopra (stesso schema, stessa `version`). È la fonte di
+  verità per il round trip — «l'export deve ricreare il mondo identico» — non i file `.md`.
+- Un file `<titolo>.md` per snippet (nome reso sicuro come nell'export JSON dei file, con suffisso numerico in
+  caso di titoli doppi), con front matter (`title`, `status`, `visibility`, `archived`, `categories`, `tags`,
+  `aliases`, `createdAt`) e il corpo reso in Markdown (sottoinsieme di `markdownToDoc`: titoli, paragrafi,
+  liste, citazioni, grassetto/corsivo/codice, link; le menzioni diventano wikilink `[[Titolo]]`). Tabelle e
+  immagini non sono rese in Markdown (restano solo in `_worldloom.json`, coi limiti già noti per le immagini).
+
+`POST /api/worlds/import-zip` reimporta l'archivio: legge `_worldloom.json` e lo importa con lo stesso codice
+dell'import JSON diretto (stessi limiti, stessa validazione, stessa atomicità). I file `.md` dentro l'archivio
+non vengono letti da questa rotta — sono comunque singolarmente compatibili con l'import Markdown esistente
+(D-043, best-effort), utile per chi vuole importare solo alcuni file invece dell'intero mondo.
