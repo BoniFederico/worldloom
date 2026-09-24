@@ -17,44 +17,56 @@ type Ctx = {
   tabs: Tab[];
   activePath: string;
   worldId: string;
+  userId: string;
   close: (path: string) => void;
 };
 
 const TabBarContext = createContext<Ctx | null>(null);
 
 /**
- * Barra di schede persistente per mondo (D-052, #112): le schede aperte vivono in un piccolo store esterno a
- * React (`tab-store.ts`, `localStorage` per dispositivo), letto con `useSyncExternalStore` — mai `setState`
- * dentro un effetto. Solo lato client: nessuna relazione con lo streaming delle route (D-054).
+ * Barra di schede persistente per mondo e per utente (D-052, D-055, #112): le schede aperte vivono in un piccolo
+ * store esterno a React (`tab-store.ts`, `localStorage` per dispositivo e utente), letto con `useSyncExternalStore`
+ * — mai `setState` dentro un effetto. Solo lato client: nessuna relazione con lo streaming delle route (D-054).
+ * `userId` arriva dal layout server (stesso pattern di `AppHeader`) per non mescolare le schede, e i titoli che
+ * possono contenere, fra utenti diversi dello stesso browser (D-055).
  */
-export function TabBarProvider({ worldId, children }: { worldId: string; children: ReactNode }) {
+export function TabBarProvider({
+  worldId,
+  userId,
+  children,
+}: {
+  worldId: string;
+  userId: string;
+  children: ReactNode;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const base = `/worlds/${worldId}`;
   const relative = pathname.startsWith(base) ? pathname.slice(base.length) : '';
 
   const tabs = useSyncExternalStore(
-    useCallback((listener) => subscribe(worldId, listener), [worldId]),
-    useCallback(() => getTabs(worldId), [worldId]),
+    useCallback((listener) => subscribe(userId, worldId, listener), [userId, worldId]),
+    useCallback(() => getTabs(userId, worldId), [userId, worldId]),
     () => [] as Tab[],
   );
 
   useEffect(() => {
+    if (!userId) return;
     const key = tabKeyFor(relative);
-    if (key) ensureOpen(worldId, pathname, key);
-  }, [pathname, relative, worldId]);
+    if (key) ensureOpen(userId, worldId, pathname, key);
+  }, [pathname, relative, userId, worldId]);
 
   const close = useCallback(
     (path: string) => {
-      const fallback = closeTab(worldId, path);
+      const fallback = closeTab(userId, worldId, path);
       if (path === pathname) router.push(fallback ? fallback.path : base);
     },
-    [worldId, pathname, router, base],
+    [userId, worldId, pathname, router, base],
   );
 
   const value = useMemo(
-    () => ({ tabs, activePath: pathname, worldId, close }),
-    [tabs, pathname, worldId, close],
+    () => ({ tabs, activePath: pathname, worldId, userId, close }),
+    [tabs, pathname, worldId, userId, close],
   );
 
   return <TabBarContext.Provider value={value}>{children}</TabBarContext.Provider>;
@@ -69,11 +81,12 @@ export function useRegisterTabLabel(label: string) {
   const pathname = usePathname();
   const ctx = useContext(TabBarContext);
   const worldId = ctx?.worldId;
+  const userId = ctx?.userId;
   useEffect(() => {
-    if (!worldId || !label) return;
+    if (!worldId || !userId || !label) return;
     const base = `/worlds/${worldId}`;
     const relative = pathname.startsWith(base) ? pathname.slice(base.length) : '';
     const key = tabKeyFor(relative);
-    if (key) setTabLabel(worldId, pathname, key, label);
-  }, [worldId, pathname, label]);
+    if (key) setTabLabel(userId, worldId, pathname, key, label);
+  }, [worldId, userId, pathname, label]);
 }

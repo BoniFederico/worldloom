@@ -81,3 +81,5 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 - Barra di schede (#112, D-055): mostra il titolo reale delle pagine visitate come link, sempre presente finché
   la scheda resta aperta. Se un test e2e esistente fallisce con "strict mode violation... aka getByRole('navigation',
   { name: 'Schede aperte' })", delimitare la ricerca a `page.getByRole('main')` — non riverificata l'intera suite.
+  Le schede sono salvate per utente oltre che per mondo (`worldloom:tabs:<userId>:<worldId>`), per non far
+  trapelare titoli riservati fra utenti che condividono un browser (correzione post-review, D-055).

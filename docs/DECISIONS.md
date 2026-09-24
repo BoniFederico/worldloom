@@ -1164,4 +1164,28 @@ presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — pr
   futuro un test esistente fallisce con "strict mode violation... aka getByRole('navigation', { name: 'Schede
   aperte' })", la correzione è la stessa (delimitare a `getByRole('main')`), non un problema della barra di
   schede in sé.
+- **Correzioni dalla review (subagent `reviewer`)**:
+  - **Riservatezza fra utenti dello stesso browser (bloccante)**: le schede erano salvate per mondo
+    (`worldloom:tabs:<worldId>`), non per utente. Su un browser condiviso (es. un GM e un giocatore sullo stesso
+    PC al tavolo), il titolo reale di uno snippet riservato (mostrato in barra da `TabLabel`) restava leggibile in
+    `localStorage` per il prossimo utente che apriva lo stesso mondo, prima ancora che un controllo di
+    autorizzazione entrasse in gioco — il modello di visibilità esistente (`src/lib/visibility/restricted.ts`)
+    protegge solo il contenuto della pagina, non un'etichetta già in cache. Corretto includendo `userId` nella
+    chiave (`worldloom:tabs:<userId>:<worldId>`) e in ogni funzione dello store (`tab-store.ts`): utenti diversi
+    non condividono più le schede né le etichette. `userId` arriva dal layout server di `[worldId]`
+    (`supabase.auth.getClaims()`, stesso pattern di `AppHeader`/D-053) e passa per il contesto fino a
+    `useRegisterTabLabel`.
+  - **Schema non validato da `localStorage` (importante)**: `readStored` verificava solo che `path` fosse una
+    stringa, non che `key` fosse una `TabKey` nota. Una voce con una chiave sconosciuta (dato manomesso, o una
+    versione precedente incompatibile dopo un refactor di `route-tabs.ts`) faceva fallire `TAB_ICON[tab.key]` nel
+    render di `TabBar`, montata nel layout — l'intera sezione `/worlds/[worldId]/**` smetteva di renderizzare
+    finché l'utente non svuotava manualmente il `localStorage`. Corretto filtrando anche su `VALID_KEYS.has(t.key)`.
+  - **Nessun test unitario per `tab-store.ts` (importante)**: aggiunto `tab-store.test.ts` (7 casi: separazione
+    per utente, scarto di una chiave sconosciuta, `closeTab` su prima/unica/ultima scheda e su un percorso non
+    aperto, trimming a `MAX_TABS` sia da `ensureOpen` sia da `setTabLabel`). Nessuna dipendenza da jsdom (assente
+    dal progetto): stub minimo di `window`/`localStorage` nel test stesso, con un `worldId` diverso per test per
+    non far trapelare la cache in memoria del modulo fra un test e l'altro.
+  - **Suggerimenti minori applicati**: `preventDefault()` esplicito su Canc/Backspace nella scheda; `subscribe`
+    ora rimuove dalla mappa i `Set` di listener rimasti vuoti invece di lasciarli accumulare per ogni mondo
+    visitato nella sessione.
 - Deciso da: agente

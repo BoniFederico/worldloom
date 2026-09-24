@@ -38,7 +38,10 @@ export function TabBar() {
                   }
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === 'Delete' || e.key === 'Backspace') close(tab.path);
+                  if (e.key === 'Delete' || e.key === 'Backspace') {
+                    e.preventDefault();
+                    close(tab.path);
+                  }
                 }}
               >
                 <Icon size={14} aria-hidden="true" />
