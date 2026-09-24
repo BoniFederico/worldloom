@@ -964,9 +964,6 @@ select {
 .editor-content {
   min-height: 240px;
   padding: var(--space-4);
-  font-family: var(--font-serif);
-  font-size: var(--text-md);
-  line-height: 1.6;
 }
 
 .editor-content:focus-visible {
@@ -1013,15 +1010,17 @@ select {
   font-size: 0.9em;
 }
 
-.prose a {
+/* :not(.mention) esclude le pillole @menzione (rese come <Link class="mention">, D-018): quelle restano senza
+   sottolineatura (.mention più sotto), solo i link veri e propri del testo prendono la sottolineatura di D-052. */
+.prose a:not(.mention) {
   color: var(--primary);
   text-decoration: underline;
   text-decoration-color: var(--text-muted);
   transition: text-decoration-color var(--motion);
 }
 
-.prose a:hover,
-.prose a:focus-visible {
+.prose a:not(.mention):hover,
+.prose a:not(.mention):focus-visible {
   text-decoration-color: var(--text);
 }
 

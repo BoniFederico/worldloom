@@ -1200,15 +1200,19 @@ presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — pr
   `body`), `--ui-text-lg` (18px) in `globals.css`, usati SOLO dal testo in `--font-ui` (interfaccia). Il contenuto
   in `--font-serif` (titoli di pagina, `.brand`, `.intro`) resta sulla scala esistente (`--text-*`, invariata).
   Sweep di ~20 selettori UI da `--text-sm/md/lg` ai nuovi token (etichette, celle tabella, meta, titoli di
-  sezione). `.prose` e `.editor-content` (lettura e scrittura del corpo di uno snippet) non avevano un
-  `font-size` esplicito: prima ereditavano invisibilmente il font-size di `body`, quindi sarebbero scesi a 14px
-  insieme all'interfaccia. Ora fissano esplicitamente `font-family: var(--font-serif); font-size: var(--text-md)`
-  (16px, invariato) — decoupled dalla scala UI, come richiesto dalla specifica. In più, `.editor-content` non
-  aveva ALCUN font-family prima (ereditava il sans-serif dell'interfaccia): l'editor e la lettura ora sono
-  coerenti, entrambi in serif — un'incoerenza pre-esistente scoperta durante l'audit, non introdotta qui.
+  sezione). `.prose` (lettura e scrittura del corpo di uno snippet — l'editor rende sempre `class="editor-content
+prose"`, D-018) non aveva un `font-size` esplicito: prima ereditava invisibilmente il font-size di `body`,
+  quindi sarebbe sceso a 14px insieme all'interfaccia. Ora fissa esplicitamente `font-size: var(--text-md)` (16px,
+  invariato) — decoupled dalla scala UI, come richiesto dalla specifica. `font-family: var(--font-serif)` era già
+  presente su `.prose` da prima (nessun bug lì: `.editor-content` non ha mai avuto una propria dichiarazione di
+  `font-family` in conflitto, l'editor ha sempre ereditato il serif di `.prose` per ordine di dichiarazione nel
+  foglio di stile — correzione al testo di questa decisione dopo la review, che aveva trovato l'affermazione
+  originale sull'editor in sans-serif errata).
 - **Interazioni mancanti aggiunte** (D-052 "Interazioni hover e focus", non ancora applicate ovunque): hover di
   sfondo su `.data-table tbody tr` e `.members tbody tr` (le viste tabellari non avevano alcun hover di riga);
-  `.prose a` (link dentro il testo di uno snippet) non aveva sottolineatura — ora sottolineato con
+  `.prose a` (link dentro il testo di uno snippet, escluse le pillole `.mention` con `:not(.mention)` — trovato
+  dalla review: `.mention` e il link generico hanno la stessa specificità, senza l'esclusione il link generico
+  avrebbe vinto per ordine di dichiarazione e sottolineato anche le menzioni) non aveva sottolineatura — ora con
   `text-decoration-color` tenue a riposo che si scurisce all'hover, come da specifica, invece del solo colore
   primario senza sottolineatura di prima; `.sessions-list a`/`.encounter-list a` (elenco sessioni e scontri di una
   campagna) non avevano ALCUNO stile — i link vi apparivano con lo stile blu sottolineato di default del browser,
