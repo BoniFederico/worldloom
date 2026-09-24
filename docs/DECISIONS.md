@@ -1131,3 +1131,61 @@ presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — pr
   tocca ~20 file di pagina e va fatto con attenzione dedicata, non di sfuggita dentro #111. Aggiunta una nota in
   "Note utili per riprendere il lavoro" di `docs/PLAN.md`.
 - Deciso da: agente
+
+### D-055: Barra di schede persistente (#112)
+
+- Data: 2026-09-23
+- Contesto: #112 implementa la specifica D-052 — una barra di schede in stile IDE sotto il menu superiore, che
+  sostituisce la navigazione a pagina singola fra le sezioni di un mondo.
+- **Architettura**: `src/components/tab-bar/` — `tab-store.ts` (piccolo store esterno a React, `localStorage`
+  per mondo, non `setState` dentro un effetto: letto con `useSyncExternalStore` per rispettare la regola lint
+  `react-hooks/set-state-in-effect`), `tab-bar-context.tsx` (`TabBarProvider`, monta nel `layout.tsx` di
+  `[worldId]`), `route-tabs.ts` (mappa percorso → tipo di scheda/icona Lucide, `tabKeyFor`, testata in isolamento
+  con un test unitario puro), `tab-bar.tsx` (il componente visivo), `tab-label.tsx` (da rendere in una pagina per
+  dare alla sua scheda un'etichetta specifica invece di quella generica — usato nel dettaglio snippet, che mostra
+  il titolo reale, come nell'esempio della specifica).
+- **Corsa fra effetti**: `TabLabel` (nella pagina, discendente) e `TabBarProvider` (nel layout, antenato) possono
+  registrare la stessa scheda in un ordine qualunque — React esegue prima gli effetti dei discendenti. `setTabLabel`
+  quindi fa un upsert (crea la scheda se non esiste ancora) invece di assumere che `ensureOpen` sia già passato.
+- **Ricerca in barra**: il bottone "+" apre la stessa ricerca rapida di Ctrl/Cmd+K (`command-palette.tsx`, D-019)
+  simulandone la scorciatoia via `KeyboardEvent`, senza toccare quel componente.
+- **Chiusura**: click, tasto centrale del mouse (con `preventDefault` per non aprire una scheda del browser),
+  `Canc`/`Backspace` da tastiera — non `Ctrl/Cmd+W`, riservato dal browser (D-052 lo aveva già escluso).
+- **Collisioni scoperte con la suite e2e esistente**: la barra mostra il titolo reale delle pagine visitate (es.
+  il titolo di uno snippet) come testo di un link, sempre presente nella pagina finché la scheda resta aperta.
+  Diversi test e2e preesistenti verificavano assenza/unicità di un link con `page.getByRole('link', {name: ...})`
+  **non delimitato al contenuto principale**, assumendo implicitamente che quel testo comparisse una sola volta
+  nella pagina — un'assunzione ragionevole finché non esisteva una navigazione persistente con etichette reali.
+  Scoperte ed eseguendo l'intera suite e2e più volte (non deducibili dal solo diff): `e2e/search.spec.ts`,
+  `e2e/snippets.spec.ts` (tre punti), `e2e/views.spec.ts` (due punti) — tutte corrette delimitando la ricerca a
+  `page.getByRole('main')`. Non è stato possibile riverificare l'intera suite (~400 test) un numero di volte
+  sufficiente a escludere con certezza altre collisioni residue in test non toccati da #112 (il tempo di
+  esecuzione e l'instabilità del server locale dopo molte esecuzioni consecutive lo hanno reso proibitivo): se in
+  futuro un test esistente fallisce con "strict mode violation... aka getByRole('navigation', { name: 'Schede
+  aperte' })", la correzione è la stessa (delimitare a `getByRole('main')`), non un problema della barra di
+  schede in sé.
+- **Correzioni dalla review (subagent `reviewer`)**:
+  - **Riservatezza fra utenti dello stesso browser (bloccante)**: le schede erano salvate per mondo
+    (`worldloom:tabs:<worldId>`), non per utente. Su un browser condiviso (es. un GM e un giocatore sullo stesso
+    PC al tavolo), il titolo reale di uno snippet riservato (mostrato in barra da `TabLabel`) restava leggibile in
+    `localStorage` per il prossimo utente che apriva lo stesso mondo, prima ancora che un controllo di
+    autorizzazione entrasse in gioco — il modello di visibilità esistente (`src/lib/visibility/restricted.ts`)
+    protegge solo il contenuto della pagina, non un'etichetta già in cache. Corretto includendo `userId` nella
+    chiave (`worldloom:tabs:<userId>:<worldId>`) e in ogni funzione dello store (`tab-store.ts`): utenti diversi
+    non condividono più le schede né le etichette. `userId` arriva dal layout server di `[worldId]`
+    (`supabase.auth.getClaims()`, stesso pattern di `AppHeader`/D-053) e passa per il contesto fino a
+    `useRegisterTabLabel`.
+  - **Schema non validato da `localStorage` (importante)**: `readStored` verificava solo che `path` fosse una
+    stringa, non che `key` fosse una `TabKey` nota. Una voce con una chiave sconosciuta (dato manomesso, o una
+    versione precedente incompatibile dopo un refactor di `route-tabs.ts`) faceva fallire `TAB_ICON[tab.key]` nel
+    render di `TabBar`, montata nel layout — l'intera sezione `/worlds/[worldId]/**` smetteva di renderizzare
+    finché l'utente non svuotava manualmente il `localStorage`. Corretto filtrando anche su `VALID_KEYS.has(t.key)`.
+  - **Nessun test unitario per `tab-store.ts` (importante)**: aggiunto `tab-store.test.ts` (7 casi: separazione
+    per utente, scarto di una chiave sconosciuta, `closeTab` su prima/unica/ultima scheda e su un percorso non
+    aperto, trimming a `MAX_TABS` sia da `ensureOpen` sia da `setTabLabel`). Nessuna dipendenza da jsdom (assente
+    dal progetto): stub minimo di `window`/`localStorage` nel test stesso, con un `worldId` diverso per test per
+    non far trapelare la cache in memoria del modulo fra un test e l'altro.
+  - **Suggerimenti minori applicati**: `preventDefault()` esplicito su Canc/Backspace nella scheda; `subscribe`
+    ora rimuove dalla mappa i `Set` di listener rimasti vuoti invece di lasciarli accumulare per ogni mondo
+    visitato nella sessione.
+- Deciso da: agente

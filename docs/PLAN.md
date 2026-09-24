@@ -64,7 +64,7 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 109 | Restyling: fondamenta del design system                                         | docs  | -          | done     | densità, font-size, menu, caricamento, schede, hover/focus (D-052)        |
 | 110 | Restyling: menu superiore e navigazione globale                                 | feat  | 109        | done     | tema ciclico, menu lingua, avatar account (D-053)                         |
 | 111 | Restyling: stati di caricamento e percezione di velocità                        | feat  | 108, 109   | parziale | spinner inline fatto; skeleton di navigazione bloccato, vedi nota (D-054) |
-| 112 | Restyling: navigazione a schede (tab in stile IDE)                              | feat  | 109        | todo     | schede aperte persistite, stile VS Code/browser (D-050)                   |
+| 112 | Restyling: navigazione a schede (tab in stile IDE)                              | feat  | 109        | done     | store esterno, etichette reali, collisioni e2e corrette (D-055)           |
 | 113 | Restyling: passata finale schermata per schermata                               | feat  | 109–112    | todo     | coerenza su tutte le viste (D-050)                                        |
 
 ## Bloccato in attesa dell'utente (`needs-human`)
@@ -78,3 +78,8 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 - Skeleton di navigazione (`loading.tsx`) rimandato da #111 (D-054): rompe i codici di stato 404/redirect perché
   ogni pagina di un mondo verifica i permessi da sola con `notFound()` in `page.tsx`. Per farlo in sicurezza va
   prima spostato il controllo di `loadWorld()` nel `layout.tsx` di `[worldId]`, un refactor dedicato su ~20 pagine.
+- Barra di schede (#112, D-055): mostra il titolo reale delle pagine visitate come link, sempre presente finché
+  la scheda resta aperta. Se un test e2e esistente fallisce con "strict mode violation... aka getByRole('navigation',
+  { name: 'Schede aperte' })", delimitare la ricerca a `page.getByRole('main')` — non riverificata l'intera suite.
+  Le schede sono salvate per utente oltre che per mondo (`worldloom:tabs:<userId>:<worldId>`), per non far
+  trapelare titoli riservati fra utenti che condividono un browser (correzione post-review, D-055).

@@ -8,6 +8,7 @@ import { PresenceBar } from '@/components/presence-bar';
 import { RelationsPanel } from '@/components/relations-panel';
 import { RichText } from '@/components/rich-text';
 import { SnippetForm } from '@/components/snippet-form';
+import { TabLabel } from '@/components/tab-bar/tab-label';
 import { VisibilityForm } from '@/components/visibility-form';
 import { VisibilityLog } from '@/components/visibility-log';
 import { loadCalendars } from '@/lib/calendars/load';
@@ -144,6 +145,7 @@ export default async function SnippetPage({ params, searchParams }: Props) {
 
   return (
     <main id="main" className="page page-top">
+      <TabLabel label={snippet.title} />
       <section className="content">
         <p className="crumbs">
           <Link href={`/worlds/${world.id}/snippets`}>{t('title')}</Link>
