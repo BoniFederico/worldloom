@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.1.0](https://github.com/BoniFederico/worldloom/compare/v1.0.0...v1.1.0) (2026-09-24)
+
+
+### Features
+
+* **shell:** ridisegna il menu superiore ([#110](https://github.com/BoniFederico/worldloom/issues/110)) ([#117](https://github.com/BoniFederico/worldloom/issues/117)) ([e14954b](https://github.com/BoniFederico/worldloom/commit/e14954b6df99dc76a1590127daa9f23e970dc36b))
+* **ui:** barra di schede persistente in stile IDE ([#112](https://github.com/BoniFederico/worldloom/issues/112)) ([#120](https://github.com/BoniFederico/worldloom/issues/120)) ([580d9e2](https://github.com/BoniFederico/worldloom/commit/580d9e216584f0eddb6eb7d76d79684bef179c96))
+* **ui:** passata finale del restyling, schermata per schermata ([#113](https://github.com/BoniFederico/worldloom/issues/113)) ([#121](https://github.com/BoniFederico/worldloom/issues/121)) ([b9ae70b](https://github.com/BoniFederico/worldloom/commit/b9ae70bdf8e7e3afe86558f7c762771958b01cb0))
+* **ui:** spinner inline nei bottoni di submit ([#111](https://github.com/BoniFederico/worldloom/issues/111)) ([#119](https://github.com/BoniFederico/worldloom/issues/119)) ([45324fa](https://github.com/BoniFederico/worldloom/commit/45324fae908ef848026992e4cfdbc721437f12f8))
+
 ## 1.0.0 (2026-09-23)
 
 
