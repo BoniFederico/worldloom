@@ -22,9 +22,16 @@ export default async function WorldLayout({ children, params }: Props) {
   if (!userId) return children;
   return (
     <TabBarProvider worldId={worldId} userId={userId}>
-      <CommandPalette worldId={worldId} />
-      <TabBar />
-      {children}
+      {/* `body` è una grid a due righe (header/contenuto, D-010): senza un unico contenitore qui, ogni figlio
+          diretto (compreso il bottone della ricerca rapida, fratello del <dialog> in CommandPalette) diventerebbe
+          una riga a sé, e la riga 1fr finirebbe a uno qualunque di loro invece che al contenuto — lasciando un
+          vuoto sopra la barra di schede nelle pagine con poco contenuto (bug preesistente da #112, trovato nella
+          passata finale #113). */}
+      <div className="world-shell">
+        <CommandPalette worldId={worldId} />
+        <TabBar />
+        {children}
+      </div>
     </TabBarProvider>
   );
 }

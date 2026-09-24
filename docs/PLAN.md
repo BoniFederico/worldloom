@@ -4,7 +4,7 @@
 
 ## Stato
 
-- Fase: M1 completata (#15–#22); M2 in corso: #23–#30 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe, albero, kanban); M3: #31–#41 chiuse (campagne e inviti, visibilità e rivelazione, statistiche, schede, migrazione, sessioni/diario/bacheca, notifiche in-app, collaborazione in tempo reale, tiratore di dadi, tracker di iniziativa, controllo di coerenza); M4 in corso: #42 chiusa (wiki pubblica del mondo); #43 chiusa (import da Markdown/Obsidian/CSV, D-043; modelli condivisibili, D-046); #44 chiusa (GDPR); #45 parziale (log strutturati e tracciamento errori fatti, D-045; backup rimandato per scelta dell'utente); #100 chiusa (export Markdown come archivio ZIP, D-047); #46 chiusa (CSP, budget LCP, D-048); #47 chiusa (guida utente, primo rilascio v1.0.0, D-049). Backlog M1–M5 esaurito salvo #45 (backup, rimandato) e #94 (needs-human). M6 aperto: restyling front-end (#108–#113, D-050), richiesto dall'utente dopo v1.0.0.
+- Fase: M1 completata (#15–#22); M2 in corso: #23–#30 chiuse (viste salvate, tabella, grafo, calendari, timeline, mappe, albero, kanban); M3: #31–#41 chiuse (campagne e inviti, visibilità e rivelazione, statistiche, schede, migrazione, sessioni/diario/bacheca, notifiche in-app, collaborazione in tempo reale, tiratore di dadi, tracker di iniziativa, controllo di coerenza); M4 in corso: #42 chiusa (wiki pubblica del mondo); #43 chiusa (import da Markdown/Obsidian/CSV, D-043; modelli condivisibili, D-046); #44 chiusa (GDPR); #45 parziale (log strutturati e tracciamento errori fatti, D-045; backup rimandato per scelta dell'utente); #100 chiusa (export Markdown come archivio ZIP, D-047); #46 chiusa (CSP, budget LCP, D-048); #47 chiusa (guida utente, primo rilascio v1.0.0, D-049). Backlog M1–M5 esaurito salvo #45 (backup, rimandato) e #94 (needs-human). M6 chiuso: restyling front-end (#108–#113, D-050–D-056), richiesto dall'utente dopo v1.0.0 — salvo #111 parziale (skeleton di navigazione rimandato, D-054).
 
 ## Backlog (in ordine di esecuzione)
 
@@ -65,7 +65,7 @@ Dipendenze principali: #10, #11 e #12 → #13 → M1 → M2 → M3 → M4 → M5
 | 110 | Restyling: menu superiore e navigazione globale                                 | feat  | 109        | done     | tema ciclico, menu lingua, avatar account (D-053)                         |
 | 111 | Restyling: stati di caricamento e percezione di velocità                        | feat  | 108, 109   | parziale | spinner inline fatto; skeleton di navigazione bloccato, vedi nota (D-054) |
 | 112 | Restyling: navigazione a schede (tab in stile IDE)                              | feat  | 109        | done     | store esterno, etichette reali, collisioni e2e corrette (D-055)           |
-| 113 | Restyling: passata finale schermata per schermata                               | feat  | 109–112    | todo     | coerenza su tutte le viste (D-050)                                        |
+| 113 | Restyling: passata finale schermata per schermata                               | feat  | 109–112    | done     | scala tipografica compatta applicata, hover mancanti, bug layout (D-056)  |
 
 ## Bloccato in attesa dell'utente (`needs-human`)
 
