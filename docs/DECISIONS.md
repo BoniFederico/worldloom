@@ -1189,3 +1189,48 @@ presets.ts`, #14; schemi di statistiche: `src/lib/stats/presets.ts`, #33) — pr
     ora rimuove dalla mappa i `Set` di listener rimasti vuoti invece di lasciarli accumulare per ogni mondo
     visitato nella sessione.
 - Deciso da: agente
+
+### D-056: Restyling, passata finale (#113)
+
+- Data: 2026-09-24
+- Contesto: #113, ultima issue del restyling M6 — applicare la scala tipografica compatta di D-052 (mai
+  implementata prima d'ora: #109 era solo il documento, #110/#111/#112 hanno toccato altre parti) e verificare
+  ogni vista contro il design system rivisto.
+- **Scala tipografica compatta**: aggiunti i token `--ui-text-sm` (12px), `--ui-text-md` (14px, nuovo default di
+  `body`), `--ui-text-lg` (18px) in `globals.css`, usati SOLO dal testo in `--font-ui` (interfaccia). Il contenuto
+  in `--font-serif` (titoli di pagina, `.brand`, `.intro`) resta sulla scala esistente (`--text-*`, invariata).
+  Sweep di ~20 selettori UI da `--text-sm/md/lg` ai nuovi token (etichette, celle tabella, meta, titoli di
+  sezione). `.prose` e `.editor-content` (lettura e scrittura del corpo di uno snippet) non avevano un
+  `font-size` esplicito: prima ereditavano invisibilmente il font-size di `body`, quindi sarebbero scesi a 14px
+  insieme all'interfaccia. Ora fissano esplicitamente `font-family: var(--font-serif); font-size: var(--text-md)`
+  (16px, invariato) — decoupled dalla scala UI, come richiesto dalla specifica. In più, `.editor-content` non
+  aveva ALCUN font-family prima (ereditava il sans-serif dell'interfaccia): l'editor e la lettura ora sono
+  coerenti, entrambi in serif — un'incoerenza pre-esistente scoperta durante l'audit, non introdotta qui.
+- **Interazioni mancanti aggiunte** (D-052 "Interazioni hover e focus", non ancora applicate ovunque): hover di
+  sfondo su `.data-table tbody tr` e `.members tbody tr` (le viste tabellari non avevano alcun hover di riga);
+  `.prose a` (link dentro il testo di uno snippet) non aveva sottolineatura — ora sottolineato con
+  `text-decoration-color` tenue a riposo che si scurisce all'hover, come da specifica, invece del solo colore
+  primario senza sottolineatura di prima; `.sessions-list a`/`.encounter-list a` (elenco sessioni e scontri di una
+  campagna) non avevano ALCUNO stile — i link vi apparivano con lo stile blu sottolineato di default del browser,
+  scoperto solo grazie all'audit schermata per schermata, ora coerenti col resto (colore primario, sottolineatura
+  solo all'hover, come `.world-list a`).
+- **Bug di layout scoperto e corretto (non causato da questa PR, pre-esistente da #112)**: le pagine di un mondo
+  con poco contenuto (es. la bacheca kanban prima di scegliere una colonna) mostravano un vuoto enorme sopra la
+  barra di schede, che appariva a metà pagina. Causa: `body` è una grid a due righe (`auto 1fr`, D-010) e
+  `[worldId]/layout.tsx` non avvolgeva i suoi figli (`CommandPalette`, che rende un `<button>` E un `<dialog>`
+  fratelli in un Fragment; `TabBar`; `{children}`) in un contenitore — diventavano quindi figli diretti di `body`,
+  e la riga `1fr` andava al bottone della ricerca rapida (`palette-trigger`, `align-self: flex-start`, quindi
+  ancorato in alto nella sua riga alta quanto tutto lo spazio libero), non al contenuto vero. Scoperto solo
+  ispezionando `getBoundingClientRect()` degli elementi via uno script Playwright temporaneo (gli e2e esistenti
+  non controllano la geometria della pagina, solo presenza/comportamento). Corretto avvolgendo `CommandPalette` +
+  `TabBar` + `{children}` in un unico `<div className="world-shell">` (flex verticale), che diventa l'unico figlio
+  reale della riga `1fr`.
+- **Verifica visiva**: nessuna baseline di screenshot regression esiste oltre alla home (`e2e/screenshots.spec.ts`,
+  solo Linux). Per questa PR, verificato manualmente con uno script Playwright temporaneo (non incluso nel commit)
+  che ha catturato schermate di mondi/schede/tabella/kanban/campagne in chiaro e scuro dopo le modifiche.
+- **Non toccato in questa passata (deliberatamente)**: la barra di avanzamento di navigazione e gli skeleton
+  screen (D-052) restano rimandati per il conflitto `loading.tsx`/`notFound()` di D-054; un riesame sistematico
+  di _tutti_ i restanti usi di `<a>`/liste senza stile nel resto dell'app (l'audit ha coperto le viste elencate
+  nel testo di #113 — tabella, grafo, timeline, mappa, albero, kanban, schede personaggio, sessioni, wiki
+  pubblica — più il bug di layout trovato per caso, non un grep esaustivo di ogni componente).
+- Deciso da: agente

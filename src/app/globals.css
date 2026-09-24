@@ -32,6 +32,12 @@
   --text-2xl: 2rem;
   --text-3xl: 3rem;
 
+  /* Scala compatta per l'interfaccia (D-052, #113): solo per testo in --font-ui (Schibsted Grotesk).
+     Il contenuto (--font-serif) resta sulla scala sopra, invariata. */
+  --ui-text-sm: 0.75rem; /* 12px — etichette, meta, celle tabella */
+  --ui-text-md: 0.875rem; /* 14px — corpo UI di default */
+  --ui-text-lg: 1.125rem; /* 18px — titolo di sezione (h2/h3 UI) */
+
   --space-1: 4px;
   --space-2: 8px;
   --space-3: 12px;
@@ -119,7 +125,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font-ui);
-  font-size: var(--text-md);
+  font-size: var(--ui-text-md);
   line-height: 1.5;
 }
 
@@ -170,7 +176,7 @@ body {
   padding: var(--space-2) var(--space-4);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-full);
-  font-size: var(--text-sm);
+  font-size: var(--ui-text-sm);
   color: var(--text);
 }
 
@@ -221,6 +227,15 @@ body {
 
 .app-nav {
   flex: 1;
+}
+
+/* Contenitore della sezione di un mondo (barra di schede + pagina): un solo elemento nella riga 1fr della grid di
+   `body` (D-010), cosicché la barra di schede non diventi lei stessa quella riga su una pagina con poco
+   contenuto (bug preesistente da #112, corretto in #113). */
+.world-shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 .app-nav a {
@@ -334,7 +349,7 @@ body {
   border-radius: 999px;
   background: var(--primary);
   color: var(--primary-contrast);
-  font-size: var(--text-sm);
+  font-size: var(--ui-text-sm);
   font-weight: 600;
   text-decoration: none;
 }
@@ -416,7 +431,7 @@ body {
 
 .field-hint {
   margin: var(--space-1) 0 0;
-  font-size: var(--text-sm);
+  font-size: var(--ui-text-sm);
   color: var(--text-muted);
 }
 
@@ -497,7 +512,7 @@ body {
 
 .content h2 {
   margin: var(--space-12) 0 var(--space-4);
-  font-size: var(--text-lg);
+  font-size: var(--ui-text-lg);
   font-weight: 600;
 }
 
@@ -516,7 +531,7 @@ body {
 
 .role {
   color: var(--text-muted);
-  font-size: var(--text-sm);
+  font-size: var(--ui-text-sm);
 }
 
 .empty {
@@ -594,7 +609,7 @@ body {
 .btn-large {
   min-height: 56px;
   padding: 0 var(--space-8, 2rem);
-  font-size: var(--text-lg, 1.125rem);
+  font-size: var(--ui-text-lg, 1.125rem);
 }
 
 a.btn {
@@ -616,7 +631,7 @@ a.btn {
 .oauth-or {
   margin: 0 0 var(--space-4);
   color: var(--text-muted);
-  font-size: var(--text-sm);
+  font-size: var(--ui-text-sm);
   text-align: center;
 }
 
@@ -650,12 +665,16 @@ a.btn {
 
 .members thead th {
   color: var(--text-muted);
-  font-size: var(--text-sm);
+  font-size: var(--ui-text-sm);
   font-weight: 500;
 }
 
 .members tbody th {
   font-weight: 500;
+}
+
+.members tbody tr:hover {
+  background: var(--surface-2);
 }
 
 .row-form {
@@ -945,6 +964,9 @@ select {
 .editor-content {
   min-height: 240px;
   padding: var(--space-4);
+  font-family: var(--font-serif);
+  font-size: var(--text-md);
+  line-height: 1.6;
 }
 
 .editor-content:focus-visible {
@@ -957,7 +979,7 @@ select {
   padding: var(--space-2) var(--space-4);
   border-top: 1px solid var(--border);
   color: var(--text-muted);
-  font-size: var(--text-sm);
+  font-size: var(--ui-text-sm);
   min-height: 1.5em;
 }
 
@@ -968,6 +990,7 @@ select {
 
 .prose {
   font-family: var(--font-serif);
+  font-size: var(--text-md);
   line-height: 1.6;
   overflow-wrap: anywhere;
 }
@@ -992,6 +1015,14 @@ select {
 
 .prose a {
   color: var(--primary);
+  text-decoration: underline;
+  text-decoration-color: var(--text-muted);
+  transition: text-decoration-color var(--motion);
+}
+
+.prose a:hover,
+.prose a:focus-visible {
+  text-decoration-color: var(--text);
 }
 
 .table-wrap {
@@ -1144,7 +1175,7 @@ select {
 
 .presence-bar {
   color: var(--text-muted);
-  font-size: var(--text-sm);
+  font-size: var(--ui-text-sm);
 }
 
 .palette-trigger {
@@ -1157,7 +1188,7 @@ select {
   min-height: 44px;
   padding: 0 var(--space-3);
   line-height: 1;
-  font-size: var(--text-sm);
+  font-size: var(--ui-text-sm);
 }
 
 @media (max-width: 40rem) {
@@ -1235,7 +1266,7 @@ select {
 }
 
 .palette-excerpt {
-  font-size: var(--text-sm);
+  font-size: var(--ui-text-sm);
   opacity: 0.85;
 }
 
@@ -1301,7 +1332,7 @@ p.mention-none {
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   color: var(--text);
-  font-size: var(--text-sm);
+  font-size: var(--ui-text-sm);
   text-decoration: none;
 }
 
@@ -1362,7 +1393,7 @@ p.mention-none {
 .data-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: var(--text-sm);
+  font-size: var(--ui-text-sm);
 }
 
 .data-table th,
@@ -1371,6 +1402,10 @@ p.mention-none {
   border-bottom: 1px solid var(--border);
   text-align: left;
   vertical-align: top;
+}
+
+.data-table tbody tr:hover {
+  background: var(--surface-2);
 }
 
 .data-table thead th {
@@ -1461,7 +1496,7 @@ p.mention-none {
   margin: var(--space-3) 0;
   padding: 0;
   list-style: none;
-  font-size: var(--text-sm);
+  font-size: var(--ui-text-sm);
 }
 
 .graph-swatch {
@@ -1747,7 +1782,7 @@ p.mention-none {
 
 .tree-note {
   color: var(--text-muted);
-  font-size: var(--text-sm);
+  font-size: var(--ui-text-sm);
   font-style: italic;
 }
 
@@ -1774,7 +1809,7 @@ p.mention-none {
 }
 
 .kanban .kanban-title {
-  font-size: var(--text-md);
+  font-size: var(--ui-text-md);
   margin: 0 0 var(--space-2);
 }
 
@@ -1821,7 +1856,7 @@ p.mention-none {
 .invite-link {
   width: 100%;
   min-width: 12rem;
-  font-size: var(--text-sm);
+  font-size: var(--ui-text-sm);
 }
 
 .checklist {
@@ -1867,7 +1902,7 @@ p.mention-none {
   border-radius: 999px;
   background: var(--danger);
   color: var(--primary-contrast);
-  font-size: var(--text-sm);
+  font-size: var(--ui-text-sm);
   line-height: 1.25rem;
   text-align: center;
 }
@@ -1970,6 +2005,16 @@ p.mention-none {
 .sessions-events li {
   margin-bottom: var(--space-2);
 }
+.sessions-list a,
+.encounter-list a {
+  color: var(--primary);
+  font-weight: 500;
+  text-decoration: none;
+}
+.sessions-list a:hover,
+.encounter-list a:hover {
+  text-decoration: underline;
+}
 .sessions-events li {
   display: flex;
   align-items: center;
@@ -2063,7 +2108,7 @@ p.mention-none {
   padding: 0 var(--space-2) 0 var(--space-3);
   color: var(--text-muted);
   text-decoration: none;
-  font-size: var(--text-sm, 0.875rem);
+  font-size: var(--ui-text-sm, 0.75rem);
 }
 
 .tab-active .tab-link {
@@ -2113,7 +2158,7 @@ p.mention-none {
   border: 0;
   background: transparent;
   color: var(--text-muted);
-  font-size: var(--text-lg, 1.25rem);
+  font-size: var(--ui-text-lg, 1.125rem);
   line-height: 1;
   cursor: pointer;
 }
